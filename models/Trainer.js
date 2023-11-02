@@ -6,6 +6,10 @@ module.exports = (sequelize, DataTypes) =>{
             primaryKey: true,
             allowNull: false
           },
+          penyedia_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
           nama: {
             type: DataTypes.STRING(100),
             allowNull: false
@@ -15,21 +19,17 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: false
           },
           pengalaman: {
-            type: DataTypes.INT,
+            type: DataTypes.INTEGER,
             allowNull: false
           },
           harga: {
-            type: DataTypes.INT,
+            type: DataTypes.INTEGER,
             allowNull: false
           },
           lokasi: {
             type: DataTypes.STRING(255),
             allowNull: false
           },
-          // role: {
-          //   type: DataTypes.ENUM,
-          //   values: ['Pelanggan', 'Dokter', 'Trainer', 'Grooming']
-          // }
           createdAt: {
             type: DataTypes.DATE,
             allowNull:false,
@@ -43,9 +43,17 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull:true,
           }
     }, {
-        tableName: 'trainers',
+        tableName: 'trainer',
         timestamps: true,
         paranoid: true
     })
+
+    Trainer.associate = (models) =>{
+      Trainer.belongsTo(models.PenyediaJasa, {
+        as: 'role_trainer',
+        foreignKey: 'penyedia_id'
+      })
+    }
+
     return Trainer
 }

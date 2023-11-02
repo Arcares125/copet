@@ -1,4 +1,4 @@
-const {User, sequelize} = require("../models")
+const {User, PenyediaJasa , sequelize} = require("../models")
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
@@ -123,9 +123,58 @@ const getToken = async (req, res) => {
     }
 }
 
+// Penyedia Jasa
+const loginPenyediaJasa = async (req, res) =>{
+    const { email, password } = req.body
+    
+    try {
+        const getEmail = await PenyediaJasa.findOne({
+            where: {
+                email: email
+            },
+            logging: false
+        })
+
+        if(!getEmail) return res.status(404).json({
+            message: "Wrong email / password"
+        })
+        
+        const comparePass = await bcrypt.compare(password, getEmail.password)
+        if(!comparePass) return res.status(404).json({
+            message: "Wrong email / password"
+        })
+
+        const penyediaJasa = {
+            id: getEmail.id,
+            email: getEmail.email,
+        }
+
+        const tokenLogin = jwt.sign(penyediaJasa, TOKEN_LOGIN, { expiresIn: '5m' })
+        const refreshToken = jwt.sign(penyediaJasa, TOKEN_REFRESH, { expiresIn: '7d' })
+
+        await PenyediaJasa.update({ refreshToken: refreshToken },
+            { where: { email: penyediaJasa.email} }
+        )
+
+        res.status(200).json({
+            message: "Login Success",
+            data: penyediaJasa,
+            token: tokenLogin,
+            refreshToken: refreshToken
+        })
+    } catch (error) {
+        res.json({
+            error: error,
+            message: "Invalid Email/Password"
+        })
+    }
+
+}
+
 module.exports = {
     loginUser,
     registerUser,
+    loginPenyediaJasa,
     logout,
     getToken
 }

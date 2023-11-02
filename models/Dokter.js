@@ -6,7 +6,11 @@ module.exports = (sequelize, DataTypes) =>{
             primaryKey: true,
             allowNull: false
           },
-          nama_dokter: {
+          penyedia_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
+          nama: {
             type: DataTypes.STRING(255),
             allowNull: false
           },
@@ -15,11 +19,11 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: false
           },
           pengalaman: {
-            type: DataTypes.INT,
+            type: DataTypes.INTEGER,
             allowNull: false
           },
           harga: {
-            type: DataTypes.INT,
+            type: DataTypes.INTEGER,
             allowNull: false
           },
           alumni: {
@@ -34,10 +38,6 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.STRING(16),
             allowNull: false
           },
-          // role: {
-          //   type: DataTypes.ENUM,
-          //   values: ['Pelanggan', 'Dokter', 'Trainer', 'Grooming']
-          // }
           createdAt: {
             type: DataTypes.DATE,
             allowNull:false,
@@ -51,9 +51,17 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull:true,
           }
     }, {
-        tableName: 'dokters',
+        tableName: 'dokter',
         timestamps: true,
         paranoid: true
     })
-    return User
+
+    Dokter.associate = (models) =>{
+      Dokter.belongsTo(models.PenyediaJasa, {
+        as: 'role_dokter',
+        foreignKey: 'penyedia_id'
+      })
+    }
+
+    return Dokter
 }

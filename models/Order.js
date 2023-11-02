@@ -1,21 +1,13 @@
 module.exports = (sequelize, DataTypes) =>{
-    const OrderDokter = sequelize.define('OrderDokter', {
+    const Order = sequelize.define('Order', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
             allowNull: false
           },
-          tanggal_konsultasi: {
-            type: DataTypes.DATE,
-            allowNull: false
-          },
-          jam_konsultasi: {
-            type: DataTypes.DATE,
-            allowNull: false
-          },
-          status: {
-            type: DataTypes.STRING(10),
+          status_order: {
+            type: DataTypes.STRING(20),
             allowNull: false
           },
           metode_pembayaran: {
@@ -26,10 +18,10 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.STRING(10),
             allowNull: false
           },
-          // role: {
-          //   type: DataTypes.ENUM,
-          //   values: ['Pelanggan', 'Dokter', 'Trainer', 'Grooming']
-          // }
+          tanggal_order: {
+            type: DataTypes.DATE,
+            allowNull:false,
+          },
           createdAt: {
             type: DataTypes.DATE,
             allowNull:false,
@@ -43,9 +35,9 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull:true,
           }
     }, {
-        tableName: 'order_dokter',
+        tableName: 'orders',
         timestamps: true,
         paranoid: true
     })
-    return OrderDokter
+    return Order
 }

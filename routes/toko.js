@@ -1,8 +1,10 @@
-// var express = require('express');
-// const { loginUser } = require('../controllers/AuthController');
-// var router = express.Router();
+var express = require('express');
+const { registerToko, getDataToko } = require('../controllers/Toko');
+var router = express.Router();
 
-// /* GET users listing. */
-// router.post('/', loginUser)
+/* GET users listing. */
+router.post('/register', registerToko)
+router.get('/data-toko', getDataToko)
 
-// module.exports = router;
+
+module.exports = router;

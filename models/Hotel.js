@@ -15,13 +15,9 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: false
           },
           harga: {
-            type: DataTypes.INT,
+            type: DataTypes.INTEGER,
             allowNull: false
           },
-          // role: {
-          //   type: DataTypes.ENUM,
-          //   values: ['Pelanggan', 'Dokter', 'Trainer', 'Grooming']
-          // }
           createdAt: {
             type: DataTypes.DATE,
             allowNull:false,

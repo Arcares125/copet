@@ -8,6 +8,10 @@ const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth')
 const petRouter = require('./routes/hewan_peliharaan')
 const token = require('./routes/get_token')
+const penyediaJasaRouter = require('./routes/penyedia_jasa')
+const tokoRouter = require('./routes/toko');
+const dokterRouter = require('./routes/dokter');
+const trainerRouter = require('./routes/trainer');
 dotenv.config()
 const app = express();
 
@@ -22,5 +26,10 @@ app.use('/users', usersRouter);
 app.use('/auth', authRouter)
 app.use('/pet', petRouter)
 app.use('/get-token', token)
+app.use('/penyedia-jasa', penyediaJasaRouter)
+app.use('/toko', tokoRouter)
+app.use('/dokter', dokterRouter)
+app.use('/trainer', trainerRouter)
+
 
 module.exports = app;

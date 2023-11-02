@@ -6,6 +6,10 @@ module.exports = (sequelize, DataTypes) =>{
             primaryKey: true,
             allowNull: false
           },
+          penyedia_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
           nama: {
             type: DataTypes.STRING(100),
             allowNull: false
@@ -31,6 +35,14 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.DATE,
             allowNull:false,
           },
+          jam_buka: {
+            type: DataTypes.DATE,
+            allowNull:false,
+          },
+          jam_tutup: {
+            type: DataTypes.DATE,
+            allowNull:false,
+          },
           updatedAt: {
             type: DataTypes.DATE,
             allowNull:true,
@@ -40,9 +52,17 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull:true,
           }
     }, {
-        tableName: 'tokos',
+        tableName: 'toko',
         timestamps: true,
         paranoid: true
     })
+
+    Toko.associate = (models) =>{
+      Toko.belongsTo(models.PenyediaJasa, {
+        as: 'role_toko',
+        foreignKey: 'penyedia_id'
+      })
+    }
+
     return Toko
 }

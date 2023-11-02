@@ -25,7 +25,8 @@ const getProfile = async (req, res) =>{
 
         return res.status(200).json({
             message: "Profile",
-            data: { getEmail }
+            data: { getEmail },
+            code: 200
         })
     } catch (error) {
         res.json({
@@ -35,6 +36,10 @@ const getProfile = async (req, res) =>{
     }
 
 }
+
+//change pass - update profile
+
+//need tabel tipejasa
 
 module.exports = {
     getProfile

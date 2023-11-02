@@ -23,13 +23,14 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: false
           },
           jenis_jasa: {
-            type: DataTypes.STRING(10),
+            type: DataTypes.ENUM,
+            values: ['Dokter', 'Trainer', 'Toko'],
             allowNull: false
           },
-          // role: {
-          //   type: DataTypes.ENUM,
-          //   values: ['Pelanggan', 'Dokter', 'Trainer', 'Grooming']
-          // }
+          refreshToken: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+          },
           createdAt: {
             type: DataTypes.DATE,
             allowNull:false,
