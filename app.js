@@ -3,6 +3,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const dotenv = require('dotenv')
+
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth')
@@ -44,6 +45,8 @@ app.use('/order', orderRouter)
 app.use('/detail-order-hotel', detailOrderHotelRouter)
 app.use('/review', reviewRouter)
 
-
+app.listen(port, () => {
+    console.log(`Application is running on port : ${port}`);
+})
 
 module.exports = app;
