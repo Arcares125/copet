@@ -6,6 +6,10 @@ module.exports = (sequelize, DataTypes) =>{
             primaryKey: true,
             allowNull: false
           },
+          toko_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+          },
           tipe_hotel: {
             type: DataTypes.STRING(100),
             allowNull: false
@@ -31,7 +35,7 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull:true,
           }
     }, {
-        tableName: 'hotels',
+        tableName: 'hotel',
         timestamps: true,
         paranoid: true
     })

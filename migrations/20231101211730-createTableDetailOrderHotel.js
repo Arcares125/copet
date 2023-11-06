@@ -4,6 +4,12 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('detail_order_hotel', {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false
+      },
       order_id: {
         type: Sequelize.INTEGER,
         allowNull: false
@@ -11,6 +17,10 @@ module.exports = {
       hotel_id: {
         type: Sequelize.INTEGER,
         allowNull: false
+      },
+      tanggal_masuk: {
+        type: Sequelize.DATE,
+        allowNull:false,
       },
       tanggal_keluar: {
         type: Sequelize.DATE,
@@ -20,13 +30,13 @@ module.exports = {
         type: Sequelize.STRING(100),
         allowNull: false
       },
-      diskon: {
+      discount: {
         type: Sequelize.INTEGER,
-        allowNull: true
+        allowNull: false
       },
       quantity: {
         type: Sequelize.INTEGER,
-        allowNull:false,
+        allowNull: false
       },
       createdAt: {
         type: Sequelize.DATE,

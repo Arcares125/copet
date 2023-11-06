@@ -10,6 +10,14 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
+      order_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      customer_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       rating: {
         type: Sequelize.INTEGER,
         allowNull: true

@@ -5,7 +5,11 @@ module.exports = (sequelize, DataTypes) =>{
             autoIncrement: true,
             primaryKey: true,
             allowNull: false
-          } ,
+          },
+          toko_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+          },
           tipe: {
             type: DataTypes.STRING(100),
             allowNull: false
@@ -31,7 +35,7 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull:true,
           }
     }, {
-        tableName: 'groomings',
+        tableName: 'grooming',
         timestamps: true,
         paranoid: true
     })

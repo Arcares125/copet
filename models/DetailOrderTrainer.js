@@ -1,5 +1,11 @@
 module.exports = (sequelize, DataTypes) =>{
     const DetailOrderTrainer = sequelize.define('DetailOrderTrainer', {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false
+      },
         order_id: {
             type: DataTypes.INTEGER,
             allowNull: false
@@ -16,7 +22,7 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.DATE,
             allowNull: false
           },
-          diskon: {
+          discount: {
             type: DataTypes.INTEGER,
             allowNull: true
           },

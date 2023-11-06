@@ -75,6 +75,7 @@ const registerUser = async (req, res) => {
         const result = await User.create({...data, password: passHash})
 
         res.status(200).json({
+            code:200,
             message: "Register Success",
             data: result
         })    
@@ -157,6 +158,7 @@ const loginPenyediaJasa = async (req, res) =>{
         )
 
         res.status(200).json({
+            code: 200,
             message: "Login Success",
             data: penyediaJasa,
             token: tokenLogin,

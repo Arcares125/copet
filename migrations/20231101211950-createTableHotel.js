@@ -10,6 +10,10 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
+      toko_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       tipe_hotel: {
         type: Sequelize.STRING(100),
         allowNull: false

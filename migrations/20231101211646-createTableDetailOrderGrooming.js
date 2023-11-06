@@ -9,16 +9,32 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
         allowNull: false
-      } ,
-      tipe: {
-        type: Sequelize.STRING(100),
+      },
+      order_id: {
+        type: Sequelize.INTEGER,
         allowNull: false
       },
-      fasilitas: {
+      grooming_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      tanggal_grooming: {
+        type: Sequelize.DATE,
+        allowNull:false,
+      },
+      alamat_pelanggan_grooming: {
+        type: Sequelize.DATE,
+        allowNull:false,
+      },
+      metode_penjemputan_grooming: {
         type: Sequelize.STRING(255),
         allowNull: false
       },
-      harga: {
+      discount: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
+      quantity: {
         type: Sequelize.INTEGER,
         allowNull: false
       },

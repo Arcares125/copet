@@ -1,5 +1,11 @@
 module.exports = (sequelize, DataTypes) =>{
     const DetailOrderGrooming = sequelize.define('DetailOrderGrooming', {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false
+      },
         order_id: {
             type: DataTypes.INTEGER,
             allowNull: false
@@ -16,13 +22,13 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.STRING(100),
             allowNull: false
           },
-          diskon: {
+          discount: {
             type: DataTypes.INTEGER,
-            allowNull: true
+            allowNull: false
           },
           quantity: {
             type: DataTypes.INTEGER,
-            allowNull:false,
+            allowNull: false
           },
           createdAt: {
             type: DataTypes.DATE,

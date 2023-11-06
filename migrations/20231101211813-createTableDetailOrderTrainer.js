@@ -4,6 +4,12 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('detail_order_trainer', {
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false
+      },
       order_id: {
         type: Sequelize.INTEGER,
         allowNull: false
@@ -20,7 +26,7 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
-      diskon: {
+      discount: {
         type: Sequelize.INTEGER,
         allowNull: true
       },

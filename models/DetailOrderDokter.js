@@ -1,5 +1,11 @@
 module.exports = (sequelize, DataTypes) =>{
     const DetailOrderDokter = sequelize.define('DetailOrderDokter', {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false
+      },
         order_id: {
             type: DataTypes.INTEGER,
             allowNull: false
@@ -8,7 +14,7 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.INTEGER,
             allowNull: false
           },
-          diskon: {
+          discount: {
             type: DataTypes.INTEGER,
             allowNull: true
           },

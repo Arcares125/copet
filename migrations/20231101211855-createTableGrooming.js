@@ -9,7 +9,11 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
         allowNull: false
-      } ,
+      },
+      toko_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       tipe: {
         type: Sequelize.STRING(100),
         allowNull: false

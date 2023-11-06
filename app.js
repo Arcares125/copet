@@ -12,6 +12,14 @@ const penyediaJasaRouter = require('./routes/penyedia_jasa')
 const tokoRouter = require('./routes/toko');
 const dokterRouter = require('./routes/dokter');
 const trainerRouter = require('./routes/trainer');
+const hotelRouter = require('./routes/hotel');
+const orderRouter = require('./routes/order');
+const detailOrderHotelRouter = require('./routes/detail_order_hotel');
+const reviewRouter = require('./routes/review');
+const groomingRouter = require('./routes/grooming')
+
+
+
 dotenv.config()
 const app = express();
 
@@ -30,6 +38,12 @@ app.use('/penyedia-jasa', penyediaJasaRouter)
 app.use('/toko', tokoRouter)
 app.use('/dokter', dokterRouter)
 app.use('/trainer', trainerRouter)
+app.use('/hotel', hotelRouter)
+app.use('/grooming', groomingRouter)
+app.use('/order', orderRouter)
+app.use('/detail-order-hotel', detailOrderHotelRouter)
+app.use('/review', reviewRouter)
+
 
 
 module.exports = app;

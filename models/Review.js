@@ -6,6 +6,14 @@ module.exports = (sequelize, DataTypes) =>{
             primaryKey: true,
             allowNull: false
           },
+          order_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
+          customer_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
           rating: {
             type: DataTypes.INTEGER,
             allowNull: true
@@ -27,7 +35,7 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull:true,
           }
     }, {
-        tableName: 'reviews',
+        tableName: 'review',
         timestamps: true,
         paranoid: true
     })
