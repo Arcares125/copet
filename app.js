@@ -18,7 +18,7 @@ const orderRouter = require('./routes/order');
 const detailOrderHotelRouter = require('./routes/detail_order_hotel');
 const reviewRouter = require('./routes/review');
 const groomingRouter = require('./routes/grooming')
-var port = process.env.PORT || 8000;
+var port = process.env.PORT || 4000;
 
 
 dotenv.config()
@@ -47,6 +47,9 @@ app.use('/review', reviewRouter)
 
 
 
-app.listen(port);
+app.listen(port, () => {
+        console.log(`Listening on PORT:${port}`);
+    }
+)
 
 module.exports = app;
