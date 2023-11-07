@@ -18,7 +18,7 @@ const orderRouter = require('./routes/order');
 const detailOrderHotelRouter = require('./routes/detail_order_hotel');
 const reviewRouter = require('./routes/review');
 const groomingRouter = require('./routes/grooming')
-
+var port = process.env.PORT || 8000;
 
 
 dotenv.config()
@@ -44,5 +44,9 @@ app.use('/grooming', groomingRouter)
 app.use('/order', orderRouter)
 app.use('/detail-order-hotel', detailOrderHotelRouter)
 app.use('/review', reviewRouter)
+
+
+
+app.listen(port);
 
 module.exports = app;
