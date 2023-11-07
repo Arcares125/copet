@@ -45,8 +45,4 @@ app.use('/order', orderRouter)
 app.use('/detail-order-hotel', detailOrderHotelRouter)
 app.use('/review', reviewRouter)
 
-app.listen(port, () => {
-    console.log(`Application is running on port : ${port}`);
-})
-
 module.exports = app;
