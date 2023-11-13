@@ -47,9 +47,9 @@ app.use('/review', reviewRouter)
 
 
 
-// app.listen(port, () => {
+app.listen(port, () => {
         console.log(`Listening on PORT:${port}`);
-    // }
-// )
+    }
+)
 
 module.exports = app;
