@@ -51,7 +51,7 @@ Object.keys(db).forEach(modelName => {
     db[modelName].associate(db);
   }
 });
-const db1 = new Sequelize(DATABASE_URL, {
+const db1 = new Sequelize(process.env.DATABASE_URL, {
   define: {
     timestamps: false
   }
