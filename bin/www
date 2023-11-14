@@ -38,7 +38,7 @@ server.on('listening', onListening);
 const sequelize = new Sequelize('railway', 'railway', '-e6dDgG2aDFEbCG1-51CB2gcGfbf*-g5', {
   host: 'roundhouse.proxy.rlwy.net',
   port: 24426,
-  dialect: 'postgres',
+  dialect: process.env.DB_DIALECT,
 });
 
 sequelize.authenticate()
