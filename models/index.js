@@ -10,7 +10,8 @@ const config = require(__dirname + '/../config/config.js')[env];
 const db = {};
 
 const db1 =  new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASS, {
-  host: 'localhost',
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
   dialect: 'postgres',
   define: {
     timestamps: false
