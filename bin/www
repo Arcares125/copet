@@ -7,6 +7,8 @@
 var app = require('../app');
 var debug = require('debug')('server:server');
 var http = require('http');
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
 
 /**
  * Get port from environment and store in Express.
