@@ -51,13 +51,13 @@ Object.keys(db).forEach(modelName => {
     db[modelName].associate(db);
   }
 });
-const db1 = new Sequelize(process.env.DATABASE_URL, {
-  define: {
-    timestamps: false
-  }
-});
+// const db1 = new Sequelize(process.env.DATABASE_URL, {
+//   define: {
+//     timestamps: false
+//   }
+// });
 
-db.sequelize = sequelize, db1;
-db.Sequelize = Sequelize, db1;
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
 module.exports = db;

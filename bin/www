@@ -3,7 +3,14 @@
 /**
  * Module dependencies.
  */
-const Sequelize = require('sequelize');
+// const Sequelize = require('sequelize');
+const { Client } = require('pg');
+
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+});
+
+client.connect();
 var app = require('../app');
 var debug = require('debug')('server:server');
 var http = require('http');
@@ -35,19 +42,19 @@ server.on('listening', onListening);
 
 
 
-const sequelize = new Sequelize('railway', 'postgres', '-e6dDgG2aDFEbCG1-51CB2gcGfbf*-g5', {
-  host: 'roundhouse.proxy.rlwy.net',
-  port: 24426,
-  dialect: process.env.DB_DIALECT,
-});
+// const sequelize = new Sequelize('railway', 'postgres', '-e6dDgG2aDFEbCG1-51CB2gcGfbf*-g5', {
+//   host: 'roundhouse.proxy.rlwy.net',
+//   port: 24426,
+//   dialect: process.env.DB_DIALECT,
+// });
 
-sequelize.authenticate()
-  .then(() => {
-    console.log('Connected to PostgreSQL database');
-  })
-  .catch(err => {
-    console.error('Failed to connect to PostgreSQL database:', err);
-  });
+// sequelize.authenticate()
+//   .then(() => {
+//     console.log('Connected to PostgreSQL database');
+//   })
+//   .catch(err => {
+//     console.error('Failed to connect to PostgreSQL database:', err);
+//   });
 
 /**
  * Normalize a port into a number, string, or false.
