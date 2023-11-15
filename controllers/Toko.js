@@ -161,6 +161,7 @@ const getDetailCardToko = async (req, res) => {
 			GROUP BY a.id, a.nama, a.foto
             `
             const detail = await sequelize.query(query)
+            console.log(detail)
             return res.status(200).json({
                 message: "Data Detail Toko berhasil diambil",
                 kode: 200,
