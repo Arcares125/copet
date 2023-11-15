@@ -18,18 +18,14 @@ const loginUser = async (req, res) =>{
             },
             logging: true
         })
-        console.log("=====================")
-        console.log(getEmail)
 
         if(!getEmail) return res.status(404).json({
             message: "Wrong email / password",
-            mess2: "masuknya sini"
         })
         
         const comparePass = await bcrypt.compare(password, getEmail.password)
         if(!comparePass) return res.status(404).json({
             message: "Wrong email / password",
-            mess2: "masuknya password"
         })
 
         const user = {
@@ -44,18 +40,6 @@ const loginUser = async (req, res) =>{
             { where: { email: user.email} }
         )
 
-        // const result = await sequelize.query(
-        //     `INSERT INTO USERS(refreshToken) VALUES(:refreshToken) WHERE email = :email`,
-        //     {
-        //         replacements: {
-        //             refreshToken: refreshToken,
-        //             email: email
-        //         },
-        //         type: QueryTypes.INSERT,
-        //         logging: console.log
-        //     }
-        // )
-
         res.status(200).json({
             message: "Login Success",
             data: user,
@@ -63,8 +47,9 @@ const loginUser = async (req, res) =>{
             refreshToken: refreshToken
         })
     } catch (error) {
-        res.json({
-            error: error,
+        console.log(error)
+        res.status(500).json({
+            error: error.message,
             message: "Invalid Email/Password"
         })
     }
