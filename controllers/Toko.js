@@ -149,19 +149,16 @@ const getDetailCardToko = async (req, res) => {
             })
         } else if(cekServisGrooming[0][0].count > 0 && cekServisHotel[0][0].count <= 0){
             query = `
-            select a.id, a.nama as pet_shop_name,
+            SELECT a.id, a.nama as pet_shop_name,
             CASE
-                WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
-                WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
-                ELSE 'Grooming'
+                WHEN count(b.id) > 0 THEN 'Grooming'
             END AS services,
             MIN(b.harga) as start_from, CAST(AVG(f.rating) AS DECIMAL(10,2)) AS rating, COUNT(f.id) as total_rating, a.foto as pet_shop_picture
-            from toko a 
-            JOIN grooming c ON a.id = c.toko_id
-            JOIN detail_order_grooming d ON b.id = d.grooming_id
-            JOIN "order" e ON d.order_id = e.id 
-            JOIN review f ON e.id = f.order_id
-            GROUP BY a.id, a.nama, a.foto
+			FROM toko a JOIN grooming b ON a.id = b.toko_id 
+			JOIN detail_order_grooming d ON b.id = d.grooming_id
+			JOIN "order" e ON d.order_id = e.id 
+			JOIN review f ON e.id = f.order_id
+			GROUP BY a.id, a.nama, a.foto
             `
             const detail = await sequelize.query(query)
             return res.status(200).json({
@@ -171,19 +168,16 @@ const getDetailCardToko = async (req, res) => {
             })
         } else {
             query = `
-            select a.id, a.nama as pet_shop_name,
+            SELECT a.id, a.nama as pet_shop_name,
             CASE
-                WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
-                WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
-                ELSE 'Grooming'
+                WHEN count(b.id) > 0 THEN 'Hotel'
             END AS services,
             MIN(b.harga) as start_from, CAST(AVG(f.rating) AS DECIMAL(10,2)) AS rating, COUNT(f.id) as total_rating, a.foto as pet_shop_picture
-            from toko a JOIN hotel b
-            ON a.id = b.toko_id 
-            JOIN detail_order_hotel d ON b.id = d.hotel_id
-            JOIN "order" e ON d.order_id = e.id 
-            JOIN review f ON e.id = f.order_id
-            GROUP BY a.id, a.nama, a.foto
+			FROM toko a JOIN hotel b ON a.id = b.toko_id
+			JOIN detail_order_hotel d ON b.id = d.hotel_id 
+			JOIN "order" e ON d.order_id = e.id 
+			JOIN review f ON e.id = f.order_id
+			GROUP BY a.id, a.nama, a.foto
             `
             const detail = await sequelize.query(query)
             return res.status(200).json({
