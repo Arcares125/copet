@@ -18,15 +18,18 @@ const loginUser = async (req, res) =>{
             },
             logging: true
         })
+        console.log("=====================")
         console.log(getEmail)
 
         if(!getEmail) return res.status(404).json({
-            message: "Wrong email / password"
+            message: "Wrong email / password",
+            mess2: "masuknya sini"
         })
         
         const comparePass = await bcrypt.compare(password, getEmail.password)
         if(!comparePass) return res.status(404).json({
-            message: "Wrong email / password"
+            message: "Wrong email / password",
+            mess2: "masuknya password"
         })
 
         const user = {
