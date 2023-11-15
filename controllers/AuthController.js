@@ -16,8 +16,9 @@ const loginUser = async (req, res) =>{
             where: {
                 email: email
             },
-            logging: false
+            logging: true
         })
+        console.log(getEmail)
 
         if(!getEmail) return res.status(404).json({
             message: "Wrong email / password"
