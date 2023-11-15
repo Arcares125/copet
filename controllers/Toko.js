@@ -141,9 +141,11 @@ const getDetailCardToko = async (req, res) => {
             JOIN review f ON e.id = f.order_id
             GROUP BY a.id, a.nama, a.foto
             `
-            const detail = await sequelize.query(query)
+            const detail = await sequelize.query(query, 
+                { type: QueryTypes.SELECT }
+            )
             return res.status(200).json({
-                message: "Data Detail Toko berhasil diambil",
+                message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
                 kode: 200,
                 data: detail[0]
             })
@@ -160,10 +162,12 @@ const getDetailCardToko = async (req, res) => {
 			JOIN review f ON e.id = f.order_id
 			GROUP BY a.id, a.nama, a.foto
             `
-            const detail = await sequelize.query(query)
+            const detail = await sequelize.query(query,
+                { type: QueryTypes.SELECT }
+            )
             console.log(detail)
             return res.status(200).json({
-                message: "Data Detail Toko berhasil diambil",
+                message: "Data Detail Toko Grooming berhasil diambil",
                 kode: 200,
                 data: detail[0]
             })
@@ -180,9 +184,11 @@ const getDetailCardToko = async (req, res) => {
 			JOIN review f ON e.id = f.order_id
 			GROUP BY a.id, a.nama, a.foto
             `
-            const detail = await sequelize.query(query)
+            const detail = await sequelize.query(query,
+                { type: QueryTypes.SELECT }
+            )
             return res.status(200).json({
-                message: "Data Detail Toko berhasil diambil",
+                message: "Data Detail Toko Hotel berhasil diambil",
                 kode: 200,
                 data: detail[0]
             })
