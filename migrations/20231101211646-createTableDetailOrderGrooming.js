@@ -23,11 +23,11 @@ module.exports = {
         allowNull:false,
       },
       alamat_pelanggan_grooming: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING(255),
         allowNull:false,
       },
       metode_penjemputan_grooming: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING(100),
         allowNull: false
       },
       discount: {
