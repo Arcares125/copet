@@ -44,7 +44,7 @@ app.use('/hotel', hotelRouter)
 app.use('/grooming', groomingRouter)
 app.use('/order', orderRouter)
 app.use('/detail-order-hotel', detailOrderHotelRouter)
-app.use('/detail-order-grooming', detailOrderHotelRouter)
+app.use('/detail-order-grooming', detailOrderGroomingRouter)
 app.use('/review', reviewRouter)
 
 
