@@ -33,8 +33,8 @@ const loginUser = async (req, res) =>{
             email: getEmail.email,
         }
 
-        // const tokenLogin = jwt.sign(user, TOKEN_LOGIN, { expiresIn: '5m' })
-        // const refreshToken = jwt.sign(user, TOKEN_REFRESH, { expiresIn: '7d' })
+        const tokenLogin = jwt.sign(user, TOKEN_LOGIN, { expiresIn: '5m' })
+        const refreshToken = jwt.sign(user, TOKEN_REFRESH, { expiresIn: '7d' })
 
         await User.update({ refreshToken: refreshToken },
             { where: { email: user.email} }
@@ -43,8 +43,8 @@ const loginUser = async (req, res) =>{
         res.status(200).json({
             message: "Login Success",
             data: user,
-            // token: tokenLogin,
-            // refreshToken: refreshToken
+            token: tokenLogin,
+            refreshToken: refreshToken
         })
     } catch (error) {
         console.log(error)
