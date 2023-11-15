@@ -13,7 +13,7 @@ const createDetailOrderGrooming = async (req, res) => {
     try {
         const dataDetailOrderGrooming = await DetailOrderGrooming.create(data)
         return res.status(201).json({
-            message: "Data Detail Order Hotel Berhasil Disimpan",
+            message: "Data Detail Order Grooming Berhasil Disimpan",
             kode: 201,
             data: dataDetailOrderGrooming
         })

@@ -14,11 +14,11 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.INTEGER,
             allowNull: false
           },
-          alamat_pelanggan: {
+          alamat_pelanggan_grooming: {
             type: DataTypes.STRING(255),
             allowNull: false
           },
-          metode_penjemputan: {
+          metode_penjemputan_grooming: {
             type: DataTypes.STRING(100),
             allowNull: false
           },
