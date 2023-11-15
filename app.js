@@ -16,6 +16,7 @@ const trainerRouter = require('./routes/trainer');
 const hotelRouter = require('./routes/hotel');
 const orderRouter = require('./routes/order');
 const detailOrderHotelRouter = require('./routes/detail_order_hotel');
+const detailOrderGroomingRouter = require('./routes/detail_order_grooming');
 const reviewRouter = require('./routes/review');
 const groomingRouter = require('./routes/grooming')
 const port = process.env.PORT || 4000;
@@ -42,6 +43,7 @@ app.use('/trainer', trainerRouter)
 app.use('/hotel', hotelRouter)
 app.use('/grooming', groomingRouter)
 app.use('/order', orderRouter)
+app.use('/detail-order-hotel', detailOrderHotelRouter)
 app.use('/detail-order-hotel', detailOrderHotelRouter)
 app.use('/review', reviewRouter)
 
