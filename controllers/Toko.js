@@ -154,33 +154,6 @@ const getDetailCardTokoFull = async (req, res) => {
     let query;
 
     try {
-        // query = `
-        // SELECT a.id, a.nama as pet_shop_name,z.rating, z.total_rating,
-        // a.deskripsi, a.lokasi, x.service_detail_grooming, x.title_grooming,x.price_grooming,
-        // x.service_detail_hotel, x.title_hotel,x.price_hotel
-        // from (select CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
-        //     COUNT(a.id) as total_rating
-        //     from review a join "order" b ON a.order_id = b.id ) z,
-        //         (SELECT CASE
-        //         WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
-        //         WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
-        //         ELSE 'Grooming'
-        //         END AS service, y.title_hotel, y.price_hotel, y.service_detail_hotel,
-        //         k.title_grooming, k.price_grooming, k.service_detail_grooming
-        //         FROM toko a LEFT JOIN hotel b ON a.id = b.toko_id
-        //         LEFT JOIN grooming c ON a.id = c.toko_id, 
-        //             (SELECT tipe_hotel as title_hotel, harga as price_hotel, fasilitas as service_detail_hotel FROM hotel) y,
-        //             (SELECT tipe as title_grooming, harga as price_grooming, fasilitas as service_detail_grooming FROM grooming) k
-        //             GROUP BY y.title_hotel, y.price_hotel, y.service_detail_hotel, 
-        //             k.title_grooming, k.price_grooming, k.service_detail_grooming) x,
-        // toko a LEFT JOIN hotel b
-        // ON a.id = b.toko_id 
-        // LEFT JOIN grooming c ON a.id = c.toko_id
-        // WHERE a.id = :idToko
-        // GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating,
-        // x.service_detail_grooming, x.title_grooming,x.price_grooming,
-        // x.service_detail_hotel, x.title_hotel,x.price_hotel
-        // `
         query = `
         SELECT a.id, a.nama as pet_shop_name,z.rating, z.total_rating,
         CASE
@@ -244,7 +217,23 @@ const getDetailCardTokoFull = async (req, res) => {
             const servicesArray = servicesString.split(', ');
           
             service.services = servicesArray;
-          }
+        }
+
+        for (const service_dtl_hotel of detail) {
+            const servicesString = service_dtl_hotel.service_detail.hotel[0].service_detail.replace('[', '').replace(']', '');
+          
+            const servicesArray = servicesString.split(', ');
+          
+            service_dtl_hotel.service_detail.hotel[0].service_detail = servicesArray;
+        }
+
+        for (const service_dtl_grooming of detail) {
+            const servicesString = service_dtl_grooming.service_detail.grooming[0].service_detail.replace('[', '').replace(']', '');
+          
+            const servicesArray = servicesString.split(', ');
+          
+            service_dtl_grooming.service_detail.grooming[0].service_detail = servicesArray;
+        }
 
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
