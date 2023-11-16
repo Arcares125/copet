@@ -182,7 +182,7 @@ const getDetailCardTokoFull = async (req, res) => {
 				  )
 			  )
 			  FROM grooming AS g
-			  WHERE g.id = 1
+			  WHERE g.toko_id = 1
 			)
 		  ) AS service_detail, (
 			  SELECT JSON_AGG(
