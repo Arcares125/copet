@@ -171,7 +171,7 @@ const getDetailCardTokoFull = async (req, res) => {
 				  )
 			  )
 			  FROM hotel AS h
-			  WHERE h.toko_id = 1
+			  WHERE h.toko_id = :idToko
 			),
 			'grooming', (
 			  SELECT JSON_AGG(
@@ -182,7 +182,7 @@ const getDetailCardTokoFull = async (req, res) => {
 				  )
 			  )
 			  FROM grooming AS g
-			  WHERE g.toko_id = 1
+			  WHERE g.toko_id = :idToko
 			)
 		  ) AS service_detail, (
 			  SELECT JSON_AGG(
