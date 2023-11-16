@@ -105,20 +105,6 @@ const getDataToko = async (req, res) => {
 
 const getDetailCardToko = async (req, res) => {
 
-    const cekServisGrooming = await sequelize.query(
-        `
-        select count(a.id) from toko a JOIN grooming b
-        ON a.id = b.toko_id
-        `
-    )
-
-    const cekServisHotel = await sequelize.query(
-        `
-        select count(a.id) from toko a JOIN hotel b
-        ON a.id = b.toko_id
-        `
-    )
-
     let query;
 
     try {
@@ -140,6 +126,14 @@ const getDetailCardToko = async (req, res) => {
         const detail = await sequelize.query(query, 
             { type: QueryTypes.SELECT }
         )
+
+        for (const service of detail) {
+            const servicesString = service.services.replace('[', '').replace(']', '');
+          
+            const servicesArray = servicesString.split(', ');
+          
+            service.services = servicesArray;
+          }
 
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
