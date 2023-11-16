@@ -119,27 +119,26 @@ const getDetailCardToko = async (req, res) => {
         `
     )
 
-        let query;
+    let query;
 
     try {
         console.log(cekServisGrooming[0][0].count)
         console.log(cekServisHotel[0][0].count)
         if(cekServisGrooming[0][0].count > 0 && cekServisHotel[0][0].count > 0){
             query = `
-            select a.id, a.nama as pet_shop_name,
+            SELECT a.id, a.nama as pet_shop_name,z.rating, z.total_rating,
             CASE
                 WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
                 WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
                 ELSE 'Grooming'
-            END AS services,
-            MIN(b.harga) as start_from, CAST(AVG(f.rating) AS DECIMAL(10,2)) AS rating, COUNT(f.id) as total_rating, a.foto as pet_shop_picture
-            from toko a JOIN hotel b
+            END AS services
+            from (select CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
+                COUNT(a.id) as total_rating
+                from review a join "order" b ON a.order_id = b.id ) z,
+            toko a LEFT JOIN hotel b
             ON a.id = b.toko_id 
-            JOIN grooming c ON a.id = c.toko_id
-            JOIN detail_order_hotel d ON b.id = d.hotel_id
-            JOIN "order" e ON d.order_id = e.id 
-            JOIN review f ON e.id = f.order_id
-            GROUP BY a.id, a.nama, a.foto
+            LEFT JOIN grooming c ON a.id = c.toko_id
+            GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating
             `
             const detail = await sequelize.query(query, 
                 { type: QueryTypes.SELECT }
@@ -149,50 +148,52 @@ const getDetailCardToko = async (req, res) => {
                 kode: 200,
                 data: detail[0]
             })
-        } else if(cekServisGrooming[0][0].count > 0 && cekServisHotel[0][0].count <= 0){
-            query = `
-            SELECT a.id, a.nama as pet_shop_name,
-            CASE
-                WHEN count(b.id) > 0 THEN 'Grooming'
-            END AS services,
-            MIN(b.harga) as start_from, CAST(AVG(f.rating) AS DECIMAL(10,2)) AS rating, COUNT(f.id) as total_rating, a.foto as pet_shop_picture
-			FROM toko a JOIN grooming b ON a.id = b.toko_id 
-			JOIN detail_order_grooming d ON b.id = d.grooming_id
-			JOIN "order" e ON d.order_id = e.id 
-			JOIN review f ON e.id = f.order_id
-			GROUP BY a.id, a.nama, a.foto
-            `
-            const detail = await sequelize.query(query,
-                { type: QueryTypes.SELECT }
-            )
-            console.log(detail)
-            return res.status(200).json({
-                message: "Data Detail Toko Grooming berhasil diambil",
-                kode: 200,
-                data: detail[0]
-            })
-        } else {
-            query = `
-            SELECT a.id, a.nama as pet_shop_name,
-            CASE
-                WHEN count(b.id) > 0 THEN 'Hotel'
-            END AS services,
-            MIN(b.harga) as start_from, CAST(AVG(f.rating) AS DECIMAL(10,2)) AS rating, COUNT(f.id) as total_rating, a.foto as pet_shop_picture
-			FROM toko a JOIN hotel b ON a.id = b.toko_id
-			JOIN detail_order_hotel d ON b.id = d.hotel_id 
-			JOIN "order" e ON d.order_id = e.id 
-			JOIN review f ON e.id = f.order_id
-			GROUP BY a.id, a.nama, a.foto
-            `
-            const detail = await sequelize.query(query,
-                { type: QueryTypes.SELECT }
-            )
-            return res.status(200).json({
-                message: "Data Detail Toko Hotel berhasil diambil",
-                kode: 200,
-                data: detail[0]
-            })
         }
+        //  else if(cekServisGrooming[0][0].count > 0 && cekServisHotel[0][0].count <= 0){
+        //     query = `
+        //     SELECT a.id, a.nama as pet_shop_name,
+        //     CASE
+        //         WHEN count(b.id) > 0 THEN 'Grooming'
+        //     END AS services,
+        //     MIN(b.harga) as start_from, CAST(AVG(f.rating) AS DECIMAL(10,2)) AS rating, COUNT(f.id) as total_rating, a.foto as pet_shop_picture
+		// 	FROM toko a JOIN grooming b ON a.id = b.toko_id 
+		// 	JOIN detail_order_grooming d ON b.id = d.grooming_id
+		// 	JOIN "order" e ON d.order_id = e.id 
+		// 	JOIN review f ON e.id = f.order_id
+		// 	GROUP BY a.id, a.nama, a.foto
+        //     `
+        //     const detail = await sequelize.query(query,
+        //         { type: QueryTypes.SELECT }
+        //     )
+        //     console.log(detail)
+        //     return res.status(200).json({
+        //         message: "Data Detail Toko Grooming berhasil diambil",
+        //         kode: 200,
+        //         data: detail[0]
+        //     })
+        // } 
+        // else {
+        //     query = `
+        //     SELECT a.id, a.nama as pet_shop_name,
+        //     CASE
+        //         WHEN count(b.id) > 0 THEN 'Hotel'
+        //     END AS services,
+        //     MIN(b.harga) as start_from, CAST(AVG(f.rating) AS DECIMAL(10,2)) AS rating, COUNT(f.id) as total_rating, a.foto as pet_shop_picture
+		// 	FROM toko a JOIN hotel b ON a.id = b.toko_id
+		// 	JOIN detail_order_hotel d ON b.id = d.hotel_id 
+		// 	JOIN "order" e ON d.order_id = e.id 
+		// 	JOIN review f ON e.id = f.order_id
+		// 	GROUP BY a.id, a.nama, a.foto
+        //     `
+        //     const detail = await sequelize.query(query,
+        //         { type: QueryTypes.SELECT }
+        //     )
+        //     return res.status(200).json({
+        //         message: "Data Detail Toko Hotel berhasil diambil",
+        //         kode: 200,
+        //         data: detail[0]
+        //     })
+        // }
      
     } catch (error) {
         return res.status(500).json({
