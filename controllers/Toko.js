@@ -140,10 +140,11 @@ const getDetailCardToko = async (req, res) => {
         const detail = await sequelize.query(query, 
             { type: QueryTypes.SELECT }
         )
+
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
             kode: 200,
-            data: detail[0]
+            data: detail
         })
     } catch (error) {
         return res.status(500).json({
