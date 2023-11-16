@@ -198,7 +198,7 @@ const getDetailCardTokoFull = async (req, res) => {
 				  )
 			  )
 			  FROM hotel AS h
-			  WHERE h.toko_id = :idToko
+			  WHERE h.toko_id = 1
 			),
 			'grooming', (
 			  SELECT JSON_AGG(
@@ -209,12 +209,21 @@ const getDetailCardTokoFull = async (req, res) => {
 				  )
 			  )
 			  FROM grooming AS g
-			  WHERE g.id = :idToko
+			  WHERE g.id = 1
 			)
-		  ) AS service
-        from (select CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
+		  ) AS service, (
+			  SELECT JSON_AGG(
+				  JSON_BUILD_OBJECT(
+					'nama_user', u.nama,
+					'rate', r.rating,
+					'review_description', r.ulasan
+				  )
+			  )
+			  FROM review r JOIN users u ON r.customer_id = u.id
+			) as review
+        FROM (SELECT CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
             COUNT(a.id) as total_rating
-            from review a join "order" b ON a.order_id = b.id ) z,
+            FROM review a join "order" b ON a.order_id = b.id ) z,
         toko a LEFT JOIN hotel b
         ON a.id = b.toko_id 
         LEFT JOIN grooming c ON a.id = c.toko_id
