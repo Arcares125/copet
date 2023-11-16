@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.INTEGER,
             allowNull: false
           },
+          tanggal_grooming: {
+            type: DataTypes.DATE,
+            allowNull:false,
+          },
           alamat_pelanggan_grooming: {
             type: DataTypes.STRING(255),
             allowNull: false
