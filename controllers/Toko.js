@@ -187,7 +187,7 @@ const getDetailCardTokoFull = async (req, res) => {
             WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
             WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
             ELSE 'Grooming'
-        END AS service,
+        END AS services,
 		JSON_BUILD_OBJECT(
 			'hotel', (
 			  SELECT JSON_AGG(
@@ -211,7 +211,7 @@ const getDetailCardTokoFull = async (req, res) => {
 			  FROM grooming AS g
 			  WHERE g.id = 1
 			)
-		  ) AS service, (
+		  ) AS service_detail, (
 			  SELECT JSON_AGG(
 				  JSON_BUILD_OBJECT(
 					'nama_user', u.nama,
@@ -238,13 +238,13 @@ const getDetailCardTokoFull = async (req, res) => {
             }
         )
 
-        // for (const service of detail) {
-        //     const servicesString = service.services.replace('[', '').replace(']', '');
+        for (const service of detail) {
+            const servicesString = service.services.replace('[', '').replace(']', '');
           
-        //     const servicesArray = servicesString.split(', ');
+            const servicesArray = servicesString.split(', ');
           
-        //     service.services = servicesArray;
-        //   }
+            service.services = servicesArray;
+          }
 
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
