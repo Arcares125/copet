@@ -1,4 +1,4 @@
-const {User, PenyediaJasa , sequelize} = require("../models")
+const {User, PenyediaJasa , sequelize, Sequelize} = require("../models")
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
@@ -60,6 +60,28 @@ const registerUser = async (req, res) => {
     // const {nama, email, phone, gender, password} = req.body
     const data = req.body
     try {
+
+        const checkEmail = await User.findOne({
+            where: {
+                email: data.email
+            },
+            logging: true
+        })
+
+        if(checkEmail){
+            return res.status(200).json({
+                code: 200,
+                message: "Email already registered",
+            })    
+        }
+
+        // if(data.email === "" || data.email === null){
+        //     return res.status(200).json({
+        //         code: 200,
+        //         message: "Email cannot be empty",
+        //     })  
+        // }
+
         const passHash = await bcrypt.hash(data.password, saltRounds);
         const result = await User.create({...data, password: passHash})
 

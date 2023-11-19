@@ -52,6 +52,11 @@ module.exports = (sequelize, DataTypes) =>{
       Trainer.belongsTo(models.PenyediaJasa, {
         as: 'role_trainer',
         foreignKey: 'penyedia_id'
+      });
+
+      Trainer.hasMany(models.DetailOrderTrainer, {
+        as: 'detail_order_trainer',
+        foreignKey: 'trainer_id'
       })
     }
 

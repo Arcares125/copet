@@ -250,9 +250,71 @@ const getDetailCardTokoFull = async (req, res) => {
     }
 }
 
+const getPackageListStore = async (req, res) => {
+
+    const value = req.params
+
+    try {
+
+        // const data = await Toko.findAll({
+        //     where: {
+        //         id: value.toko_id,
+
+        //     }
+        // })
+        
+        let services;
+
+        if(value.service_type === 'grooming' || value.service_type === 'Grooming'){
+            services = await sequelize.query(`
+            SELECT id as item_id, tipe as title, harga as price
+            FROM grooming
+            WHERE toko_id = :idToko
+            `,
+                {
+                    replacements: {
+                        idToko: value.toko_id
+                    },
+                    type: QueryTypes.SELECT,
+                    logging: console.log
+                },
+            )
+        }
+
+        if(value.service_type === 'hotel' || value.service_type === 'Hotel'){
+            services = await sequelize.query(`
+            SELECT id as item_id, tipe_hotel as title, harga as price
+            FROM hotel
+            WHERE toko_id = :idToko
+            `,
+                {
+                    replacements: {
+                        idToko: value.toko_id
+                    },
+                    type: QueryTypes.SELECT,
+                    logging: console.log
+                },
+            )
+        }
+
+        return res.status(200).json({
+            message: "Success",
+            kode: 200,
+            data: services
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
+
 module.exports = {
     registerToko,
     getDataToko,
     getDetailCardToko,
-    getDetailCardTokoFull
+    getDetailCardTokoFull,
+    getPackageListStore
 }

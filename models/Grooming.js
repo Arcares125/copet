@@ -40,12 +40,12 @@ module.exports = (sequelize, DataTypes) =>{
         paranoid: true
     })
 
-    // Grooming.associate = (models) =>{
-    //   Grooming.belongsTo(models.PenyediaJasa, {
-    //     as: 'groomings',
-    //     foreignKey: 'toko_id'
-    //   })
-    // }
+    Grooming.associate = (models) =>{
+      Grooming.hasMany(models.DetailOrderGrooming, {
+        as: 'detail_order_grooming',
+        foreignKey: 'grooming_id'
+      })
+    }
 
     return Grooming
 }

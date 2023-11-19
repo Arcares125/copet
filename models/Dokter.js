@@ -60,6 +60,11 @@ module.exports = (sequelize, DataTypes) =>{
       Dokter.belongsTo(models.PenyediaJasa, {
         as: 'role_dokter',
         foreignKey: 'penyedia_id'
+      });
+
+      Dokter.hasMany(models.DetailOrderDokter, {
+        as: 'detail_order_dokter',
+        foreignKey: 'dokter_id'
       })
     }
 

@@ -40,11 +40,11 @@ module.exports = (sequelize, DataTypes) =>{
         paranoid: true
     })
 
-    // Hotel.associate = (models) =>{
-    //   Hotel.hasMany(models.Toko, {
-    //     as: 'hotels',
-    //     foreignKey: 'toko_id'
-    //   })
-    // }
+    Hotel.associate = (models) =>{
+      Hotel.hasMany(models.DetailOrderDokter, {
+        as: 'detail_order_hotel',
+        foreignKey: 'hotel_id'
+      })
+    }
     return Hotel
 }

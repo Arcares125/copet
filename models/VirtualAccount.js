@@ -31,5 +31,14 @@ module.exports = (sequelize, DataTypes) =>{
         timestamps: true,
         paranoid: true
     })
+
+    VirtualAccount.associate = (models) =>{
+      VirtualAccount.hasMany(models.Order, {
+        as: 'virtual_account_order',
+        foreignKey: 'virtual_id'
+      })
+    }
+    
+
     return VirtualAccount
 }
