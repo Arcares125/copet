@@ -39,5 +39,13 @@ module.exports = (sequelize, DataTypes) =>{
         timestamps: true,
         paranoid: true
     })
+
+    // Grooming.associate = (models) =>{
+    //   Grooming.belongsTo(models.PenyediaJasa, {
+    //     as: 'groomings',
+    //     foreignKey: 'toko_id'
+    //   })
+    // }
+
     return Grooming
 }

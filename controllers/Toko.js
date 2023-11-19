@@ -1,8 +1,8 @@
-const {Toko, PenyediaJasa, sequelize} = require("../models")
+const {Toko, Hotel, Grooming, PenyediaJasa, sequelize} = require("../models")
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
-const { QueryTypes } = require("sequelize");
+const { QueryTypes, BelongsTo } = require("sequelize");
 const {TOKEN_LOGIN,
         TOKEN_REFRESH } = process.env
 
@@ -110,6 +110,14 @@ const getDetailCardToko = async (req, res) => {
     try {
         query = `
         SELECT a.id, a.nama as pet_shop_name,z.rating, z.total_rating,
+		CASE
+            WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) < MIN(c.harga) THEN MIN(b.harga)
+			WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) > MIN(c.harga) THEN MIN(c.harga)
+			WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) >= MIN(c.harga) THEN MIN(c.harga)
+            WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN MIN(b.harga)
+			WHEN count(b.id) <= 0 AND count(c.id) > 0  THEN MIN(c.harga)
+            ELSE '0'
+        END AS start_from,
         CASE
             WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
             WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
@@ -119,7 +127,7 @@ const getDetailCardToko = async (req, res) => {
             COUNT(a.id) as total_rating
             from review a join "order" b ON a.order_id = b.id ) z,
         toko a LEFT JOIN hotel b
-        ON a.id = b.toko_id 
+        ON a.id = b.toko_id
         LEFT JOIN grooming c ON a.id = c.toko_id
         GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating
         `
@@ -152,93 +160,69 @@ const getDetailCardTokoFull = async (req, res) => {
 
     const value = req.params
     let query;
+    let data;
 
     try {
-        query = `
-        SELECT a.id, a.nama as pet_shop_name,z.rating, z.total_rating,
-        CASE
-            WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
-            WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
-            ELSE 'Grooming'
-        END AS services,
-		JSON_BUILD_OBJECT(
-			'hotel', (
-			  SELECT JSON_AGG(
-				  JSON_BUILD_OBJECT(
-					'title', h.tipe_hotel,
-					'price', h.harga::varchar,
-					'service_detail', h.fasilitas
-				  )
-			  )
-			  FROM hotel AS h
-			  WHERE h.toko_id = :idToko
-			),
-			'grooming', (
-			  SELECT JSON_AGG(
-				  JSON_BUILD_OBJECT(
-					'title', g.tipe,
-					'price', g.harga::varchar,
-					'service_detail', g.fasilitas
-				  )
-			  )
-			  FROM grooming AS g
-			  WHERE g.toko_id = :idToko
-			)
-		  ) AS service_detail, (
-			  SELECT JSON_AGG(
-				  JSON_BUILD_OBJECT(
-					'nama_user', u.nama,
-					'rate', r.rating,
-					'review_description', r.ulasan
-				  )
-			  )
-			  FROM review r JOIN users u ON r.customer_id = u.id
-			) as review
-        FROM (SELECT CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
-            COUNT(a.id) as total_rating
-            FROM review a join "order" b ON a.order_id = b.id ) z,
-        toko a LEFT JOIN hotel b
-        ON a.id = b.toko_id 
-        LEFT JOIN grooming c ON a.id = c.toko_id
-        GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating
-        `
-        const detail = await sequelize.query(query, 
-            { 
-                replacements: {
-                    idToko: value.id
+
+        data = await Toko.findAll({
+            attributes: [
+                'id', ['nama', 'pet_shop_name'],
+                [sequelize.literal('(SELECT MIN(harga) FROM (SELECT harga FROM Hotel UNION ALL SELECT harga FROM Grooming) AS harga)'), 'start_from'],
+                ['deskripsi', 'description'],
+                ['lokasi', 'location'],
+                ['foto', 'pet_shop_picture'],
+                [sequelize.literal('(SELECT CAST(AVG(a.rating) AS DECIMAL(10,2)) FROM review a JOIN "order" b ON a.order_id = b.id)'), 'rating'],
+                [sequelize.literal('(SELECT COUNT(a.id) as total_rating FROM review a JOIN "order" b ON a.order_id = b.id)'), 'total_rating'],
+                [sequelize.literal(`(SELECT json_agg(json_build_object('nama_user', u.nama, 'rate', r.rating, 'review_description', r.ulasan)) FROM review r JOIN users u ON r.customer_id = u.id)`), 'review']            
+            ],
+            include: [
+                {
+                    model: Hotel,
+                    as: 'hotels',
+                    attributes: ['id', 'toko_id', ['tipe_hotel', 'title_hotel'], ['harga', 'price_hotel'], ['fasilitas', 'service_detail_hotel']],
+                    where:{
+                        toko_id: value.id
+                    },
+                    required: false,
                 },
-                type: QueryTypes.SELECT 
+                {
+                    model: Grooming,
+                    as: 'groomings',
+                    attributes: ['id', 'toko_id', ['tipe', 'title_grooming'], ['harga', 'price_grooming'], ['fasilitas', 'service_detail_grooming']],
+                    where:{
+                        toko_id: value.id
+                    },
+                    required: false,
+                },
+            ],
+            where: {
+                id: value.id
+            },
+            logging: console.log
+        })
+
+        data = data.map(toko => {
+            const tokoPlain = toko.get({ plain: true });
+            const {hotels, groomings, ...otherData} = tokoPlain;
+            let services = [];
+            if (hotels && hotels.length > 0) {
+                services.push('Hotel');
             }
-        )
-
-        for (const service of detail) {
-            const servicesString = service.services.replace('[', '').replace(']', '');
-          
-            const servicesArray = servicesString.split(', ');
-          
-            service.services = servicesArray;
-        }
-
-        for (const service_dtl_hotel of detail) {
-            const servicesString = service_dtl_hotel.service_detail.hotel[0].service_detail.replace('[', '').replace(']', '');
-          
-            const servicesArray = servicesString.split(', ');
-          
-            service_dtl_hotel.service_detail.hotel[0].service_detail = servicesArray;
-        }
-
-        for (const service_dtl_grooming of detail) {
-            const servicesString = service_dtl_grooming.service_detail.grooming[0].service_detail.replace('[', '').replace(']', '');
-          
-            const servicesArray = servicesString.split(', ');
-          
-            service_dtl_grooming.service_detail.grooming[0].service_detail = servicesArray;
-        }
+            if (groomings && groomings.length > 0) {
+                services.push('Grooming');
+            }
+            return {
+                ...otherData,
+                services,
+                hotels,
+                groomings,
+            };
+        });
 
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
             kode: 200,
-            data: detail
+            data: data
         })
     } catch (error) {
         return res.status(500).json({

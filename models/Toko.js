@@ -61,8 +61,19 @@ module.exports = (sequelize, DataTypes) =>{
       Toko.belongsTo(models.PenyediaJasa, {
         as: 'role_toko',
         foreignKey: 'penyedia_id'
+      });
+
+      Toko.hasMany(models.Hotel, {
+        as: 'hotels',
+        foreignKey: 'toko_id'
+      });
+
+      Toko.hasMany(models.Grooming, {
+        as: 'groomings',
+        foreignKey: 'toko_id'
       })
     }
+
 
     return Toko
 }

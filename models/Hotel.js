@@ -39,5 +39,12 @@ module.exports = (sequelize, DataTypes) =>{
         timestamps: true,
         paranoid: true
     })
+
+    // Hotel.associate = (models) =>{
+    //   Hotel.hasMany(models.Toko, {
+    //     as: 'hotels',
+    //     foreignKey: 'toko_id'
+    //   })
+    // }
     return Hotel
 }
