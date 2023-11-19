@@ -81,17 +81,26 @@ const registerToko = async (req, res) => {
 
 const getDataToko = async (req, res) => {
 
+    const value = req.body
+    
     const dataToko = await sequelize.query(
         `
-        SELECT * FROM toko
-        `
+        SELECT * FROM toko where
+        nama ilike :search
+        `,
+        {
+            replacements: {
+                search: '%' + value.search  + '%'
+            },
+            type: QueryTypes.SELECT
+        }   
     )
-
+    
     try {
         return res.status(200).json({
             message: "Data Toko berhasil diambil",
             kode: 200,
-            data: dataToko[0]
+            data: dataToko
         })
 
         
@@ -183,7 +192,6 @@ const getDetailCardTokoFull = async (req, res) => {
                     attributes: ['id', 'toko_id',
                     ['tipe_hotel', 'title_hotel'], 
                     ['harga', 'price_hotel'], 
-                    // ['fasilitas', 'service_detail_hotel']],
                     [sequelize.fn('string_to_array', sequelize.col('hotels.fasilitas'), ','), 'service_detail_hotel']
                 ],                    
                     where:{
@@ -197,7 +205,6 @@ const getDetailCardTokoFull = async (req, res) => {
                     attributes: ['id', 'toko_id', 
                     ['tipe', 'title_grooming'], 
                     ['harga', 'price_grooming'], 
-                    // ['fasilitas', 'service_detail_grooming']],
                     [sequelize.fn('string_to_array', sequelize.col('groomings.fasilitas'), ','), 'service_detail_grooming']
                 ],                   
                 where:{
@@ -249,32 +256,3 @@ module.exports = {
     getDetailCardToko,
     getDetailCardTokoFull
 }
-
-// SELECT
-//   a.id,
-//   a.a_name,
-//   a.services,
-//   (
-//     SELECT MIN(service.price)
-//     FROM service
-//     WHERE service.pet_shop_id = pet_shop.id
-//   ) AS start_from,
-//   (
-//     SELECT AVG(rating)
-//     FROM rating
-//     WHERE rating.pet_shop_id = pet_shop.id
-//   ) AS rating,
-//   (
-//     SELECT COUNT(*)
-//     FROM rating
-//     WHERE rating.pet_shop_id = pet_shop.id
-//   ) AS total_rating,
-//   a.pet_shop_picture,
-//   a.description,
-//   a.location,
-//   (
-//     SELECT json_agg(service)
-//     FROM service
-//     WHERE service.pet_shop_id = pet_shop.id
-//   ) AS service
-// FROM toko a
