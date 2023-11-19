@@ -163,7 +163,6 @@ const getDetailCardTokoFull = async (req, res) => {
     let data;
 
     try {
-
         data = await Toko.findAll({
             attributes: [
                 'id', ['nama', 'pet_shop_name'],
@@ -179,7 +178,12 @@ const getDetailCardTokoFull = async (req, res) => {
                 {
                     model: Hotel,
                     as: 'hotels',
-                    attributes: ['id', 'toko_id', ['tipe_hotel', 'title_hotel'], ['harga', 'price_hotel'], ['fasilitas', 'service_detail_hotel']],
+                    attributes: ['id', 'toko_id',
+                    ['tipe_hotel', 'title_hotel'], 
+                    ['harga', 'price_hotel'], 
+                    // ['fasilitas', 'service_detail_hotel']],
+                    [sequelize.fn('string_to_array', sequelize.col('hotels.fasilitas'), ','), 'service_detail_hotel']
+                ],                    
                     where:{
                         toko_id: value.id
                     },
@@ -188,10 +192,15 @@ const getDetailCardTokoFull = async (req, res) => {
                 {
                     model: Grooming,
                     as: 'groomings',
-                    attributes: ['id', 'toko_id', ['tipe', 'title_grooming'], ['harga', 'price_grooming'], ['fasilitas', 'service_detail_grooming']],
-                    where:{
-                        toko_id: value.id
-                    },
+                    attributes: ['id', 'toko_id', 
+                    ['tipe', 'title_grooming'], 
+                    ['harga', 'price_grooming'], 
+                    // ['fasilitas', 'service_detail_grooming']],
+                    [sequelize.fn('string_to_array', sequelize.col('groomings.fasilitas'), ','), 'service_detail_grooming']
+                ],                   
+                where:{
+                    toko_id: value.id
+                },
                     required: false,
                 },
             ],
