@@ -10,6 +10,10 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       status_order: {
         type: Sequelize.STRING(20),
         allowNull: false

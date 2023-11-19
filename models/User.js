@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.STRING(255),
             allowNull: false
           },
-          noTelp: {
+          no_telp: {
             type: DataTypes.STRING(13),
             allowNull: false
           },

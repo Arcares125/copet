@@ -18,7 +18,7 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false
       },
-      noTelp: {
+      no_telp: {
         type: Sequelize.STRING(13),
         allowNull: false
       },

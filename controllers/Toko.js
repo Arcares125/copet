@@ -110,6 +110,7 @@ const getDetailCardToko = async (req, res) => {
     try {
         query = `
         SELECT a.id, a.nama as pet_shop_name,z.rating, z.total_rating,
+        u.nama, u.no_telp,
 		CASE
             WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) < MIN(c.harga) THEN MIN(b.harga)
 			WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) > MIN(c.harga) THEN MIN(c.harga)
@@ -129,7 +130,8 @@ const getDetailCardToko = async (req, res) => {
         toko a LEFT JOIN hotel b
         ON a.id = b.toko_id
         LEFT JOIN grooming c ON a.id = c.toko_id
-        GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating
+        LEFT JOIN penyedia_jasa u ON u.id = a.penyedia_id
+        GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating, u.nama, u.no_telp
         `
         const detail = await sequelize.query(query, 
             { type: QueryTypes.SELECT }
