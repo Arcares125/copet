@@ -240,7 +240,7 @@ const getDetailCardTokoFull = async (req, res) => {
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
             kode: 200,
-            data: data
+            data: data[0]
         })
     } catch (error) {
         return res.status(500).json({
