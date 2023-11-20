@@ -221,14 +221,21 @@ const getDetailCardTokoFull = async (req, res) => {
 
         data = data.map(toko => {
             const tokoPlain = toko.get({ plain: true });
-            const {hotels, groomings, ...otherData} = tokoPlain;
+            let {hotels, groomings, ...otherData} = tokoPlain;
             let services = [];
             if (hotels && hotels.length > 0) {
                 services.push('Hotel');
+            } else {
+                hotels = null
             }
             if (groomings && groomings.length > 0) {
                 services.push('Grooming');
+            } else {
+                groomings = null
             }
+
+
+
             return {
                 ...otherData,
                 services,
