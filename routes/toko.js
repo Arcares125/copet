@@ -5,7 +5,7 @@ var router = express.Router();
 /* GET users listing. */
 router.post('/register', registerToko)
 router.post('/data-toko', getDataToko)
-router.get('/toko-card', getDetailCardToko)
+router.get('/toko-card/:search?', getDetailCardToko)
 router.get('/toko-card-detail/:id', getDetailCardTokoFull)
 router.get('/:toko_id/:service_type', getPackageListStore)
 

@@ -115,9 +115,48 @@ const getDataToko = async (req, res) => {
 const getDetailCardToko = async (req, res) => {
 
     let query;
+    const param = req.params.search
+    let detail;
 
     try {
-        query = `
+        console.log(param)
+        if(param){
+            query = `
+            SELECT a.id, a.nama as pet_shop_name,z.rating, z.total_rating,
+            u.nama, u.no_telp,
+            CASE
+                WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) < MIN(c.harga) THEN MIN(b.harga)
+                WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) > MIN(c.harga) THEN MIN(c.harga)
+                WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) >= MIN(c.harga) THEN MIN(c.harga)
+                WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN MIN(b.harga)
+                WHEN count(b.id) <= 0 AND count(c.id) > 0  THEN MIN(c.harga)
+                ELSE '0'
+            END AS start_from,
+            CASE
+                WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
+                WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
+                ELSE 'Grooming'
+            END AS services
+            from (select CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
+                COUNT(a.id) as total_rating
+                from review a join "order" b ON a.order_id = b.id ) z,
+            toko a LEFT JOIN hotel b
+            ON a.id = b.toko_id
+            LEFT JOIN grooming c ON a.id = c.toko_id
+            LEFT JOIN penyedia_jasa u ON u.id = a.penyedia_id
+            WHERE a.nama ilike :search
+            GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating, u.nama, u.no_telp
+            `
+            detail = await sequelize.query(query, 
+                {   
+                    replacements: {
+                        search: '%' + param + '%'
+                    },
+                    type: QueryTypes.SELECT 
+                }
+            )
+        } else {
+            query = `
         SELECT a.id, a.nama as pet_shop_name,z.rating, z.total_rating,
         u.nama, u.no_telp,
 		CASE
@@ -142,9 +181,13 @@ const getDetailCardToko = async (req, res) => {
         LEFT JOIN penyedia_jasa u ON u.id = a.penyedia_id
         GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating, u.nama, u.no_telp
         `
-        const detail = await sequelize.query(query, 
-            { type: QueryTypes.SELECT }
-        )
+            detail = await sequelize.query(query, 
+                {   
+                    type: QueryTypes.SELECT 
+                }
+            )
+        }
+        
 
         for (const service of detail) {
             const servicesString = service.services.replace('[', '').replace(']', '');
