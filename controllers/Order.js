@@ -77,6 +77,11 @@ const getPaymentData = async (req, res) => {
             });
         }).catch((e) => {
             console.log('Error occured:', e.message);
+            if(e.message.includes('HTTP status code: 406')){
+                return res.status(200).json({
+                    message: "Order ID has been used, try another order ID"
+                })
+            } 
         });
 
     } catch (error) {
@@ -120,6 +125,11 @@ const checkPaymentStatus = async (req, res) => {
             }
         }).catch((e) => {
             console.log('Error occured:', e.message);
+            if(e.message.includes('HTTP status code: 404')){
+                return res.status(200).json({
+                    message: "Order ID Not Found"
+                })
+            }
         });
 
     } catch (error) {
