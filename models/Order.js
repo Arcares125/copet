@@ -10,10 +10,10 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.INTEGER,
             allowNull: false,
           },
-          virtual_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-          },
+          // virtual_id: {
+          //   type: DataTypes.INTEGER,
+          //   allowNull: false,
+          // },
           status_order: {
             type: DataTypes.STRING(20),
             allowNull: false

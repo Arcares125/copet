@@ -30,9 +30,6 @@ const createOrder = async (req, res) => {
 }
 const getPaymentData = async (req, res) => {
 
-    // const data = req.body
-    // const {payment_type, bca_va: { va_number, sub_company_code }, free_text: {va_name}} = req.body
-
     try {
 
         let coreApi = new midtransClient.CoreApi({
@@ -41,7 +38,22 @@ const getPaymentData = async (req, res) => {
             clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
         });
         
-        let parameter = req.body;
+        let parameter = {
+            "payment_type": "bank_transfer",
+            "transaction_details": {
+                "order_id": req.body.order_id,
+                "gross_amount": req.body.gross_amount
+            },
+            "custom_expiry":
+            {
+                "expiry_duration": 15,
+                "unit": "minute"
+            },
+            "bank_transfer": {
+                "bank": "bca"
+            },
+            "name_payment": "BCA Virtual Account"
+        };
         
         
         coreApi.charge(parameter).then(async (chargeResponse) => {
@@ -57,6 +69,7 @@ const getPaymentData = async (req, res) => {
             return res.status(200).json({
                 'response_code': 200, 
                 id,
+                'order_id': chargeResponse.order_id,
                 nama,
                 kode,
                 'transactionStatus': chargeResponse.transaction_status, 
@@ -66,42 +79,49 @@ const getPaymentData = async (req, res) => {
             console.log('Error occured:', e.message);
         });
 
-        // let snap = new midtransClient.Snap({
-        //     isProduction : false,
-        //     serverKey : 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-        //     clientKey : 'SB-Mid-client-DTbwiKD76w8ktHoN'
-        // });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
 
-        // // const parameter = data
-        // let transactionToken
-        // let transactionRedirectUrl
-        // snap.createTransaction(req.body)
-        //     .then(async (transaction) => {
+const checkPaymentStatus = async (req, res) => {
 
-        //         console.log(transaction)
+    try {
 
-        //         transactionToken = transaction.token;
-        //         console.log('Transaction token:', transactionToken);
+        let coreApi = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
         
-        //         transactionRedirectUrl = transaction.redirect_url;
-        //         console.log('Transaction redirect URL:', transactionRedirectUrl);
+        // let parameter = req.body;
 
-        //         const dataTrans = await VirtualAccount.create({
-        //             nama: va_name,
-        //             kode: "74686"+va_number
-        //         })
+        let orderId = req.body.order_id; 
+        
+        coreApi.transaction.status(orderId).then((response) => {
+            console.log(response)
+            console.log('Transaction status:', response.transaction_status);
 
-        //         const {id, nama, kode} = dataTrans
+            if (response.transaction_status === 'settlement') {
+                console.log('Transaction is successful');
+                return res.status(200).json({
+                    "response_code": 200,
+                    "Transaction Status": "Paid"
+                })
+            } else {
+                console.log('Transaction is not successful');
+                return res.status(200).json({
+                    "response_code": 200,
+                    "Transaction Status": response.transaction_status
+                })
+            }
+        }).catch((e) => {
+            console.log('Error occured:', e.message);
+        });
 
-        //         return res.status(200).json({
-        //             'response_code': 200, 
-        //             id,
-        //             nama,
-        //             kode,
-        //             'transactionToken': transactionToken, 
-        //             'transactionRedirectUrl': transactionRedirectUrl
-        //         });
-        //     })
     } catch (error) {
         return res.status(500).json({
             message: error.message,
@@ -112,5 +132,6 @@ const getPaymentData = async (req, res) => {
 
 module.exports = {
     createOrder,
-    getPaymentData
+    getPaymentData,
+    checkPaymentStatus
 }

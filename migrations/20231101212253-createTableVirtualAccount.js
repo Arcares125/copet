@@ -10,6 +10,10 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
+      // order_id: {
+      //   type: Sequelize.INTEGER,
+      //   allowNull: false
+      // },
       nama: {
         type: Sequelize.STRING(50),
         allowNull: false

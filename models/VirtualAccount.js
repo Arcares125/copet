@@ -6,6 +6,10 @@ module.exports = (sequelize, DataTypes) =>{
             primaryKey: true,
             allowNull: false
           },
+          // order_id: {
+          //   type: DataTypes.INTEGER,
+          //   allowNull: false
+          // },
           nama: {
             type: DataTypes.STRING(50),
             allowNull: false
@@ -32,12 +36,12 @@ module.exports = (sequelize, DataTypes) =>{
         paranoid: true
     })
 
-    VirtualAccount.associate = (models) =>{
-      VirtualAccount.hasMany(models.Order, {
-        as: 'virtual_account_order',
-        foreignKey: 'virtual_id'
-      })
-    }
+    // VirtualAccount.associate = (models) =>{
+    //   VirtualAccount.hasMany(models.Order, {
+    //     as: 'virtual_account_order',
+    //     foreignKey: 'virtual_id'
+    //   })
+    // }
     
 
     return VirtualAccount
