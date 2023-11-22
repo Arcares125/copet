@@ -1,4 +1,13 @@
-const {Dokter,PenyediaJasa, sequelize, Order, VirtualAccount, DetailOrderGrooming, DetailOrderHotel} = require("../models")
+const {Dokter,
+    PenyediaJasa, 
+    sequelize, 
+    Order, 
+    VirtualAccount, 
+    DetailOrderGrooming, 
+    DetailOrderHotel, 
+    Grooming, 
+    Hotel} = require("../models")
+
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
@@ -13,6 +22,7 @@ const createOrder = async (req, res) => {
     const data = req.body
     const currentDate = new Date();
     let details = [];
+    let totalPrice = 0;
 
     try {
 
@@ -28,7 +38,20 @@ const createOrder = async (req, res) => {
         // console.log(dataOrder)
 
         if(data.service_type === 'Grooming' || data.service_type === 'grooming'){
+
+
             for(let i = 0; i < data.order_detail.length; i++) {
+
+                const getPrice = await Grooming.findOne({
+                    where: {
+                        id: data.order_detail[i].grooming_id
+                    }
+                })
+
+                const price = getPrice.dataValues.harga*data.order_detail[i].quantity
+                totalPrice += price;
+                // console.log(price)
+
                 const dataDetailGrooming = await DetailOrderGrooming.create({
                     order_id: dataOrder.dataValues.id,
                     grooming_id: data.order_detail[i].grooming_id,
@@ -38,9 +61,25 @@ const createOrder = async (req, res) => {
                     discount: 0,
                     quantity: data.order_detail[i].quantity
                 })
-                details.push(dataDetailGrooming)
+
+                const merge = {
+                    detail:dataDetailGrooming,
+                    gross_price: price
+                }
+
+                details.push(merge)
             }
         } else if(data.service_type === 'Hotel' || data.service_type === 'hotel') {
+
+            const getPrice = await Hotel.findOne({
+                where: {
+                    id: data.order_detail[i].hotel_id
+                }
+            })
+
+            const price = getPrice.dataValues.harga*data.order_detail[i].quantity
+            totalPrice += price;
+
             for(let i = 0; i < data.order_detail.length; i++) {
                 const dataDetailHotel = await DetailOrderHotel.create({
                     order_id: dataOrder.dataValues.id,
@@ -51,7 +90,12 @@ const createOrder = async (req, res) => {
                 discount: 0,
                 quantity: data.order_detail[i].quantity
                 })
-                details.push(dataDetailHotel)
+                const merge = {
+                    detail: dataDetailGrooming,
+                    gross_price: price,
+                }
+
+                details.push(merge)
             }
         }
 
@@ -61,7 +105,8 @@ const createOrder = async (req, res) => {
             response_code: 200,
             data: {
                 order: dataOrder.dataValues,
-                detail: details
+                detail: details,
+                total_price: totalPrice
             }
         })
 
