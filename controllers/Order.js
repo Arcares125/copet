@@ -1,4 +1,4 @@
-const {Dokter,PenyediaJasa, sequelize, Order, VirtualAccount} = require("../models")
+const {Dokter,PenyediaJasa, sequelize, Order, VirtualAccount, DetailOrderGrooming, DetailOrderHotel} = require("../models")
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
@@ -11,14 +11,58 @@ const {TOKEN_LOGIN,
 const createOrder = async (req, res) => {
 
     const data = req.body
+    const currentDate = new Date();
+    let details = [];
 
     try {
 
-        const dataOrder = await Order.create(data)
-        return res.status(201).json({
+        const dataOrder = await Order.create({
+            toko_id: data.toko_id,
+            user_id: data.user_id,
+            status_order: "Menunggu Pembayaran",
+            metode_pembayaran: data.metode_pembayaran,
+            status_pembayaran: "Pending",
+            tanggal_order: currentDate
+        })
+
+        // console.log(dataOrder)
+
+        if(data.service_type === 'Grooming' || data.service_type === 'grooming'){
+            for(let i = 0; i < data.order_detail.length; i++) {
+                const dataDetailGrooming = await DetailOrderGrooming.create({
+                    order_id: dataOrder.dataValues.id,
+                    grooming_id: data.order_detail[i].grooming_id,
+                    tanggal_grooming: data.tanggal_grooming,
+                    alamat_pelanggan_grooming: "0",
+                    metode_penjemputan_grooming: "0",
+                    discount: 0,
+                    quantity: data.order_detail[i].quantity
+                })
+                details.push(dataDetailGrooming)
+            }
+        } else if(data.service_type === 'Hotel' || data.service_type === 'hotel') {
+            for(let i = 0; i < data.order_detail.length; i++) {
+                const dataDetailHotel = await DetailOrderHotel.create({
+                    order_id: dataOrder.dataValues.id,
+                hotel_id: data.order_detail[i].hotel_id,
+                tanggal_masuk: data.tanggal_masuk,
+                tanggal_keluar: data.tanggal_keluar,
+                metode_penjemputan: "0",
+                discount: 0,
+                quantity: data.order_detail[i].quantity
+                })
+                details.push(dataDetailHotel)
+            }
+        }
+
+        // const dataOrder = await Order.create(data)
+        return res.status(200).json({
             message: "Data Order Berhasil Disimpan",
-            kode: 201,
-            data: dataOrder
+            response_code: 200,
+            data: {
+                order: dataOrder.dataValues,
+                detail: details
+            }
         })
 
     } catch (error) {
