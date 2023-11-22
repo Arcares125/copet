@@ -101,15 +101,85 @@ const createOrder = async (req, res) => {
             }
         }
 
-        return res.status(200).json({
-            message: "Data Order Berhasil Disimpan",
-            response_code: 200,
-            data: {
-                order: dataOrder.dataValues,
-                detail: details,
-                total_price: totalPrice
-            }
-        })
+        //MIDTRANS PAYMENT
+        let coreApi = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+        
+        let parameter = {
+            "payment_type": "bank_transfer",
+            "transaction_details": {
+                "order_id": dataOrder.dataValues.id,
+                "gross_amount": totalPrice
+            },
+            "custom_expiry":
+            {
+                "expiry_duration": 15,
+                "unit": "minute"
+            },
+            "bank_transfer": {
+                "bank": "bca"
+            },
+            "name_payment": "BCA Virtual Account"
+        };
+        
+        
+        coreApi.charge(parameter).then(async (chargeResponse) => {
+            console.log('Charge transaction response:', chargeResponse);
+        
+            const dataTrans = await VirtualAccount.create({
+                nama: parameter.name_payment,
+                kode: chargeResponse.va_numbers[0].va_number
+            })
+        
+            const {id, nama, kode} = dataTrans
+        
+            // return res.status(200).json({
+            //     'response_code': 200, 
+            //     id,
+            //     'order_id': chargeResponse.order_id,
+            //     nama,
+            //     kode,
+            //     'transactionStatus': chargeResponse.transaction_status, 
+            //     'fraudStatus': chargeResponse.fraud_status
+            // });
+            return res.status(200).json({
+                message: "Data Order Berhasil Disimpan",
+                response_code: 200,
+                data: {
+                    order: dataOrder.dataValues,
+                    detail: details,
+                    total_price: totalPrice,
+                    id,
+                    // 'order_id': chargeResponse.order_id,
+                    nama,
+                    kode,
+                    'transactionStatus': chargeResponse.transaction_status, 
+                    'fraudStatus': chargeResponse.fraud_status
+                }
+            })
+        }).catch((e) => {
+            console.log('Error occured:', e.message);
+            if(e.message.includes('HTTP status code: 406')){
+                return res.status(200).json({
+                    message: "Order ID has been used, try another order ID"
+                })
+            } 
+        });
+
+        // 
+
+        // return res.status(200).json({
+        //     message: "Data Order Berhasil Disimpan",
+        //     response_code: 200,
+        //     data: {
+        //         order: dataOrder.dataValues,
+        //         detail: details,
+        //         total_price: totalPrice
+        //     }
+        // })
 
     } catch (error) {
         return res.status(500).json({
