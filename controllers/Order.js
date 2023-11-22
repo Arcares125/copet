@@ -35,10 +35,7 @@ const createOrder = async (req, res) => {
             tanggal_order: currentDate
         })
 
-        // console.log(dataOrder)
-
         if(data.service_type === 'Grooming' || data.service_type === 'grooming'){
-
 
             for(let i = 0; i < data.order_detail.length; i++) {
 
@@ -48,9 +45,14 @@ const createOrder = async (req, res) => {
                     }
                 })
 
+                if(!getPrice){
+                    return res.status(404).json({
+                        message: "Data Grooming tidak ditemukan / tidak terdaftar"
+                    })
+                }
+
                 const price = getPrice.dataValues.harga*data.order_detail[i].quantity
                 totalPrice += price;
-                // console.log(price)
 
                 const dataDetailGrooming = await DetailOrderGrooming.create({
                     order_id: dataOrder.dataValues.id,
@@ -83,12 +85,12 @@ const createOrder = async (req, res) => {
             for(let i = 0; i < data.order_detail.length; i++) {
                 const dataDetailHotel = await DetailOrderHotel.create({
                     order_id: dataOrder.dataValues.id,
-                hotel_id: data.order_detail[i].hotel_id,
-                tanggal_masuk: data.tanggal_masuk,
-                tanggal_keluar: data.tanggal_keluar,
-                metode_penjemputan: "0",
-                discount: 0,
-                quantity: data.order_detail[i].quantity
+                    hotel_id: data.order_detail[i].hotel_id,
+                    tanggal_masuk: data.tanggal_masuk,
+                    tanggal_keluar: data.tanggal_keluar,
+                    metode_penjemputan: "0",
+                    discount: 0,
+                    quantity: data.order_detail[i].quantity
                 })
                 const merge = {
                     detail: dataDetailGrooming,
@@ -99,7 +101,6 @@ const createOrder = async (req, res) => {
             }
         }
 
-        // const dataOrder = await Order.create(data)
         return res.status(200).json({
             message: "Data Order Berhasil Disimpan",
             response_code: 200,
