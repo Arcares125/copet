@@ -195,13 +195,31 @@ const checkPaymentStatus = async (req, res) => {
         // let parameter = req.body;
 
         let orderId = req.body.order_id; 
+
+        const orderIsValid = await Order.findOne({
+            where: {
+                id: orderId
+            }
+        })
+
+        if(!orderIsValid){
+            return res.status(404).json({
+                "response_code": 404,
+                "message": "Order not found"
+            })
+        }
         
-        coreApi.transaction.status(orderId).then((response) => {
-            console.log(response)
+        coreApi.transaction.status(orderId).then(async (response) => {
+            // console.log(response)
             console.log('Transaction status:', response.transaction_status);
 
             if (response.transaction_status === 'settlement') {
                 console.log('Transaction is successful');
+
+                const updateStatusPayment = await Order.update(
+                    { status_pembayaran: "Berhasil" },
+                    { where: {id: orderId} })
+
                 return res.status(200).json({
                     "response_code": 200,
                     "Transaction Status": "Paid"
