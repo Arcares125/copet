@@ -274,11 +274,25 @@ const checkPaymentStatus = async (req, res) => {
 
                 const updateStatusPayment = await Order.update(
                     { status_pembayaran: "Berhasil" },
-                    { where: {id: orderId} })
+                    { where: {id: orderId} }
+                )
 
                 return res.status(200).json({
                     "response_code": 200,
                     "Transaction Status": "Paid"
+                })
+            } else if(response.transaction_status === 'expire'){
+
+                console.log('Transaction is expired');
+
+                const updateStatusPayment = await Order.update(
+                    { status_pembayaran: "Expired" },
+                    { where: {id: orderId} }
+                )
+
+                return res.status(200).json({
+                    "response_code": 200,
+                    "Transaction Status": "Expired"
                 })
             } else {
                 console.log('Transaction is not successful');
@@ -304,8 +318,64 @@ const checkPaymentStatus = async (req, res) => {
     }
 }
 
+const setPaymentToExpired = async (req, res) => {
+
+    try {
+
+        let coreApi = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+        
+        let orderId = req.params.orderId; 
+
+        const orderIsValid = await Order.findOne({
+            where: {
+                id: orderId
+            }
+        })
+
+        if(!orderIsValid){
+            return res.status(404).json({
+                "response_code": 404,
+                "message": "Order not found"
+            })
+        }
+        
+        coreApi.transaction.expire(orderId).then(async (response) => {
+            console.log('Transaction status:', response.transaction_status);
+
+                const updateStatusPayment = await Order.update(
+                    { status_pembayaran: "Expired" },
+                    { where: {id: orderId} }
+                )
+
+                return res.status(200).json({
+                    "response_code": 200,
+                    "Transaction Status": "Expired"
+                })
+
+        }).catch((e) => {
+            console.log('Error occured:', e.message);
+            if(e.message.includes('HTTP status code: 404')){
+                return res.status(200).json({
+                    message: "Order ID Not Found"
+                })
+            }
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
+
 module.exports = {
     createOrder,
     getPaymentData,
-    checkPaymentStatus
+    checkPaymentStatus,
+    setPaymentToExpired
 }

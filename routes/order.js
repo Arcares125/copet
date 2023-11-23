@@ -1,5 +1,5 @@
 var express = require('express');
-const { createOrder, getPaymentData, checkPaymentStatus } = require('../controllers/Order');
+const { createOrder, getPaymentData, checkPaymentStatus, setPaymentToExpired } = require('../controllers/Order');
 var router = express.Router();
 
 /* GET users listing. */
@@ -7,6 +7,8 @@ var router = express.Router();
 router.post('/create', createOrder)
 router.post('/get-payment', getPaymentData)
 router.post('/check-payment', checkPaymentStatus)
+router.post('/set-order-to-expired/:orderId', setPaymentToExpired)
+
 
 
 module.exports = router;
