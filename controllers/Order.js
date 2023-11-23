@@ -122,7 +122,8 @@ const createOrder = async (req, res) => {
                 "gross_amount": totalPrice
             },
             "custom_expiry":
-            {
+            {   
+                "order_time":  dataOrder.dataValues.tanggal_order,
                 "expiry_duration": 15,
                 "unit": "minute"
             },
