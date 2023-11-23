@@ -73,16 +73,23 @@ const createOrder = async (req, res) => {
             }
         } else if(data.service_type === 'Hotel' || data.service_type === 'hotel') {
 
-            const getPrice = await Hotel.findOne({
-                where: {
-                    id: data.order_detail[i].hotel_id
-                }
-            })
-
-            const price = getPrice.dataValues.harga*data.order_detail[i].quantity
-            totalPrice += price;
-
             for(let i = 0; i < data.order_detail.length; i++) {
+
+                const getPrice = await Hotel.findOne({
+                    where: {
+                        id: data.order_detail[i].hotel_id
+                    }
+                })
+    
+                if(!getPrice){
+                    return res.status(404).json({
+                        message: "Data Hotel tidak ditemukan / tidak terdaftar"
+                    })
+                }
+
+                const price = getPrice.dataValues.harga*data.order_detail[i].quantity
+                totalPrice += price;
+
                 const dataDetailHotel = await DetailOrderHotel.create({
                     order_id: dataOrder.dataValues.id,
                     hotel_id: data.order_detail[i].hotel_id,
@@ -93,7 +100,7 @@ const createOrder = async (req, res) => {
                     quantity: data.order_detail[i].quantity
                 })
                 const merge = {
-                    detail: dataDetailGrooming,
+                    detail: dataDetailHotel,
                     gross_price: price,
                 }
 
