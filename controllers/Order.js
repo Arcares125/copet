@@ -65,7 +65,7 @@ const createOrder = async (req, res) => {
                 })
 
                 const merge = {
-                    detail:dataDetailGrooming,
+                    ...dataDetailGrooming,
                     gross_price: price
                 }
 
@@ -100,7 +100,7 @@ const createOrder = async (req, res) => {
                     quantity: data.order_detail[i].quantity
                 })
                 const merge = {
-                    detail: dataDetailHotel,
+                    ...dataDetailHotel.dataValues,
                     gross_price: price,
                 }
 
@@ -143,15 +143,6 @@ const createOrder = async (req, res) => {
         
             const {id, nama, kode} = dataTrans
         
-            // return res.status(200).json({
-            //     'response_code': 200, 
-            //     id,
-            //     'order_id': chargeResponse.order_id,
-            //     nama,
-            //     kode,
-            //     'transactionStatus': chargeResponse.transaction_status, 
-            //     'fraudStatus': chargeResponse.fraud_status
-            // });
             return res.status(200).json({
                 message: "Data Order Berhasil Disimpan",
                 response_code: 200,
@@ -160,7 +151,6 @@ const createOrder = async (req, res) => {
                     detail: details,
                     total_price: totalPrice,
                     id,
-                    // 'order_id': chargeResponse.order_id,
                     nama,
                     kode,
                     'transactionStatus': chargeResponse.transaction_status, 
@@ -175,18 +165,6 @@ const createOrder = async (req, res) => {
                 })
             } 
         });
-
-        // 
-
-        // return res.status(200).json({
-        //     message: "Data Order Berhasil Disimpan",
-        //     response_code: 200,
-        //     data: {
-        //         order: dataOrder.dataValues,
-        //         detail: details,
-        //         total_price: totalPrice
-        //     }
-        // })
 
     } catch (error) {
         return res.status(500).json({
