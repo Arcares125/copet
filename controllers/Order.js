@@ -123,7 +123,7 @@ const createOrder = async (req, res) => {
             },
             "custom_expiry":
             {   
-                "order_time":  dataOrder.dataValues.tanggal_order,
+                // "order_time":  dataOrder.dataValues.tanggal_order,
                 "expiry_duration": 15,
                 "unit": "minute"
             },
