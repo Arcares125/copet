@@ -65,7 +65,7 @@ const createOrder = async (req, res) => {
                 })
 
                 const merge = {
-                    ...dataDetailGrooming,
+                    ...dataDetailGrooming.dataValues,
                     gross_price: price
                 }
 
