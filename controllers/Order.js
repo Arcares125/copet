@@ -537,7 +537,8 @@ const getDetailOrder = async (req, res) => {
                         review: {
                             rate: reviewData.review,
                             review_description: reviewData.review_description
-                        }
+                        },
+                        service_type: "Hotel"
                     };
                 } else {
                     return {
@@ -564,7 +565,8 @@ const getDetailOrder = async (req, res) => {
                             };
                         }),
                         total_price: totalPrice, 
-                        review: null
+                        review: null,
+                        service_type: "Hotel"
                     };
                 }
             } else if (groomingData !== null){
@@ -596,7 +598,8 @@ const getDetailOrder = async (req, res) => {
                         review: {
                             rate: reviewData.review,
                             review_description: reviewData.review_description
-                        }
+                        },
+                        service_type: "Grooming"
                     };
                 } else {
                     return {
@@ -623,7 +626,8 @@ const getDetailOrder = async (req, res) => {
                             };
                         }),
                         total_price: totalPrice, 
-                        review: null
+                        review: null,
+                        service_type: "Grooming"
                     };
                 }
             }
