@@ -8,7 +8,7 @@ router.post('/create', createOrder)
 router.post('/get-payment', getPaymentData)
 router.post('/check-payment', checkPaymentStatus)
 router.post('/set-order-to-expired/:orderId', setPaymentToExpired)
-router.post('/:orderId', getDetailOrder)
+router.get('/:orderId', getDetailOrder)
 
 
 
