@@ -355,19 +355,31 @@ const setPaymentToExpired = async (req, res) => {
             })
         }
         
-        coreApi.transaction.expire(orderId).then(async (response) => {
+        coreApi.transaction.status(orderId).then(async (response) => {
             console.log('Transaction status:', response.transaction_status);
-
-                const updateStatusPayment = await Order.update(
-                    { status_pembayaran: "Expired" },
-                    { where: {id: orderId} }
-                )
-
+        
+            if(response.transaction_status === 'expire') {
                 return res.status(200).json({
                     "response_code": 200,
-                    "Transaction Status": "Expired"
+                    "message": "Transaction is already expired"
                 })
-
+            } else {
+                return coreApi.transaction.expire(orderId).then(async (response) => {
+                    console.log('Transaction status after expire:', response.transaction_status);
+        
+                    const updateStatusPayment = await Order.update(
+                        { status_pembayaran: "Expired" },
+                        { where: {id: orderId} }
+                    )
+        
+                    return res.status(200).json({
+                        "response_code": 200,
+                        "Transaction Status": "Expired"
+                    })
+                }).catch((e) => {
+                    console.log('Error occured:', e.message);
+                });
+            }
         }).catch((e) => {
             console.log('Error occured:', e.message);
             if(e.message.includes('HTTP status code: 404')){
