@@ -41,10 +41,11 @@ module.exports = (sequelize, DataTypes) =>{
     })
 
     Hotel.associate = (models) =>{
-      Hotel.hasMany(models.DetailOrderDokter, {
+      Hotel.hasMany(models.DetailOrderHotel, {
         as: 'detail_order_hotel',
         foreignKey: 'hotel_id'
       })
     }
+    
     return Hotel
 }

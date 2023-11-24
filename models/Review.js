@@ -39,5 +39,15 @@ module.exports = (sequelize, DataTypes) =>{
         timestamps: true,
         paranoid: true
     })
+
+    Review.associate = (models) =>{
+
+      Review.belongsTo(models.Order, {
+        as: 'orders',
+        foreignKey: 'order_id'
+      })
+
+    }
+    
     return Review
 }

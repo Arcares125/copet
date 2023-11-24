@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) =>{
           //   type: DataTypes.INTEGER,
           //   allowNull: false,
           // },
+          virtual_number: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+          },
           status_order: {
             type: DataTypes.STRING(20),
             allowNull: false
@@ -68,6 +72,17 @@ module.exports = (sequelize, DataTypes) =>{
         as: 'detail_order_dokter',
         foreignKey: 'order_id'
       })
+
+      Order.belongsTo(models.User, {
+        as: 'users',
+        foreignKey: 'user_id'
+      })
+
+      Order.hasOne(models.Review, {
+        as: 'reviews',
+        foreignKey: 'order_id'
+      })
+
     }
 
     return Order

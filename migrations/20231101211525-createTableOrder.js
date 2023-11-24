@@ -14,6 +14,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      virtual_number: {
+        type: Sequelize.STRING(50),
+        allowNull: true
+      },
       status_order: {
         type: Sequelize.STRING(20),
         allowNull: false

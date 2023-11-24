@@ -51,5 +51,18 @@ module.exports = (sequelize, DataTypes) =>{
         timestamps: true,
         paranoid: true
     })
+
+    DetailOrderHotel.associate = (models) =>{
+      DetailOrderHotel.belongsTo(models.Hotel, {
+        as: 'hotels',
+        foreignKey: 'hotel_id'
+      });
+
+      DetailOrderHotel.belongsTo(models.Order, {
+        as: 'orders',
+        foreignKey: 'order_id'
+      });
+    }
+    
     return DetailOrderHotel
 }
