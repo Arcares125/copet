@@ -32,7 +32,7 @@ const createOrder = async (req, res) => {
         const dataOrder = await Order.create({
             toko_id: data.toko_id,
             user_id: data.user_id,
-            status_order: "Menunggu Pembayaran",
+            status_order: "Waiting Payment",
             metode_pembayaran: data.metode_pembayaran,
             status_pembayaran: "Pending",
             tanggal_order: currentDate
@@ -285,7 +285,10 @@ const checkPaymentStatus = async (req, res) => {
                 console.log('Transaction is successful');
 
                 const updateStatusPayment = await Order.update(
-                    { status_pembayaran: "Berhasil" },
+                    { 
+                        status_pembayaran: "Berhasil",
+                        status_order: "On Progress"
+                    },
                     { where: {id: orderId} }
                 )
 
@@ -298,7 +301,10 @@ const checkPaymentStatus = async (req, res) => {
                 console.log('Transaction is expired');
 
                 const updateStatusPayment = await Order.update(
-                    { status_pembayaran: "Expired" },
+                    { 
+                        status_pembayaran: "Expired",
+                        status_order: "Expired"
+                    },
                     { where: {id: orderId} }
                 )
 
@@ -368,7 +374,10 @@ const setPaymentToExpired = async (req, res) => {
                     console.log('Transaction status after expire:', response.transaction_status);
         
                     const updateStatusPayment = await Order.update(
-                        { status_pembayaran: "Expired" },
+                        { 
+                            status_pembayaran: "Expired",
+                            status_order: "Cancel"
+                        },
                         { where: {id: orderId} }
                     )
         
@@ -500,11 +509,28 @@ const getDetailOrder = async (req, res) => {
         let totalPrice = 0;
 
         const formattedData = data.map(toko => {
+            let remainingTime = 0;
+            const now = new Date();
+           
             const tokoData = toko.dataValues;
             const hotelData = tokoData.hotels[0]? tokoData.hotels[0].dataValues : null;
             const groomingData = tokoData.groomings[0]? tokoData.groomings[0].dataValues : null;
             const orderData = hotelData ? hotelData.detail_order_hotel[0].orders.dataValues : groomingData.detail_order_grooming[0].orders.dataValues;
             
+            //tanggal_order
+            const orderDate = orderData.tanggal_order;
+            const diffInMilliseconds = now - orderDate; // Difference in milliseconds
+            let minutes = 0;
+            let seconds = 0
+            if (diffInMilliseconds < 15 * 60 * 1000) { // If less than 15 minutes
+                const diffInSeconds = Math.floor(diffInMilliseconds / 1000); // Convert to seconds
+                const remainingMilliseconds = 15 * 60 * 1000 - diffInMilliseconds;
+                const remainingSeconds = Math.floor(remainingMilliseconds / 1000); // Convert to seconds
+                minutes = Math.floor(remainingSeconds / 60);
+                seconds = remainingSeconds % 60;
+                remainingTime = `${minutes} minutes ${seconds} seconds`;
+            }
+
             const userData = orderData.users.dataValues;
             const reviewData = orderData.reviews ? orderData.reviews.dataValues : null ;
             
@@ -515,8 +541,13 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        status_order: orderData.status_order,
+                        // status_order: orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
+                        // remaining_time: remainingTime,
+                        time:{
+                            minutes: minutes,
+                            seconds: seconds
+                        },
                         // total_price: orderData.total_price,
                         virtual_number: orderData.virtual_number,
                         order_status: orderData.status_order,
@@ -548,9 +579,14 @@ const getDetailOrder = async (req, res) => {
                         order_id: orderData.order_id,
                         order_status: orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
+                        // remaining_time: remainingTime,
+                        time:{
+                            minutes: minutes,
+                            seconds: seconds
+                        },
                         // total_price: orderData.total_price,
                         virtual_number: orderData.virtual_number,
-                        status_order: orderData.status_order,
+                        // status_order: orderData.status_order,
                         tanggal_order: orderData.tanggal_order,
                         updatedAt: orderData.updatedAt,
                         createdAt: orderData.createdAt,
@@ -578,9 +614,14 @@ const getDetailOrder = async (req, res) => {
                         order_id: orderData.order_id,
                         order_status: orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
+                        // remaining_time: remainingTime,
+                        time:{
+                            minutes: minutes,
+                            seconds: seconds
+                        },
                         // total_price: orderData.total_price,
                         virtual_number: orderData.virtual_number,
-                        status_order: orderData.status_order,
+                        // status_order: orderData.status_order,
                         tanggal_order: orderData.tanggal_order,
                         updatedAt: orderData.updatedAt,
                         createdAt: orderData.createdAt,
@@ -609,9 +650,14 @@ const getDetailOrder = async (req, res) => {
                         order_id: orderData.order_id,
                         order_status: orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
+                        // remaining_time: remainingTime,
+                        time:{
+                            minutes: minutes,
+                            seconds: seconds
+                        },
                         // total_price: orderData.total_price,
                         virtual_number: orderData.virtual_number,
-                        status_order: orderData.status_order,
+                        // status_order: orderData.status_order,
                         tanggal_order: orderData.tanggal_order,
                         updatedAt: orderData.updatedAt,
                         createdAt: orderData.createdAt,
