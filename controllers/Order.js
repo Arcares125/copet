@@ -395,6 +395,10 @@ const setPaymentToExpired = async (req, res) => {
                 return res.status(200).json({
                     message: "Order ID Not Found"
                 })
+            } else if(e.message.includes('HTTP status code: 500')){
+                return res.status(500).json({
+                    message: "Sorry. Our system is recovering from unexpected issues. Please retry."
+                })
             }
         });
 
