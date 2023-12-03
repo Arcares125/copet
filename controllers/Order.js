@@ -472,9 +472,9 @@ const getDetailOrder = async (req, res) => {
                             as: 'detail_order_grooming',
                             attributes: ['quantity'],
                             required: true,
-                            // where: {
-                            //     order_id: value.orderId
-                            // },
+                            where: {
+                                order_id: value.orderId
+                            },
                             include: [{
                                 model: Order,
                                 as: 'orders',
