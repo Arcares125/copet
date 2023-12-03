@@ -506,6 +506,11 @@ const getDetailOrder = async (req, res) => {
             // logging: console.log
         });
 
+
+        res.json(data)
+
+        return
+
         let totalPrice = 0;
 
         const formattedData = data.map(toko => {
