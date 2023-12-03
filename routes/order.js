@@ -1,5 +1,5 @@
 var express = require('express');
-const { createOrder, getPaymentData, checkPaymentStatus, setPaymentToExpired, getDetailOrder } = require('../controllers/Order');
+const { createOrder, getPaymentData, checkPaymentStatus, setPaymentToExpired, getDetailOrder, getOrderStatusWaitingPayment } = require('../controllers/Order');
 var router = express.Router();
 
 /* GET users listing. */
@@ -7,8 +7,9 @@ var router = express.Router();
 router.post('/create', createOrder)
 router.post('/get-payment', getPaymentData)
 router.post('/check-payment', checkPaymentStatus)
-router.post('/set-order-to-expired/:orderId', setPaymentToExpired)
-router.get('/:orderId', getDetailOrder)
+router.get('/getOrderStatusWaitingPayment', getOrderStatusWaitingPayment)
+router.post('/set-order-to-expired/:orderId?', setPaymentToExpired)
+router.get('/:orderId?', getDetailOrder)
 
 
 

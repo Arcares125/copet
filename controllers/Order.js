@@ -10,7 +10,7 @@ const {Dokter,
     Toko,
     User,
     Review} = require("../models")
-
+    const { Op } = require('sequelize');
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
@@ -708,10 +708,120 @@ const getDetailOrder = async (req, res) => {
     }
 }
 
+const getOrderStatusWaitingPayment = async (req, res) => {
+
+    try {
+
+        const data = await Toko.findAll({
+            attributes: [
+                ['nama', 'title'],
+            ],
+            include: [
+                {
+                    model: Hotel,
+                    as: 'hotels',
+                    attributes: ['harga'],                    
+                    required: false,
+                    include: [
+                        {
+                            model: DetailOrderHotel,
+                            as: 'detail_order_hotel',
+                            attributes: ['quantity'],
+                            required: true,
+                            include: [{
+                                model: Order,
+                                as: 'orders',
+                                attributes: [['id', 'order_id'], 'status_order'],
+                                where: {
+                                    status_order:{
+                                        [Op.iLike] : '%Waiting Payment%'
+                                    }
+                                },
+                            }]
+                        },
+                    ]
+                },
+                {
+                    model: Grooming,
+                    as: 'groomings',
+                    attributes: ['harga'],                    
+                    required: false,
+                    include: [
+                        {
+                            model: DetailOrderGrooming,
+                            as: 'detail_order_grooming',
+                            attributes: ['quantity'],
+                            required: true,
+                            include: [{
+                                model: Order,
+                                as: 'orders',
+                                attributes: [['id', 'order_id'], 'status_order'],
+                                where: {
+                                    status_order:{
+                                        [Op.iLike] : '%Waiting Payment%'
+                                    }
+                                },
+                            }]
+                        },
+                    ]
+                }
+            ]
+        })
+
+        if(!data){
+            return res.status(404).json({
+                "response_code": 404,
+                "message": "Data not found"
+            })
+        }
+
+
+        const formattedData = data.flatMap(toko => {
+            // Combine hotels and groomings into one array
+            const services = [...toko.hotels, ...toko.groomings];
+        
+            // Map each service to the desired format
+            return services.flatMap(service => {
+                // Check if detail_order_hotel and detail_order_grooming exist and are arrays
+                const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
+                const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
+        
+                // Combine detail_order_hotel and detail_order_grooming into one array
+                const orders = [...hotelOrders, ...groomingOrders];
+        
+                return orders.map(order => {
+                    return {
+                        order_id: order.orders.dataValues.order_id,
+                        title: toko.dataValues.title,
+                        status: order.orders.status_order,
+                        total_payment: service.harga * order.quantity
+                    };
+                });
+            });
+        });
+
+        return res.status(200).json({
+            message: "Data Ditemukan",
+            response_code: 200,
+            data: formattedData
+
+        })
+    
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
+
 module.exports = {
     createOrder,
     getPaymentData,
     checkPaymentStatus,
     setPaymentToExpired,
-    getDetailOrder
+    getDetailOrder,
+    getOrderStatusWaitingPayment
 }
