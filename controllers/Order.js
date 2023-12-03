@@ -488,7 +488,7 @@ const getDetailOrder = async (req, res) => {
                                     {
                                         model: Review,
                                         as: 'reviews',
-                                        attributes: [['rating', 'review'], ['ulasan', 'review_description']],
+                                        attributes: [['rating', 'review'], 'ulasan'],
                                         // where: {
                                         //     id: value.orderId
                                         // }
@@ -508,7 +508,7 @@ const getDetailOrder = async (req, res) => {
 
         let totalPrice = 0;
 
-        const formattedData = data.map(toko => {
+        const formattedData = await Promise.all(data.map( async toko => {
             let remainingTime = 0;
             const now = new Date();
            
@@ -531,6 +531,17 @@ const getDetailOrder = async (req, res) => {
                 remainingTime = `${minutes} minutes ${seconds} seconds`;
             }
 
+            if(minutes === 0 && seconds === 0){
+                await Order.update({
+                    status_order: 'Expired'
+                }, 
+                {
+                    where:{
+                        id: value.orderId
+                    }
+                })
+            }
+
             const userData = orderData.users.dataValues;
             const reviewData = orderData.reviews ? orderData.reviews.dataValues : null ;
             
@@ -550,7 +561,7 @@ const getDetailOrder = async (req, res) => {
                         },
                         // total_price: orderData.total_price,
                         virtual_number: orderData.virtual_number,
-                        order_status: orderData.status_order,
+                        order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
                         tanggal_order: orderData.tanggal_order,
                         updatedAt: orderData.updatedAt,
                         createdAt: orderData.createdAt,
@@ -577,7 +588,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: orderData.status_order,
+                        order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -612,7 +623,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: orderData.status_order,
+                        order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -638,7 +649,7 @@ const getDetailOrder = async (req, res) => {
                         total_price: totalPrice, 
                         review: {
                             rate: reviewData.review,
-                            review_description: reviewData.review_description
+                            review_description: reviewData.ulasan
                         },
                         service_type: "Grooming"
                     };
@@ -648,7 +659,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: orderData.status_order,
+                        order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -677,7 +688,7 @@ const getDetailOrder = async (req, res) => {
                     };
                 }
             }
-        });
+        }));
         
         // console.log(formattedData);
         return res.status(200).json({
