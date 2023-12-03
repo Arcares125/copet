@@ -445,7 +445,7 @@ const getDetailOrder = async (req, res) => {
                                     {
                                         model: Review,
                                         as: 'reviews',
-                                        // attributes: [['rating', 'review'], ['ulasan', 'review_description'], 'id'],
+                                        attributes: [['rating', 'review'], ['ulasan', 'review_description']],
                                         // where: {
                                         //     id: value.orderId
                                         // }
@@ -488,7 +488,7 @@ const getDetailOrder = async (req, res) => {
                                     {
                                         model: Review,
                                         as: 'reviews',
-                                        // attributes: [['rating', 'review'], ['ulasan', 'review_description'], 'id'],
+                                        attributes: [['rating', 'review'], ['ulasan', 'review_description']],
                                         // where: {
                                         //     id: value.orderId
                                         // }
@@ -505,11 +505,6 @@ const getDetailOrder = async (req, res) => {
 
             // logging: console.log
         });
-
-
-        res.json(data)
-
-        return
 
         let totalPrice = 0;
 
