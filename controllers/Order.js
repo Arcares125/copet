@@ -445,7 +445,7 @@ const getDetailOrder = async (req, res) => {
                                     {
                                         model: Review,
                                         as: 'reviews',
-                                        attributes: [['rating', 'review'], ['ulasan', 'review_description'], 'id'],
+                                        // attributes: [['rating', 'review'], ['ulasan', 'review_description'], 'id'],
                                         // where: {
                                         //     id: value.orderId
                                         // }
