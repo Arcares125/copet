@@ -1024,60 +1024,60 @@ const getOrderStatusWaitingPayment = async (req, res) => {
 
     try {
 
-        await sequelize.transaction(async (t) => {
-            try {
-                let coreApi = new midtransClient.CoreApi({
-                    isProduction: false,
-                    serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                    clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
-                });
+        // await sequelize.transaction(async (t) => {
+        //     try {
+        //         let coreApi = new midtransClient.CoreApi({
+        //             isProduction: false,
+        //             serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+        //             clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        //         });
         
-                const allOrders = await Order.findAll();
+        //         const allOrders = await Order.findAll();
         
-                for (let order of allOrders) {
-                    let orderId = order.id;
+        //         for (let order of allOrders) {
+        //             let orderId = order.id;
         
-                    try {
-                        const response = await coreApi.transaction.status(orderId);
-                        console.log('Transaction status:', response.transaction_status);
+        //             try {
+        //                 const response = await coreApi.transaction.status(orderId);
+        //                 console.log('Transaction status:', response.transaction_status);
         
-                        if (response.transaction_status === 'settlement') {
-                            console.log('Transaction is successful');
+        //                 if (response.transaction_status === 'settlement') {
+        //                     console.log('Transaction is successful');
         
-                            const updateStatusPayment = await Order.update(
-                                { 
-                                    status_pembayaran: "Berhasil",
-                                    status_order: "On Progress"
-                                },
-                                { 
-                                    transaction: t,
-                                    where: {id: orderId} 
-                                }
-                            );
-                        } else if(response.transaction_status === 'expire'){
-                            console.log('Transaction is expired');
+        //                     const updateStatusPayment = await Order.update(
+        //                         { 
+        //                             status_pembayaran: "Berhasil",
+        //                             status_order: "On Progress"
+        //                         },
+        //                         { 
+        //                             transaction: t,
+        //                             where: {id: orderId} 
+        //                         }
+        //                     );
+        //                 } else if(response.transaction_status === 'expire'){
+        //                     console.log('Transaction is expired');
         
-                            const updateStatusPayment = await Order.update(
-                                { 
-                                    status_pembayaran: "Expired",
-                                    status_order: "Expired"
-                                },
-                                { 
-                                    transaction: t,
-                                    where: {id: orderId} 
-                                }
-                            );
-                        } else {
-                            console.log('Transaction is not successful');
-                        }
-                    } catch (e) {
-                        console.log('Error occured:', e.message);
-                    }
-                }
-            } catch (error) {
-                await t.rollback();
-            }
-        });
+        //                     const updateStatusPayment = await Order.update(
+        //                         { 
+        //                             status_pembayaran: "Expired",
+        //                             status_order: "Expired"
+        //                         },
+        //                         { 
+        //                             transaction: t,
+        //                             where: {id: orderId} 
+        //                         }
+        //                     );
+        //                 } else {
+        //                     console.log('Transaction is not successful');
+        //                 }
+        //             } catch (e) {
+        //                 console.log('Error occured:', e.message);
+        //             }
+        //         }
+        //     } catch (error) {
+        //         await t.rollback();
+        //     }
+        // });
             
                 
         const data = await Toko.findAll({
@@ -1136,6 +1136,8 @@ const getOrderStatusWaitingPayment = async (req, res) => {
             ]
         })
 
+        console.log(data)
+
         if(!data){
             return res.status(404).json({
                 "response_code": 404,
@@ -1144,7 +1146,8 @@ const getOrderStatusWaitingPayment = async (req, res) => {
         }
 
 
-        const formattedData = data.flatMap(toko => {
+        const formattedData = data.flatMap(async toko => {
+
             // Combine hotels and groomings into one array
             const services = [...toko.hotels, ...toko.groomings];
         
@@ -1157,14 +1160,53 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                 // Combine detail_order_hotel and detail_order_grooming into one array
                 const orders = [...hotelOrders, ...groomingOrders];
         
-                return orders.map(order => {
+                return Promise.all(orders.map(async order => {
+                    // console.log(order)
+                    // CHECK STATUS TRANS
+                    let coreApi = new midtransClient.CoreApi({
+                        isProduction: false,
+                        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+                        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                    });
+                    let transactionStatus;
+                    try {
+                        transactionStatus = await coreApi.transaction.status(order.orders.dataValues.order_id);
+                    } catch (error) {
+                        console.error(`Error getting transaction status: ${error}`);
+                    }
+
+                    console.log(transactionStatus)
+
+                    // Check if transaction is expired
+                    if (transactionStatus.transaction_status === 'expire') {
+                        // Update order_status in database
+                        await Order.update({
+                            status_pembayaran: "Expired",
+                            status_order: 'Expired'
+                        }, 
+                        {
+                            where:{
+                                id: order.orders.dataValues.order_id
+                            }
+                        });
+                    } else if(transactionStatus.transaction_status === 'settlement'){
+                        await Order.update({
+                            status_pembayaran: "Expired",
+                            status_order: "On Progress"
+                        }, 
+                        {
+                            where:{
+                                id: order.orders.dataValues.order_id
+                            }
+                        });
+                    }
                     return {
                         order_id: order.orders.dataValues.order_id,
                         title: toko.dataValues.title,
                         status: order.orders.status_order,
                         total_payment: service.harga * order.quantity
                     };
-                });
+                }));
             });
         });
 
