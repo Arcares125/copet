@@ -1146,69 +1146,64 @@ const getOrderStatusWaitingPayment = async (req, res) => {
         }
 
 
-        const formattedData = data.flatMap(async toko => {
+        const formattedData = [];
 
-            // Combine hotels and groomings into one array
-            const services = [...toko.hotels, ...toko.groomings];
-        
-            // Map each service to the desired format
-            return services.flatMap(service => {
-                // Check if detail_order_hotel and detail_order_grooming exist and are arrays
-                const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
-                const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
-        
-                // Combine detail_order_hotel and detail_order_grooming into one array
-                const orders = [...hotelOrders, ...groomingOrders];
-        
-                return Promise.all(orders.map(async order => {
-                    // console.log(order)
-                    // CHECK STATUS TRANS
-                    let coreApi = new midtransClient.CoreApi({
-                        isProduction: false,
-                        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
-                    });
-                    let transactionStatus;
-                    try {
-                        transactionStatus = await coreApi.transaction.status(order.orders.dataValues.order_id);
-                    } catch (error) {
-                        console.error(`Error getting transaction status: ${error}`);
-                    }
+            for (const toko of data) {
+                const services = [...toko.hotels, ...toko.groomings];
 
-                    console.log(transactionStatus)
+                for (const service of services) {
+                    const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
+                    const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
+                    const orders = [...hotelOrders, ...groomingOrders];
 
-                    // Check if transaction is expired
-                    if (transactionStatus.transaction_status === 'expire') {
-                        // Update order_status in database
-                        await Order.update({
-                            status_pembayaran: "Expired",
-                            status_order: 'Expired'
-                        }, 
-                        {
-                            where:{
-                                id: order.orders.dataValues.order_id
-                            }
+                    for (const order of orders) {
+                        let coreApi = new midtransClient.CoreApi({
+                            isProduction: false,
+                            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+                            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
                         });
-                    } else if(transactionStatus.transaction_status === 'settlement'){
-                        await Order.update({
-                            status_pembayaran: "Expired",
-                            status_order: "On Progress"
-                        }, 
-                        {
-                            where:{
-                                id: order.orders.dataValues.order_id
-                            }
+                        let transactionStatus;
+                        try {
+                            transactionStatus = await coreApi.transaction.status(order.orders.dataValues.order_id);
+                        } catch (error) {
+                            console.error(`Error getting transaction status: ${error}`);
+                        }
+
+                        console.log(transactionStatus)
+                        console.log(order.orders.dataValues.order_id)
+
+                        if (transactionStatus.transaction_status === 'expire') {
+                            await Order.update({
+                                status_pembayaran: "Expired",
+                                status_order: 'Expired'
+                            }, 
+                            {
+                                where:{
+                                    id: order.orders.dataValues.order_id
+                                }
+                            });
+                        } else if(transactionStatus.transaction_status === 'settlement'){
+                            await Order.update({
+                                status_pembayaran: "Expired",
+                                status_order: "On Progress"
+                            }, 
+                            {
+                                where:{
+                                    id: order.orders.dataValues.order_id
+                                }
+                            });
+                        }
+                        formattedData.push({
+                            order_id: order.orders.dataValues.order_id,
+                            title: toko.dataValues.title,
+                            status: order.orders.status_order,
+                            total_payment: service.harga * order.quantity
                         });
                     }
-                    return {
-                        order_id: order.orders.dataValues.order_id,
-                        title: toko.dataValues.title,
-                        status: order.orders.status_order,
-                        total_payment: service.harga * order.quantity
-                    };
-                }));
-            });
-        });
+                }
+            }
+
+            console.log(formattedData)
 
         return res.status(200).json({
             message: "Data Ditemukan",
