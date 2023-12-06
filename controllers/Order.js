@@ -512,6 +512,81 @@ const getDetailOrder = async (req, res) => {
 
         let totalPrice = 0;
 
+        await sequelize.transaction(async (t) =>{
+            try {
+                let coreApi = new midtransClient.CoreApi({
+                    isProduction: false,
+                    serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+                    clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                });
+        
+                await coreApi.transaction.status(value.orderId).then(async (response) => {
+                    // console.log(response)
+                    console.log('Transaction status:', response.transaction_status);
+        
+                    if (response.transaction_status === 'settlement') {
+                        console.log('Transaction is successful');
+        
+                        const updateStatusPayment = await Order.update(
+                            { 
+                                status_pembayaran: "Berhasil",
+                                status_order: "On Progress"
+                            },
+                            {   
+                                transaction: t,
+                                where: {id: value.orderId} 
+                            }
+                        )
+        
+                        await t.commit(); // Commit the transaction here
+        
+                        return res.status(200).json({
+                            "response_code": 200,
+                            "Transaction Status": "Paid"
+                        })
+                    } else if(response.transaction_status === 'expire'){
+        
+                        console.log('Transaction is expired');
+        
+                        const updateStatusPayment = await Order.update(
+                            { 
+                                status_pembayaran: "Expired",
+                                status_order: "Expired"
+                            },
+                            {   
+                                transaction: t,
+                                where: {id: value.orderId} 
+                            }
+                        )
+        
+                        await t.commit(); // Commit the transaction here
+        
+                        return res.status(200).json({
+                            "response_code": 200,
+                            "Transaction Status": "Expired"
+                        })
+                    } else {
+                        console.log('Transaction is not successful');
+                        return res.status(200).json({
+                            "response_code": 200,
+                            "Transaction Status": response.transaction_status
+                        })
+                    }
+                }).catch(async (e) => {
+                    console.log('Error occured:', e.message);
+                    if(e.message.includes('HTTP status code: 404')){
+                        await t.rollback(); // Rollback the transaction here
+                        return res.status(200).json({
+                            message: "Order ID Not Found"
+                        })
+                    }
+                });
+            } catch (error) {
+                console.log(error.message)
+                await t.rollback() // Rollback the transaction in case of an error
+            }
+        })
+
         const formattedData = await Promise.all(data.map( async toko => {
             let remainingTime = 0;
             const now = new Date();
@@ -711,6 +786,57 @@ const getDetailOrder = async (req, res) => {
 const getOrderStatusWaitingPayment = async (req, res) => {
 
     try {
+
+            let coreApi = new midtransClient.CoreApi({
+                isProduction: false,
+                serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+                clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            });
+        
+                const allOrders = await Order.findAll();
+        
+                for (let order of allOrders) {
+                    let orderId = order.id;
+        
+                    coreApi.transaction.status(orderId).then(async (response) => {
+                        console.log('Transaction status:', response.transaction_status);
+        
+                        if (response.transaction_status === 'settlement') {
+                            console.log('Transaction is successful');
+        
+                            const updateStatusPayment = await Order.update(
+                                { 
+                                    status_pembayaran: "Berhasil",
+                                    status_order: "On Progress"
+                                },
+                                { where: {id: orderId} }
+                            )
+        
+                        } else if(response.transaction_status === 'expire'){
+                            console.log('Transaction is expired');
+        
+                            const updateStatusPayment = await Order.update(
+                                { 
+                                    status_pembayaran: "Expired",
+                                    status_order: "Expired"
+                                },
+                                { where: {id: orderId} }
+                            )
+                        } else {
+                            console.log('Transaction is not successful');
+                        }
+                    }).catch((e) => {
+                        console.log('Error occured:', e.message);
+                    });
+                }
+        
+                // return res.status(200).json({
+                //     "response_code": 200,
+                //     "message": "All orders have been updated"
+                // })
+        
+             
+        
 
         const data = await Toko.findAll({
             attributes: [
