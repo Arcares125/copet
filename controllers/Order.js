@@ -540,10 +540,10 @@ const getDetailOrder = async (req, res) => {
         
                         await t.commit(); // Commit the transaction here
         
-                        return res.status(200).json({
-                            "response_code": 200,
-                            "Transaction Status": "Paid"
-                        })
+                        // return res.status(200).json({
+                        //     "response_code": 200,
+                        //     "Transaction Status": "Paid"
+                        // })
                     } else if(response.transaction_status === 'expire'){
         
                         console.log('Transaction is expired');
@@ -561,24 +561,24 @@ const getDetailOrder = async (req, res) => {
         
                         await t.commit(); // Commit the transaction here
         
-                        return res.status(200).json({
-                            "response_code": 200,
-                            "Transaction Status": "Expired"
-                        })
+                        // return res.status(200).json({
+                        //     "response_code": 200,
+                        //     "Transaction Status": "Expired"
+                        // })
                     } else {
                         console.log('Transaction is not successful');
-                        return res.status(200).json({
-                            "response_code": 200,
-                            "Transaction Status": response.transaction_status
-                        })
+                        // return res.status(200).json({
+                        //     "response_code": 200,
+                        //     "Transaction Status": response.transaction_status
+                        // })
                     }
                 }).catch(async (e) => {
                     console.log('Error occured:', e.message);
                     if(e.message.includes('HTTP status code: 404')){
                         await t.rollback(); // Rollback the transaction here
-                        return res.status(200).json({
-                            message: "Order ID Not Found"
-                        })
+                        // return res.status(200).json({
+                        //     message: "Order ID Not Found"
+                        // })
                     }
                 });
             } catch (error) {
