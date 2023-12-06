@@ -1136,7 +1136,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
             ]
         })
 
-        console.log(data)
+        // console.log(data)
 
         if(!data){
             return res.status(404).json({
@@ -1203,7 +1203,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                 }
             }
 
-            console.log(formattedData)
+            // console.log(formattedData)
 
         return res.status(200).json({
             message: "Data Ditemukan",
