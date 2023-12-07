@@ -550,7 +550,11 @@ const getDetailOrder = async (req, res) => {
             try {
                 transactionStatus = await coreApi.transaction.status(value.orderId);
             } catch (error) {
-                console.error(`Error getting transaction status: ${error}`);
+                if (error.ApiResponse && error.ApiResponse.statusCode === 500) {
+                    console.error('Midtrans Server error, status code: 500');
+                } else {
+                    console.error(`Error getting transaction status: ${error}`);
+                }
             }
 
             console.log(transactionStatus)
@@ -872,7 +876,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                             console.error(`Error getting transaction status: ${error}`);
                         }
 
-                        if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel') {
+                        if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
                             await Order.update({
                                 status_pembayaran: "Expired",
                                 status_order: 'Expired'
