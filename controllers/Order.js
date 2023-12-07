@@ -149,12 +149,6 @@ const createOrder = async (req, res) => {
 
             const nama = parameter.name_payment
             let kode = chargeResponse.va_numbers[0].va_number
-            // const dataTrans = await VirtualAccount.create({
-            //     nama: parameter.name_payment,
-            //     kode: chargeResponse.va_numbers[0].va_number
-            // })
-        
-            // const {id, nama, kode} = dataTrans
 
             const updateVaOrder = await Order.update(
                 { 
@@ -183,7 +177,11 @@ const createOrder = async (req, res) => {
                 return res.status(200).json({
                     message: "Order ID has been used, try another order ID"
                 })
-            } 
+            } else if (e.message.includes('HTTP status code: 505')){
+                return res.status(200).json({
+                    message: "Unable to create va_number for this transaction"
+                })
+            }
         });
 
     } catch (error) {
@@ -596,7 +594,7 @@ const getDetailOrder = async (req, res) => {
                 remainingTime = `${minutes} minutes ${seconds} seconds`;
             }
 
-            if(orderData.status_order === 'Cancel' || orderData.status_order === 'On Progress'){
+            if(orderData.status_order === 'Cancel' || orderData.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
                 minutes = 0;
                 seconds = 0;
             }
@@ -631,7 +629,7 @@ const getDetailOrder = async (req, res) => {
                         },
                         // total_price: orderData.total_price,
                         virtual_number: orderData.virtual_number,
-                        order_status: orderData.status_order,
+                        order_status: transactionStatus.transaction_status === 'settlement' ? 'On Progress' : orderData.status_order,
                         tanggal_order: orderData.tanggal_order,
                         updatedAt: orderData.updatedAt,
                         createdAt: orderData.createdAt,
@@ -658,7 +656,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: orderData.status_order,
+                        order_status: transactionStatus.transaction_status === 'settlement' ? 'On Progress' : orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -693,7 +691,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: orderData.status_order,
+                        order_status: transactionStatus.transaction_status === 'settlement' ? 'On Progress' : orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -729,7 +727,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: orderData.status_order,
+                        order_status: transactionStatus.transaction_status === 'settlement' ? 'On Progress' : orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -852,6 +850,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
 
                     for (const order of orders) {
                         // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
+                        console.log(order.dataValues.orders.dataValues.order_id)
                         let differenceInMilliseconds = 0;
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){
@@ -873,7 +872,16 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                         try {
                             transactionStatus = await coreApi.transaction.status(order.orders.dataValues.order_id);
                         } catch (error) {
-                            console.error(`Error getting transaction status: ${error}`);
+                            if(error.ApiResponse.status_code === '404'){
+                                console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
+                                return res.status(404).json({
+                                    response_code: 404,
+                                    message: `Error: ${error.ApiResponse.status_message}`
+                                })
+                            } else {
+                                console.error(`Error getting transaction status: ${error}`);
+                            }
+                            
                         }
 
                         if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
