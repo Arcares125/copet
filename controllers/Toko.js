@@ -187,9 +187,14 @@ const getDetailCardToko = async (req, res) => {
                 }
             )
         }
+
+        console.log(detail)
         
 
         for (const service of detail) {
+            if(service.rating === null){
+                service.rating = 0;
+            }
             const servicesString = service.services.replace('[', '').replace(']', '');
           
             const servicesArray = servicesString.split(', ');
@@ -277,7 +282,9 @@ const getDetailCardTokoFull = async (req, res) => {
                 groomings = null
             }
 
-
+            if (otherData.rating === null) {
+                otherData.rating = 0;
+            }
 
             return {
                 ...otherData,
