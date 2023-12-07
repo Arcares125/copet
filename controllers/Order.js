@@ -76,6 +76,13 @@ const createOrder = async (req, res) => {
             }
         } else if(data.service_type === 'Hotel' || data.service_type === 'hotel') {
 
+            if (new Date(data.tanggal_masuk).getTime() > new Date(data.tanggal_keluar).getTime()) {
+                return res.status(200).json({
+                    response_code: 200,
+                    message: "Tanggal Check in tidak bisa lebih besar dari Tanggal Check out"
+                })
+            }
+
             for(let i = 0; i < data.order_detail.length; i++) {
 
                 const getPrice = await Hotel.findOne({
