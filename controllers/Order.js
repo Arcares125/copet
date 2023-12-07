@@ -360,6 +360,7 @@ const setPaymentToExpired = async (req, res) => {
                 id: orderId
             }
         })
+        console.log(orderIsValid)
 
         if(!orderIsValid){
             return res.status(404).json({
@@ -622,7 +623,7 @@ const getDetailOrder = async (req, res) => {
                         },
                         // total_price: orderData.total_price,
                         virtual_number: orderData.virtual_number,
-                        order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
+                        order_status: orderData.status_order,
                         tanggal_order: orderData.tanggal_order,
                         updatedAt: orderData.updatedAt,
                         createdAt: orderData.createdAt,
@@ -649,7 +650,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
+                        order_status: orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -684,7 +685,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
+                        order_status: orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -720,7 +721,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
+                        order_status: orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -781,7 +782,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                         {
                             model: DetailOrderHotel,
                             as: 'detail_order_hotel',
-                            attributes: ['quantity'],
+                            attributes: ['quantity', 'tanggal_masuk', 'tanggal_keluar'],
                             required: true,
                             include: [{
                                 model: Order,
@@ -837,11 +838,22 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                 const services = [...toko.hotels, ...toko.groomings];
 
                 for (const service of services) {
+                     
                     const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
                     const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
                     const orders = [...hotelOrders, ...groomingOrders];
 
                     for (const order of orders) {
+                        // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
+
+                        // Calculate the difference in milliseconds
+                    let differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+
+                    // Convert the difference to days
+                    let differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+                    console.log(`The difference between the two dates is ${differenceInDays} days.`);
+
                         let coreApi = new midtransClient.CoreApi({
                             isProduction: false,
                             serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
@@ -854,10 +866,10 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                             console.error(`Error getting transaction status: ${error}`);
                         }
 
-                        console.log(transactionStatus)
-                        console.log(order.orders.dataValues.order_id)
+                        // console.log(transactionStatus)
+                        // console.log(order.orders.dataValues.order_id)
 
-                        if (transactionStatus.transaction_status === 'expire') {
+                        if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel') {
                             await Order.update({
                                 status_pembayaran: "Expired",
                                 status_order: 'Expired'
@@ -882,7 +894,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                             order_id: order.orders.dataValues.order_id,
                             title: toko.dataValues.title,
                             status: order.orders.status_order,
-                            total_payment: service.harga * order.quantity
+                            total_payment: service.harga * order.quantity * differenceInDays
                         });
                     }
                 }
