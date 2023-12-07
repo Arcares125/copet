@@ -597,7 +597,7 @@ const getDetailOrder = async (req, res) => {
                 seconds = 0;
             }
 
-            if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel'){
+            if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress'){
                 await Order.update({
                     status_order: 'Expired'
                 }, 
