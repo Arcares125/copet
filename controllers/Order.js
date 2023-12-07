@@ -786,44 +786,7 @@ const getDetailOrder = async (req, res) => {
 
         const formattedData = await Promise.all(data.map( async toko => {
 
-             // CHECK STATUS TRANS
-             let coreApi = new midtransClient.CoreApi({
-                            isProduction: false,
-                            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
-                        });
-             let transactionStatus;
-             try {
-                 transactionStatus = await coreApi.transaction.status(value.orderId);
-             } catch (error) {
-                 console.error(`Error getting transaction status: ${error}`);
-             }
- 
-             console.log(transactionStatus)
- 
-             // Check if transaction is expired
-             if (transactionStatus.transaction_status === 'expire') {
-                 // Update order_status in database
-                 await Order.update({
-                     status_pembayaran: "Expired",
-                     status_order: 'Expired'
-                 }, 
-                 {
-                     where:{
-                         id: value.orderId
-                     }
-                 });
-             } else if(transactionStatus.transaction_status === 'settlement'){
-                 await Order.update({
-                     status_pembayaran: "Expired",
-                     status_order: "On Progress"
-                 }, 
-                 {
-                     where:{
-                         id: value.orderId
-                     }
-                 });
-             }
+             
             
             let remainingTime = 0;
             const now = new Date();
@@ -833,6 +796,44 @@ const getDetailOrder = async (req, res) => {
             const groomingData = tokoData.groomings[0]? tokoData.groomings[0].dataValues : null;
             const orderData = hotelData ? hotelData.detail_order_hotel[0].orders.dataValues : groomingData.detail_order_grooming[0].orders.dataValues;
 
+            // CHECK STATUS TRANS
+            let coreApi = new midtransClient.CoreApi({
+                isProduction: false,
+                serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+                clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            });
+            let transactionStatus;
+            try {
+                transactionStatus = await coreApi.transaction.status(value.orderId);
+            } catch (error) {
+                console.error(`Error getting transaction status: ${error}`);
+            }
+
+            console.log(transactionStatus)
+
+            // Check if transaction is expired
+            if (transactionStatus.transaction_status === 'expire' && orderData.status_order !== 'Cancel') {
+                // Update order_status in database
+                await Order.update({
+                    status_pembayaran: "Expired",
+                    status_order: 'Expired'
+                }, 
+                {
+                    where:{
+                        id: value.orderId
+                    }
+                });
+            } else if(transactionStatus.transaction_status === 'settlement'){
+                await Order.update({
+                    status_pembayaran: "Berhasil",
+                    status_order: "On Progress"
+                }, 
+                {
+                    where:{
+                        id: value.orderId
+                    }
+                });
+            }
             //tanggal_order
             const orderDate = orderData.tanggal_order;
             const diffInMilliseconds = now - orderDate; // Difference in milliseconds
@@ -847,7 +848,7 @@ const getDetailOrder = async (req, res) => {
                 remainingTime = `${minutes} minutes ${seconds} seconds`;
             }
 
-            if(minutes === 0 && seconds === 0){
+            if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel'){
                 await Order.update({
                     status_order: 'Expired'
                 }, 
