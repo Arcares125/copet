@@ -528,13 +528,17 @@ const getDetailOrder = async (req, res) => {
             const groomingData = tokoData.groomings[0]? tokoData.groomings[0].dataValues : null;
             const orderData = hotelData ? hotelData.detail_order_hotel[0].orders.dataValues : groomingData.detail_order_grooming[0].orders.dataValues;
 
-            // Calculate the difference in milliseconds
-            let differenceInMilliseconds = hotelData.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - hotelData.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+            let differenceInMilliseconds
+            let differenceInDays
+            if(hotelData){
+                // Calculate the difference in milliseconds
+                differenceInMilliseconds = hotelData ? hotelData.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - hotelData.detail_order_hotel[0].dataValues.tanggal_masuk.getTime():''
 
-            // Convert the difference to days
-            let differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                // Convert the difference to days
+                differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
-            console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                console.log(`The difference between the two dates is ${differenceInDays} days.`);
+            }
 
             // CHECK STATUS TRANS
             let coreApi = new midtransClient.CoreApi({
@@ -821,8 +825,8 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                         },
                     ]
                 }
-            ]
-        })
+            ], logging:false
+        },)
 
         if(!data){
             return res.status(404).json({
@@ -838,21 +842,23 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                 const services = [...toko.hotels, ...toko.groomings];
 
                 for (const service of services) {
-                     
                     const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
                     const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
                     const orders = [...hotelOrders, ...groomingOrders];
 
                     for (const order of orders) {
                         // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
+                        let differenceInMilliseconds = 0;
+                        let differenceInDays = 0;
+                        if(hotelOrders.length > 0){
+                            // Calculate the difference in milliseconds
+                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
 
-                        // Calculate the difference in milliseconds
-                    let differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+                            // Convert the difference to days
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
-                    // Convert the difference to days
-                    let differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
-
-                    console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                            console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                        }
 
                         let coreApi = new midtransClient.CoreApi({
                             isProduction: false,
@@ -865,9 +871,6 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                         } catch (error) {
                             console.error(`Error getting transaction status: ${error}`);
                         }
-
-                        // console.log(transactionStatus)
-                        // console.log(order.orders.dataValues.order_id)
 
                         if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel') {
                             await Order.update({
@@ -890,22 +893,29 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                                 }
                             });
                         }
-                        formattedData.push({
-                            order_id: order.orders.dataValues.order_id,
-                            title: toko.dataValues.title,
-                            status: order.orders.status_order,
-                            total_payment: service.harga * order.quantity * differenceInDays
-                        });
+
+                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                        if (existingOrder) {
+                            // sum total_payment from same order_id
+                            existingOrder.total_payment += service.harga * order.quantity;
+                        } else {
+                            formattedData.push({
+                                order_id: order.orders.dataValues.order_id,
+                                title: toko.dataValues.title,
+                                status: order.orders.status_order,
+                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                            });
+                        }
+                        
                     }
                 }
             }
 
-        const filterDuplicate = [...new Set(formattedData)]
-
         return res.status(200).json({
             message: "Data Ditemukan",
             response_code: 200,
-            data: filterDuplicate
+            data: formattedData
 
         })
     
