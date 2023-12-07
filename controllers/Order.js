@@ -592,7 +592,7 @@ const getDetailOrder = async (req, res) => {
                 remainingTime = `${minutes} minutes ${seconds} seconds`;
             }
 
-            if(orderData.status_order === 'Cancel'){
+            if(orderData.status_order === 'Cancel' || orderData.status_order === 'On Progress'){
                 minutes = 0;
                 seconds = 0;
             }
