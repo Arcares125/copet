@@ -431,7 +431,7 @@ const getDetailOrder = async (req, res) => {
                         {
                             model: DetailOrderHotel,
                             as: 'detail_order_hotel',
-                            attributes: ['quantity'],
+                            attributes: ['quantity', 'tanggal_masuk', 'tanggal_keluar'],
                             required: true,
                             where: {
                                 order_id: value.orderId
@@ -506,287 +506,11 @@ const getDetailOrder = async (req, res) => {
                     ]
                 },
             ],
-
-            // logging: console.log
         });
 
         let totalPrice = 0;
 
-        // await sequelize.transaction(async (t) =>{
-        //     try {
-        //         let coreApi = new midtransClient.CoreApi({
-        //             isProduction: false,
-        //             serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-        //             clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
-        //         });
-        
-        //         await coreApi.transaction.status(value.orderId).then(async (response) => {
-        //             // console.log(response)
-        //             console.log('Transaction status:', response.transaction_status);
-        
-        //             if (response.transaction_status === 'settlement') {
-        //                 console.log('Transaction is successful');
-        
-        //                 const updateStatusPayment = await Order.update(
-        //                     { 
-        //                         status_pembayaran: "Berhasil",
-        //                         status_order: "On Progress"
-        //                     },
-        //                     {   
-        //                         transaction: t,
-        //                         where: {id: value.orderId} 
-        //                     }
-        //                 )
-        
-        //                  // Commit the transaction here
-        
-        //                 // return res.status(200).json({
-        //                 //     "response_code": 200,
-        //                 //     "Transaction Status": "Paid"
-        //                 // })
-        //             } else if(response.transaction_status === 'expire'){
-        
-        //                 console.log('Transaction is expired');
-        
-        //                 const updateStatusPayment = await Order.update(
-        //                     { 
-        //                         status_pembayaran: "Expired",
-        //                         status_order: "Expired"
-        //                     },
-        //                     {   
-        //                         transaction: t,
-        //                         where: {id: value.orderId} 
-        //                     }
-        //                 )
-        
-        //                  // Commit the transaction here
-        
-        //                 // return res.status(200).json({
-        //                 //     "response_code": 200,
-        //                 //     "Transaction Status": "Expired"
-        //                 // })
-        //             } else {
-        //                 console.log('Transaction is not successful');
-        //                 // return res.status(200).json({
-        //                 //     "response_code": 200,
-        //                 //     "Transaction Status": response.transaction_status
-        //                 // })
-        //             }
-        //             await t.afterCommit(async (transaction) =>{
-        //                 const transactionEnd = await sequelize.transaction();
-
-        //                 try {
-        //                     const formattedData = await Promise.all(data.map( async toko => {
-        //                         let remainingTime = 0;
-        //                         const now = new Date();
-                               
-        //                         const tokoData = toko.dataValues;
-        //                         const hotelData = tokoData.hotels[0]? tokoData.hotels[0].dataValues : null;
-        //                         const groomingData = tokoData.groomings[0]? tokoData.groomings[0].dataValues : null;
-        //                         const orderData = hotelData ? hotelData.detail_order_hotel[0].orders.dataValues : groomingData.detail_order_grooming[0].orders.dataValues;
-                                
-        //                         //tanggal_order
-        //                         const orderDate = orderData.tanggal_order;
-        //                         const diffInMilliseconds = now - orderDate; // Difference in milliseconds
-        //                         let minutes = 0;
-        //                         let seconds = 0
-        //                         if (diffInMilliseconds < 15 * 60 * 1000) { // If less than 15 minutes
-        //                             const diffInSeconds = Math.floor(diffInMilliseconds / 1000); // Convert to seconds
-        //                             const remainingMilliseconds = 15 * 60 * 1000 - diffInMilliseconds;
-        //                             const remainingSeconds = Math.floor(remainingMilliseconds / 1000); // Convert to seconds
-        //                             minutes = Math.floor(remainingSeconds / 60);
-        //                             seconds = remainingSeconds % 60;
-        //                             remainingTime = `${minutes} minutes ${seconds} seconds`;
-        //                         }
-                    
-        //                         if(minutes === 0 && seconds === 0){
-        //                             await Order.update({
-        //                                 status_order: 'Expired'
-        //                             }, 
-        //                             {
-        //                                 where:{
-        //                                     id: value.orderId
-        //                                 }
-        //                             })
-        //                         }
-                    
-        //                         const userData = orderData.users.dataValues;
-        //                         const reviewData = orderData.reviews ? orderData.reviews.dataValues : null ;
-                                
-        //                         if(hotelData !== null){
-        //                             if(reviewData !== null){
-        //                                 return {
-        //                                     id_toko: tokoData.id_toko,
-        //                                     nama_toko: tokoData.pet_shop_name,
-        //                                     user_id: userData.user_id,
-        //                                     order_id: orderData.order_id,
-        //                                     // status_order: orderData.status_order,
-        //                                     metode_pembayaran: orderData.metode_pembayaran,
-        //                                     // remaining_time: remainingTime,
-        //                                     time:{
-        //                                         minutes: minutes,
-        //                                         seconds: seconds
-        //                                     },
-        //                                     // total_price: orderData.total_price,
-        //                                     virtual_number: orderData.virtual_number,
-        //                                     order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
-        //                                     tanggal_order: orderData.tanggal_order,
-        //                                     updatedAt: orderData.updatedAt,
-        //                                     createdAt: orderData.createdAt,
-        //                                     deletedAt: orderData.deletedAt,
-        //                                     order_detail: tokoData.hotels.map(hotel => {
-        //                                         const hotelData = hotel.dataValues;
-        //                                         totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity
-        //                                         return {
-        //                                             hotel_id: hotelData.id,
-        //                                             hotel_title: hotelData.title_hotel,
-        //                                             quantity: hotelData.detail_order_hotel[0].dataValues.quantity
-        //                                         };
-        //                                     }),
-        //                                     total_price: totalPrice, 
-        //                                     review: {
-        //                                         rate: reviewData.review,
-        //                                         review_description: reviewData.review_description
-        //                                     },
-        //                                     service_type: "Hotel"
-        //                                 };
-        //                             } else {
-        //                                 return {
-        //                                     id_toko: tokoData.id_toko,
-        //                                     nama_toko: tokoData.pet_shop_name,
-        //                                     user_id: userData.user_id,
-        //                                     order_id: orderData.order_id,
-        //                                     order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
-        //                                     metode_pembayaran: orderData.metode_pembayaran,
-        //                                     // remaining_time: remainingTime,
-        //                                     time:{
-        //                                         minutes: minutes,
-        //                                         seconds: seconds
-        //                                     },
-        //                                     // total_price: orderData.total_price,
-        //                                     virtual_number: orderData.virtual_number,
-        //                                     // status_order: orderData.status_order,
-        //                                     tanggal_order: orderData.tanggal_order,
-        //                                     updatedAt: orderData.updatedAt,
-        //                                     createdAt: orderData.createdAt,
-        //                                     deletedAt: orderData.deletedAt,
-        //                                     order_detail: tokoData.hotels.map(hotel => {
-        //                                         const hotelData = hotel.dataValues;
-        //                                         totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity
-        //                                         return {
-        //                                             hotel_id: hotelData.id,
-        //                                             hotel_title: hotelData.title_hotel,
-        //                                             quantity: hotelData.detail_order_hotel[0].dataValues.quantity
-        //                                         };
-        //                                     }),
-        //                                     total_price: totalPrice, 
-        //                                     review: null,
-        //                                     service_type: "Hotel"
-        //                                 };
-        //                             }
-        //                         } else if (groomingData !== null){
-        //                             if(reviewData !== null){
-        //                                 return {
-        //                                     id_toko: tokoData.id_toko,
-        //                                     nama_toko: tokoData.pet_shop_name,
-        //                                     user_id: userData.user_id,
-        //                                     order_id: orderData.order_id,
-        //                                     order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
-        //                                     metode_pembayaran: orderData.metode_pembayaran,
-        //                                     // remaining_time: remainingTime,
-        //                                     time:{
-        //                                         minutes: minutes,
-        //                                         seconds: seconds
-        //                                     },
-        //                                     // total_price: orderData.total_price,
-        //                                     virtual_number: orderData.virtual_number,
-        //                                     // status_order: orderData.status_order,
-        //                                     tanggal_order: orderData.tanggal_order,
-        //                                     updatedAt: orderData.updatedAt,
-        //                                     createdAt: orderData.createdAt,
-        //                                     deletedAt: orderData.deletedAt,
-        //                                     order_detail: tokoData.groomings.map(grooming => {
-        //                                         const groomingData = grooming.dataValues;
-        //                                         totalPrice += groomingData.harga * groomingData.detail_order_grooming[0].dataValues.quantity
-        //                                         return {
-        //                                             grooming_id: groomingData.id,
-        //                                             grooming_title: groomingData.title_grooming,
-        //                                             quantity: groomingData.detail_order_grooming[0].dataValues.quantity
-        //                                         };
-        //                                     }),
-        //                                     total_price: totalPrice, 
-        //                                     review: {
-        //                                         rate: reviewData.review,
-        //                                         review_description: reviewData.ulasan
-        //                                     },
-        //                                     service_type: "Grooming"
-        //                                 };
-        //                             } else {
-        //                                 return {
-        //                                     id_toko: tokoData.id_toko,
-        //                                     nama_toko: tokoData.pet_shop_name,
-        //                                     user_id: userData.user_id,
-        //                                     order_id: orderData.order_id,
-        //                                     order_status: minutes === 0 && seconds === 0 ? 'Expired' : orderData.status_order,
-        //                                     metode_pembayaran: orderData.metode_pembayaran,
-        //                                     // remaining_time: remainingTime,
-        //                                     time:{
-        //                                         minutes: minutes,
-        //                                         seconds: seconds
-        //                                     },
-        //                                     // total_price: orderData.total_price,
-        //                                     virtual_number: orderData.virtual_number,
-        //                                     // status_order: orderData.status_order,
-        //                                     tanggal_order: orderData.tanggal_order,
-        //                                     updatedAt: orderData.updatedAt,
-        //                                     createdAt: orderData.createdAt,
-        //                                     deletedAt: orderData.deletedAt,
-        //                                     order_detail: tokoData.groomings.map(grooming => {
-        //                                         const groomingData = grooming.dataValues;
-        //                                         totalPrice += groomingData.harga * groomingData.detail_order_grooming[0].dataValues.quantity
-        //                                         return {
-        //                                             grooming_id: groomingData.id,
-        //                                             grooming_title: groomingData.title_grooming,
-        //                                             quantity: groomingData.detail_order_grooming[0].dataValues.quantity,
-        //                                         };
-        //                                     }),
-        //                                     total_price: totalPrice, 
-        //                                     review: null,
-        //                                     service_type: "Grooming"
-        //                                 };
-        //                             }
-        //                         }
-        //                     }));
-                            
-        //                     // console.log(formattedData);
-        //                     return res.status(200).json({
-        //                         message: "Data detail order berhasil diambil",
-        //                         response_code: 200,
-        //                         data: formattedData
-        //                     })
-        //                 } catch (error) {
-        //                     await transactionEnd.rollback()
-        //                     throw new Error('Internal server error')
-        //                 }
-        //             })
-        //         }).catch(async (e) => {
-        //             console.log('Error occured:', e.message);
-        //             if(e.message.includes('HTTP status code: 404')){
-        //                 await t.rollback(); // Rollback the transaction here
-        //                 // return res.status(200).json({
-        //                 //     message: "Order ID Not Found"
-        //                 // })
-        //             }
-        //         });
-        //     } catch (error) {
-        //         console.log(error.message)
-        //         await t.rollback() // Rollback the transaction in case of an error
-        //     }
-        // })
-
-        const formattedData = await Promise.all(data.map( async toko => {
-
-             
+        const formattedData = await Promise.all(data.map( async toko => {  
             
             let remainingTime = 0;
             const now = new Date();
@@ -795,6 +519,14 @@ const getDetailOrder = async (req, res) => {
             const hotelData = tokoData.hotels[0]? tokoData.hotels[0].dataValues : null;
             const groomingData = tokoData.groomings[0]? tokoData.groomings[0].dataValues : null;
             const orderData = hotelData ? hotelData.detail_order_hotel[0].orders.dataValues : groomingData.detail_order_grooming[0].orders.dataValues;
+
+            // Calculate the difference in milliseconds
+            let differenceInMilliseconds = hotelData.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - hotelData.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+
+            // Convert the difference to days
+            let differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+            console.log(`The difference between the two dates is ${differenceInDays} days.`);
 
             // CHECK STATUS TRANS
             let coreApi = new midtransClient.CoreApi({
@@ -848,6 +580,11 @@ const getDetailOrder = async (req, res) => {
                 remainingTime = `${minutes} minutes ${seconds} seconds`;
             }
 
+            if(orderData.status_order === 'Cancel'){
+                minutes = 0;
+                seconds = 0;
+            }
+
             if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel'){
                 await Order.update({
                     status_order: 'Expired'
@@ -885,7 +622,7 @@ const getDetailOrder = async (req, res) => {
                         deletedAt: orderData.deletedAt,
                         order_detail: tokoData.hotels.map(hotel => {
                             const hotelData = hotel.dataValues;
-                            totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity
+                            totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity * differenceInDays
                             return {
                                 hotel_id: hotelData.id,
                                 hotel_title: hotelData.title_hotel,
@@ -921,7 +658,7 @@ const getDetailOrder = async (req, res) => {
                         deletedAt: orderData.deletedAt,
                         order_detail: tokoData.hotels.map(hotel => {
                             const hotelData = hotel.dataValues;
-                            totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity
+                            totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity * differenceInDays
                             return {
                                 hotel_id: hotelData.id,
                                 hotel_title: hotelData.title_hotel,
@@ -1007,7 +744,6 @@ const getDetailOrder = async (req, res) => {
             }
         }));
         
-        // console.log(formattedData);
         return res.status(200).json({
             message: "Data detail order berhasil diambil",
             response_code: 200,
@@ -1024,63 +760,6 @@ const getDetailOrder = async (req, res) => {
 const getOrderStatusWaitingPayment = async (req, res) => {
 
     try {
-
-        // await sequelize.transaction(async (t) => {
-        //     try {
-        //         let coreApi = new midtransClient.CoreApi({
-        //             isProduction: false,
-        //             serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-        //             clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
-        //         });
-        
-        //         const allOrders = await Order.findAll();
-        
-        //         for (let order of allOrders) {
-        //             let orderId = order.id;
-        
-        //             try {
-        //                 const response = await coreApi.transaction.status(orderId);
-        //                 console.log('Transaction status:', response.transaction_status);
-        
-        //                 if (response.transaction_status === 'settlement') {
-        //                     console.log('Transaction is successful');
-        
-        //                     const updateStatusPayment = await Order.update(
-        //                         { 
-        //                             status_pembayaran: "Berhasil",
-        //                             status_order: "On Progress"
-        //                         },
-        //                         { 
-        //                             transaction: t,
-        //                             where: {id: orderId} 
-        //                         }
-        //                     );
-        //                 } else if(response.transaction_status === 'expire'){
-        //                     console.log('Transaction is expired');
-        
-        //                     const updateStatusPayment = await Order.update(
-        //                         { 
-        //                             status_pembayaran: "Expired",
-        //                             status_order: "Expired"
-        //                         },
-        //                         { 
-        //                             transaction: t,
-        //                             where: {id: orderId} 
-        //                         }
-        //                     );
-        //                 } else {
-        //                     console.log('Transaction is not successful');
-        //                 }
-        //             } catch (e) {
-        //                 console.log('Error occured:', e.message);
-        //             }
-        //         }
-        //     } catch (error) {
-        //         await t.rollback();
-        //     }
-        // });
-            
-                
         const data = await Toko.findAll({
             attributes: [
                 ['nama', 'title'],
@@ -1136,8 +815,6 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                 }
             ]
         })
-
-        // console.log(data)
 
         if(!data){
             return res.status(404).json({
@@ -1204,12 +881,12 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                 }
             }
 
-            // console.log(formattedData)
+        const filterDuplicate = [...new Set(formattedData)]
 
         return res.status(200).json({
             message: "Data Ditemukan",
             response_code: 200,
-            data: formattedData
+            data: filterDuplicate
 
         })
     
