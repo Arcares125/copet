@@ -289,7 +289,7 @@ const getDetailCardTokoFull = async (req, res) => {
             }
 
             if(otherData.review === null){
-                otherData.review = ''
+                otherData.review = []
             }
 
             return {
