@@ -1007,13 +1007,16 @@ const getOrderStatusOnProgress = async (req, res) => {
                 transactionStatusOrder = await coreApiOrder.transaction.status(order.dataValues.id);
             } catch (error) {
                 if(error.ApiResponse.status_code === '404'){
+                    // console.log('tester masuk')
                     console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
-                    return res.status(404).json({
-                        response_code: 404,
-                        message: `Error: ${error.ApiResponse.status_message}`
-                    })
+                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
+                    // return res.status(404).json({
+                    //     response_code: 404,
+                    //     message: `Error: ${error.ApiResponse.status_message}`
+                    // })
                 } else {
-                    console.error(`Error getting transaction status: ${error}`);
+                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
+                    // console.error(`Error getting transaction status: ${error}`);
                 }
             }
 
