@@ -605,7 +605,7 @@ const getDetailOrder = async (req, res) => {
             console.log(transactionStatus)
 
             // Check if transaction is expired
-            if (transactionStatus.transaction_status === 'expire' && orderData.status_order !== 'Cancel') {
+            if (transactionStatus.transaction_status === 'expire' && orderData.status_order === 'Waiting Payment') {
                 // Update order_status in database
                 await Order.update({
                     status_pembayaran: "Expired",
