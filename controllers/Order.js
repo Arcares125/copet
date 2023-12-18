@@ -594,15 +594,25 @@ const getDetailOrder = async (req, res) => {
             let transactionStatus;
             try {
                 transactionStatus = await coreApi.transaction.status(value.orderId);
+                console.log(transactionStatus)
             } catch (error) {
-                if (error.ApiResponse && error.ApiResponse.statusCode === 500) {
+                if (error.ApiResponse && error.ApiResponse.status_code === 500) {
                     console.error('Midtrans Server error, status code: 500');
+                    return res.json({
+                        "response_code": 200,
+                        "message": "No Data Available"
+                    })
+                } else if(transactionStatus === undefined){
+                    return res.json({
+                        "response_code": 200,
+                        "message": "No Data Available"
+                    })
                 } else {
                     console.error(`Error getting transaction status: ${error}`);
+                    
                 }
             }
-
-            console.log(transactionStatus)
+            // console.log(transactionStatus)
 
             // Check if transaction is expired
             if (transactionStatus.transaction_status === 'expire' && orderData.status_order === 'Waiting Payment') {
