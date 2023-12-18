@@ -11,7 +11,7 @@ module.exports = {
         allowNull: false
       },
       uid: {
-        type: DataTypes.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: true
       },
       nama: {

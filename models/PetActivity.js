@@ -14,6 +14,18 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.DATE,
             allowNull:false,
           },
+          isAllDay: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true
+          },
+          background: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+          },
+          description: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+          },
           createdAt: {
             type: DataTypes.DATE,
             allowNull:false,

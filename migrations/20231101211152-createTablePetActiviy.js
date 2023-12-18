@@ -18,6 +18,18 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull:false,
       },
+      isAllDay: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true
+      },
+      background: {
+        type: Sequelize.STRING(255),
+        allowNull: true
+      },
+      description: {
+        type: Sequelize.STRING(255),
+        allowNull: true
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull:false,
