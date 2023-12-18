@@ -433,7 +433,7 @@ const setOrderToCompleted = async (req, res) => {
                 id: orderId
             }
         })
-        console.log(orderIsValid)
+        // console.log(orderIsValid)
 
         if(!orderIsValid){
             return res.status(404).json({
@@ -452,7 +452,7 @@ const setOrderToCompleted = async (req, res) => {
         return res.status(200).json({
             "response_code": 200,
             "message": "order has been completed",
-            data: orderIsValid
+            data: {...orderIsValid.dataValues, status_order: "Completed"}
         })
 
     } catch (error) {
@@ -616,10 +616,19 @@ const getDetailOrder = async (req, res) => {
                         id: value.orderId
                     }
                 });
-            } else if(transactionStatus.transaction_status === 'settlement'){
+            } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment'){
                 await Order.update({
                     status_pembayaran: "Berhasil",
                     status_order: "On Progress"
+                }, 
+                {
+                    where:{
+                        id: value.orderId
+                    }
+                });
+            } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Completed'){
+                await Order.update({
+                    status_pembayaran: "Berhasil",
                 }, 
                 {
                     where:{
@@ -646,7 +655,7 @@ const getDetailOrder = async (req, res) => {
                 seconds = 0;
             }
 
-            if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress'){
+            if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress' && orderData.status_order !== 'Completed'){
                 await Order.update({
                     status_order: 'Expired'
                 }, 
@@ -676,7 +685,7 @@ const getDetailOrder = async (req, res) => {
                         },
                         // total_price: orderData.total_price,
                         virtual_number: orderData.virtual_number,
-                        order_status: transactionStatus.transaction_status === 'settlement' ? 'On Progress' : orderData.status_order,
+                        order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                         tanggal_order: orderData.tanggal_order,
                         updatedAt: orderData.updatedAt,
                         createdAt: orderData.createdAt,
@@ -703,7 +712,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: transactionStatus.transaction_status === 'settlement' ? 'On Progress' : orderData.status_order,
+                        order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -738,7 +747,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: transactionStatus.transaction_status === 'settlement' ? 'On Progress' : orderData.status_order,
+                        order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -774,7 +783,7 @@ const getDetailOrder = async (req, res) => {
                         nama_toko: tokoData.pet_shop_name,
                         user_id: userData.user_id,
                         order_id: orderData.order_id,
-                        order_status: transactionStatus.transaction_status === 'settlement' ? 'On Progress' : orderData.status_order,
+                        order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                         metode_pembayaran: orderData.metode_pembayaran,
                         // remaining_time: remainingTime,
                         time:{
@@ -1000,7 +1009,7 @@ const getOrderStatusOnProgress = async (req, res) => {
             }
         }
     })
-    console.log(getAllOrder)
+    // console.log(getAllOrder)
 
     const checkStatus = async () =>{
         let coreApiOrder = new midtransClient.CoreApi({
@@ -1151,7 +1160,7 @@ const getOrderStatusOnProgress = async (req, res) => {
                     }
                 }
             }
-
+            formattedData.sort((a, b) => b.order_id - a.order_id);
         return res.status(200).json({
             message: "Data Ditemukan",
             response_code: 200,
