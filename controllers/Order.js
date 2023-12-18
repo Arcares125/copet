@@ -162,7 +162,7 @@ const createOrder = async (req, res) => {
                 message: "Data Order Berhasil Disimpan",
                 response_code: 200,
                 data: {
-                    order: dataOrder.dataValues,
+                    order: {...dataOrder.dataValues, virtual_number: kode},
                     detail: details,
                     total_price: totalPrice,
                     nama,
@@ -994,6 +994,7 @@ const getOrderStatusOnProgress = async (req, res) => {
             }
         }
     })
+    console.log(getAllOrder)
 
     const checkStatus = async () =>{
         let coreApiOrder = new midtransClient.CoreApi({
