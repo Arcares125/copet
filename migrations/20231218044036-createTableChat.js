@@ -3,36 +3,34 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('detail_pet_activity', {
-      id: {
+    await queryInterface.createTable('chat', {
+      uid: {
         type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false
+        allowNull: true
       },
-      activity_id: {
+      order_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      nama: {
-        type: Sequelize.STRING(50),
-        allowNull: false
-      },
-      activity_mulai: {
+      createdAt: {
         type: Sequelize.DATE,
         allowNull:false,
       },
-      activity_akhir: {
+      updatedAt: {
         type: Sequelize.DATE,
-        allowNull:false,
+        allowNull:true,
       },
+      deletedAt: {
+        type: Sequelize.DATE,
+        allowNull:true,
+      }
   });
     
   },
 
   async down (queryInterface, Sequelize) {
 
-  await queryInterface.dropTable('detail_pet_activity');
+  await queryInterface.dropTable('chat');
     
   }
 };

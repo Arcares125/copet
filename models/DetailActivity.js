@@ -14,10 +14,6 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.INTEGER,
             allowNull: false
           },
-          nama: {
-            type: DataTypes.STRING(50),
-            allowNull: false
-          },
           activity_mulai: {
             type: DataTypes.DATE,
             allowNull:false,

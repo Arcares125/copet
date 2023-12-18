@@ -10,7 +10,7 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
-      uuid: {
+      uid: {
         type: Sequelize.INTEGER,
         allowNull: true
       },

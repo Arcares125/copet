@@ -6,6 +6,10 @@ module.exports = (sequelize, DataTypes) =>{
             primaryKey: true,
             allowNull: false
           },
+          uid: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+          },
           nama: {
             type: DataTypes.STRING(255),
             allowNull: false

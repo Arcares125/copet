@@ -10,6 +10,10 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
+      uid: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
       nama: {
         type: Sequelize.STRING(255),
         allowNull: false
