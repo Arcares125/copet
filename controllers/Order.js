@@ -449,6 +449,12 @@ const setOrderToCompleted = async (req, res) => {
             { where: {id: orderId} }
         )
 
+        return res.status(200).json({
+            "response_code": 200,
+            "message": "order has been completed",
+            data: orderIsValid
+        })
+
     } catch (error) {
         return res.status(500).json({
             message: error.message,
