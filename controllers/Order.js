@@ -416,6 +416,47 @@ const setPaymentToExpired = async (req, res) => {
     }
 }
 
+const setOrderToCompleted = async (req, res) => {
+
+    try {
+
+        let coreApi = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+        
+        let orderId = req.params.orderId; 
+
+        const orderIsValid = await Order.findOne({
+            where: {
+                id: orderId
+            }
+        })
+        console.log(orderIsValid)
+
+        if(!orderIsValid){
+            return res.status(404).json({
+                "response_code": 404,
+                "message": "Order not found"
+            })
+        }
+        
+        const updateOrderStatus = await Order.update(
+            { 
+                status_order: "Completed"
+            },
+            { where: {id: orderId} }
+        )
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
+
 const getDetailOrder = async (req, res) => {
 
     const value = req.params
@@ -1041,7 +1082,7 @@ const getOrderStatusOnProgress = async (req, res) => {
                                     attributes: [['id', 'order_id'], 'status_order'],
                                     where: {
                                         status_order:{
-                                            [Op.iLike] : '%On Progresst%'
+                                            [Op.iLike] : '%On Progress%'
                                         }
                                     },
                                 }]
@@ -1118,6 +1159,180 @@ const getOrderStatusOnProgress = async (req, res) => {
     }
 }
 
+const getOrderStatusCompleteExpireCancel = async (req, res) =>{
+    const getAllOrder = await Order.findAll({
+        attributes: ['id', 'status_order'],
+        where:{
+            status_order: {
+                [Op.in]: ['Completed', 'Expired', 'Cancel']
+            }
+        }
+    })
+
+    const checkStatus = async () =>{
+        let coreApiOrder = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+        let transactionStatusOrder;
+        for(let order of getAllOrder){
+            try {
+                transactionStatusOrder = await coreApiOrder.transaction.status(order.dataValues.id);
+            } catch (error) {
+                if(error.ApiResponse.status_code === '404'){
+                    console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
+                    return res.status(404).json({
+                        response_code: 404,
+                        message: `Error: ${error.ApiResponse.status_message}`
+                    })
+                } else {
+                    console.error(`Error getting transaction status: ${error}`);
+                }
+            }
+
+            if(transactionStatusOrder.transaction_status === 'expire' && order.dataValues.status_order === 'Waiting Payment'){
+                await Order.update({
+                    status_pembayaran: "Expired",
+                    status_order: "Expired"
+                }, 
+                {
+                    where:{
+                        id: order.dataValues.id
+                    }
+                });
+            }
+
+        }
+    }
+
+    try {
+        await checkStatus().then(async () =>{
+            const formattedData = [];
+            const data = await Toko.findAll({
+                attributes: [
+                    ['nama', 'title'],
+                ],
+                include: [
+                    {
+                        model: Hotel,
+                        as: 'hotels',
+                        attributes: ['harga'],                    
+                        required: false,
+                        include: [
+                            {
+                                model: DetailOrderHotel,
+                                as: 'detail_order_hotel',
+                                attributes: ['quantity', 'tanggal_masuk', 'tanggal_keluar'],
+                                required: true,
+                                include: [{
+                                    model: Order,
+                                    as: 'orders',
+                                    attributes: [['id', 'order_id'], 'status_order'],
+                                    where: {
+                                        status_order:{
+                                            [Op.in] : ['Completed', 'Expired', 'Cancel']
+                                        }
+                                    },
+                                }]
+                            },
+                        ]
+                    },
+                    {
+                        model: Grooming,
+                        as: 'groomings',
+                        attributes: ['harga'],                    
+                        required: false,
+                        include: [
+                            {
+                                model: DetailOrderGrooming,
+                                as: 'detail_order_grooming',
+                                attributes: ['quantity'],
+                                required: true,
+                                include: [{
+                                    model: Order,
+                                    as: 'orders',
+                                    attributes: [['id', 'order_id'], 'status_order'],
+                                    where: {
+                                        status_order:{
+                                            [Op.in] : ['Completed', 'Expired', 'Cancel']
+                                        }
+                                    },
+                                }]
+                            },
+                        ]
+                    }
+                ], logging:false
+            },)
+    
+            if(data.length < 1){
+                return res.status(404).json({
+                    "response_code": 404,
+                    "message": "Data not found"
+                })
+            }
+
+            for (const toko of data) {
+                const services = [...toko.hotels, ...toko.groomings];
+                // console.log(services)
+
+                for (const service of services) {
+                    const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
+                    const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
+                    const orders = [...hotelOrders, ...groomingOrders];
+
+                    for (const order of orders) {
+                        // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
+                        order.orders.status_order
+                        console.log(order.dataValues.orders.dataValues.order_id)
+                        let differenceInMilliseconds = 0;
+                        let differenceInDays = 0;
+                        if(hotelOrders.length > 0){
+                            // Calculate the difference in milliseconds
+                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+
+                            // Convert the difference to days
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+                            console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                        }
+
+                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                        if (existingOrder) {
+                            // sum total_payment from same order_id
+                            existingOrder.total_payment += service.harga * order.quantity;
+                        } else {
+                            formattedData.push({
+                                order_id: order.orders.dataValues.order_id,
+                                title: toko.dataValues.title,
+                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                status: order.orders.status_order,
+                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                            });
+                        }
+                        
+                    }
+                }
+            }
+
+        return res.status(200).json({
+            message: "Data Ditemukan",
+            response_code: 200,
+            data: formattedData
+
+        })
+        })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
+
 module.exports = {
     createOrder,
     getPaymentData,
@@ -1125,5 +1340,7 @@ module.exports = {
     setPaymentToExpired,
     getDetailOrder,
     getOrderStatusWaitingPayment,
-    getOrderStatusOnProgress
+    getOrderStatusOnProgress,
+    setOrderToCompleted,
+    getOrderStatusCompleteExpireCancel
 }

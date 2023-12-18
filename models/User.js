@@ -5,7 +5,11 @@ module.exports = (sequelize, DataTypes) =>{
             autoIncrement: true,
             primaryKey: true,
             allowNull: false
-          } ,
+          },
+          uuid: {
+            type: DataTypes.INTEGER,
+            allowNull: true
+          },
           nama: {
             type: DataTypes.STRING(100),
             allowNull: false
