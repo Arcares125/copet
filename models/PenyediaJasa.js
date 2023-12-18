@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: false
           },
           uid: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING(255),
             allowNull: true
           },
           nama: {
