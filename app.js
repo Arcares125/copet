@@ -19,7 +19,7 @@ const detailOrderHotelRouter = require('./routes/detail_order_hotel');
 const detailOrderGroomingRouter = require('./routes/detail_order_grooming');
 const reviewRouter = require('./routes/review');
 const groomingRouter = require('./routes/grooming')
-const activityRouter = require('./routes/activity')
+const activityRouter = require('./routes/pet_activity')
 
 // const virtualAccountRouter = require('./routes/virtual_account')
 const port = process.env.PORT || 4000;
