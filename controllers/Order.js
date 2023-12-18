@@ -598,15 +598,14 @@ const getDetailOrder = async (req, res) => {
             } catch (error) {
                 if (error.ApiResponse && error.ApiResponse.status_code === 500) {
                     console.error('Midtrans Server error, status code: 500');
-                    return res.json({
-                        "response_code": 200,
-                        "message": "No Data Available"
-                    })
+                   
                 } else if(transactionStatus === undefined){
-                    return res.json({
-                        "response_code": 200,
-                        "message": "No Data Available"
-                    })
+                    console.error(`Error getting transaction status: ${error}`);
+
+                    // return res.json({
+                    //     "response_code": 200,
+                    //     "message": "No Data Available"
+                    // })
                 } else {
                     console.error(`Error getting transaction status: ${error}`);
                     
@@ -665,7 +664,7 @@ const getDetailOrder = async (req, res) => {
                 seconds = 0;
             }
 
-            if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress' && orderData.status_order !== 'Completed'){
+            if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress' && orderData.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire'){
                 await Order.update({
                     status_order: 'Expired'
                 }, 
