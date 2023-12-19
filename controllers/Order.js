@@ -468,6 +468,20 @@ const getDetailOrder = async (req, res) => {
     const value = req.params
 
     try {
+
+        const userIsValid = await User.findOne({
+            where: {
+                id: value.userId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '400',
+                message: 'User not found'
+            })
+        }
+
         const data = await Toko.findAll({
             attributes: [
                 ['id', 'id_toko'], ['nama', 'pet_shop_name'],
@@ -572,7 +586,7 @@ const getDetailOrder = async (req, res) => {
 
         let totalPrice = 0;
         // console.log(data)
-        console.log(value.orderId)
+        // console.log(value.orderId)
 
         const formattedData = await Promise.all(data.map(async toko => {  
             console.log(toko)
