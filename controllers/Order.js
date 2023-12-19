@@ -580,19 +580,19 @@ const getDetailOrder = async (req, res) => {
             let remainingTime = 0;
             const now = new Date();
            
-            const tokoData = toko.dataValues;
+            const tokoData = toko?.dataValues;
             // if(tokoData.groomings.length === 0 && tokoData.hotels.length === 0){
                 
             // } else {
-                const hotelData = tokoData.hotels[0]? tokoData.hotels[0].dataValues : null;
-                const groomingData = tokoData.groomings[0]? tokoData.groomings[0].dataValues : null;
-                const orderData = hotelData ? hotelData.detail_order_hotel[0].orders.dataValues : groomingData.detail_order_grooming[0].orders.dataValues;
+                const hotelData = tokoData.hotels[0]? tokoData.hotels[0]?.dataValues : null;
+                const groomingData = tokoData.groomings[0]? tokoData.groomings[0]?.dataValues : null;
+                const orderData = hotelData ? hotelData.detail_order_hotel[0].orders?.dataValues : groomingData.detail_order_grooming[0].orders?.dataValues;
 
                 let differenceInMilliseconds
                 let differenceInDays
                 if(hotelData){
                     // Calculate the difference in milliseconds
-                    differenceInMilliseconds = hotelData ? hotelData.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - hotelData.detail_order_hotel[0].dataValues.tanggal_masuk.getTime():''
+                    differenceInMilliseconds = hotelData ? hotelData.detail_order_hotel[0]?.dataValues.tanggal_keluar.getTime() - hotelData.detail_order_hotel[0]?.dataValues.tanggal_masuk.getTime():''
 
                     // Convert the difference to days
                     differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
@@ -690,8 +690,8 @@ const getDetailOrder = async (req, res) => {
                     })
                 }
 
-                const userData = orderData.users.dataValues;
-                const reviewData = orderData.reviews ? orderData.reviews.dataValues : null ;
+                const userData = orderData.users?.dataValues;
+                const reviewData = orderData.reviews ? orderData.reviews?.dataValues : null ;
                 
                 if(hotelData !== null){
                     if(reviewData !== null){
@@ -715,12 +715,12 @@ const getDetailOrder = async (req, res) => {
                             createdAt: orderData.createdAt,
                             deletedAt: orderData.deletedAt,
                             order_detail: tokoData.hotels.map(hotel => {
-                                const hotelData = hotel.dataValues;
-                                totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity * differenceInDays
+                                const hotelData = hotel?.dataValues;
+                                totalPrice += hotelData.harga * hotelData.detail_order_hotel[0]?.dataValues.quantity * differenceInDays
                                 return {
                                     hotel_id: hotelData.id,
                                     hotel_title: hotelData.title_hotel,
-                                    quantity: hotelData.detail_order_hotel[0].dataValues.quantity
+                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity
                                 };
                             }),
                             total_price: totalPrice, 
@@ -751,12 +751,12 @@ const getDetailOrder = async (req, res) => {
                             createdAt: orderData.createdAt,
                             deletedAt: orderData.deletedAt,
                             order_detail: tokoData.hotels.map(hotel => {
-                                const hotelData = hotel.dataValues;
-                                totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity * differenceInDays
+                                const hotelData = hotel?.dataValues;
+                                totalPrice += hotelData.harga * hotelData.detail_order_hotel[0]?.dataValues.quantity * differenceInDays
                                 return {
                                     hotel_id: hotelData.id,
                                     hotel_title: hotelData.title_hotel,
-                                    quantity: hotelData.detail_order_hotel[0].dataValues.quantity
+                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity
                                 };
                             }),
                             total_price: totalPrice, 
@@ -786,12 +786,12 @@ const getDetailOrder = async (req, res) => {
                             createdAt: orderData.createdAt,
                             deletedAt: orderData.deletedAt,
                             order_detail: tokoData.groomings.map(grooming => {
-                                const groomingData = grooming.dataValues;
-                                totalPrice += groomingData.harga * groomingData.detail_order_grooming[0].dataValues.quantity
+                                const groomingData = grooming?.dataValues;
+                                totalPrice += groomingData.harga * groomingData.detail_order_grooming[0]?.dataValues.quantity
                                 return {
                                     grooming_id: groomingData.id,
                                     grooming_title: groomingData.title_grooming,
-                                    quantity: groomingData.detail_order_grooming[0].dataValues.quantity
+                                    quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity
                                 };
                             }),
                             total_price: totalPrice, 
@@ -822,12 +822,12 @@ const getDetailOrder = async (req, res) => {
                             createdAt: orderData.createdAt,
                             deletedAt: orderData.deletedAt,
                             order_detail: tokoData.groomings.map(grooming => {
-                                const groomingData = grooming.dataValues;
-                                totalPrice += groomingData.harga * groomingData.detail_order_grooming[0].dataValues.quantity
+                                const groomingData = grooming?.dataValues;
+                                totalPrice += groomingData.harga * groomingData.detail_order_grooming[0]?.dataValues.quantity
                                 return {
                                     grooming_id: groomingData.id,
                                     grooming_title: groomingData.title_grooming,
-                                    quantity: groomingData.detail_order_grooming[0].dataValues.quantity,
+                                    quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity,
                                 };
                             }),
                             total_price: totalPrice, 
