@@ -828,11 +828,13 @@ const getDetailOrder = async (req, res) => {
             }
             
         }));
+
+        
         
         return res.status(200).json({
             message: "Data detail order berhasil diambil",
             response_code: 200,
-            data: formattedData
+            data: formattedData.filter(item => item !== null)
         })
     } catch(e) {
         console.log(e.message)
