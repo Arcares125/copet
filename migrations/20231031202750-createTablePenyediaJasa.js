@@ -33,7 +33,7 @@ module.exports = {
       jenis_jasa: {
         type: Sequelize.ENUM,
         values: ['Dokter', 'Trainer', 'Toko'],
-        allowNull: false
+        allowNull: true
       },
       refreshToken: {
         type: Sequelize.STRING(255),
