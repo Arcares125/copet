@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) =>{
           jenis_jasa: {
             type: DataTypes.ENUM,
             values: ['Dokter', 'Trainer', 'Toko'],
-            allowNull: false
+            allowNull: true
           },
           refreshToken: {
             type: DataTypes.STRING(255),
