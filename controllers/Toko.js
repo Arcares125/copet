@@ -55,7 +55,24 @@ const registerToko = async (req, res) => {
         }
     )
         console.log(getPenyediaJasaID[0].dataValues.id)
-        if(currJenisJasa !== checkRoleTokoPenyediaJasa[0].jenis_jasa ||
+        if(checkRoleTokoPenyediaJasa[0].jenis_jasa === null){
+
+            await PenyediaJasa.update({
+                jenis_jasa: 'Toko'
+            }, 
+            {
+                where:{
+                    id: data.penyedia_id
+                }
+            })
+
+            const dataToko = await Toko.create(data)
+            return res.status(201).json({
+                message: "Data Toko Berhasil Disimpan",
+                kode: 201,
+                data: dataToko
+            })
+        } else if(currJenisJasa !== checkRoleTokoPenyediaJasa[0].jenis_jasa ||
             getDokterTaken.length > 0 || getTrainerTaken.length > 0 || getTokoTaken.length > 0){
             return res.status(404).json({
                 message: "Penyedia Jasa hanya dapat mendaftarkan 1 jenis jasa / usaha",
@@ -147,30 +164,6 @@ const getDetailCardToko = async (req, res) => {
             WHERE a.nama ilike :search
             GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating, u.nama, u.no_telp
             `
-//             `
-// SELECT a.id, a.nama as pet_shop_name, z.rating, z.total_rating,
-// u.nama, u.no_telp,
-// CASE
-//     WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) < MIN(c.harga) THEN MIN(b.harga)
-//     WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) > MIN(c.harga) THEN MIN(c.harga)
-//     WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) >= MIN(c.harga) THEN MIN(c.harga)
-//     WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN MIN(b.harga)
-//     WHEN count(b.id) <= 0 AND count(c.id) > 0  THEN MIN(c.harga)
-//     ELSE '0'
-// END AS start_from,
-// CASE
-//     WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
-//     WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
-//     ELSE 'Grooming'
-// END AS services
-// from toko a 
-// LEFT JOIN hotel b ON a.id = b.toko_id
-// LEFT JOIN grooming c ON a.id = c.toko_id
-// LEFT JOIN penyedia_jasa u ON u.id = a.penyedia_id
-// LEFT JOIN (select toko_id, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating, COUNT(a.id) as total_rating
-//            from review a join "order" b ON a.order_id = b.id group by toko_id) z ON a.id = z.toko_id
-// GROUP BY a.id, a.nama, a.foto, z.rating, z.total_rating, u.nama, u.no_telp
-// `
             detail = await sequelize.query(query, 
                 {   
                     replacements: {
