@@ -20,7 +20,7 @@ router.get('/getOrderStatusCompleteExpireCancel', getOrderStatusCompleteExpireCa
 router.get('/getOrderStatusOnProgress', getOrderStatusOnProgress)
 router.post('/setOrderToCompleted/:orderId?', setOrderToCompleted)
 router.post('/set-order-to-expired/:orderId?', setPaymentToExpired)
-router.get('/:orderId?', getDetailOrder)
+router.get('/:userId?/:orderId?', getDetailOrder)
 
 
 
