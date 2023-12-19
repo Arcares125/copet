@@ -559,282 +559,293 @@ const getDetailOrder = async (req, res) => {
                     ]
                 },
             ],
+            where: {
+                id: {
+                  [Op.in]: sequelize.literal(`(SELECT a.toko_id FROM hotel a INNER JOIN detail_order_hotel b ON a.id = b.hotel_id 
+                    WHERE b.order_id = ${value.orderId}
+                    UNION 
+                    SELECT c.toko_id FROM grooming c INNER JOIN detail_order_grooming d ON c.id = d.grooming_id
+                    WHERE d.order_id = ${value.orderId})`)
+                }
+              },
         });
 
         let totalPrice = 0;
-        console.log(data)
+        // console.log(data)
+        console.log(value.orderId)
 
-        const formattedData = await Promise.all(data.map( async toko => {  
+        const formattedData = await Promise.all(data.map(async toko => {  
+            console.log(toko)
             
             let remainingTime = 0;
             const now = new Date();
            
             const tokoData = toko.dataValues;
-            if(tokoData.groomings.length === 0 && tokoData.hotels.length === 0){
+            // if(tokoData.groomings.length === 0 && tokoData.hotels.length === 0){
                 
-            } else {
+            // } else {
                 const hotelData = tokoData.hotels[0]? tokoData.hotels[0].dataValues : null;
-            const groomingData = tokoData.groomings[0]? tokoData.groomings[0].dataValues : null;
-            const orderData = hotelData ? hotelData.detail_order_hotel[0].orders.dataValues : groomingData.detail_order_grooming[0].orders.dataValues;
+                const groomingData = tokoData.groomings[0]? tokoData.groomings[0].dataValues : null;
+                const orderData = hotelData ? hotelData.detail_order_hotel[0].orders.dataValues : groomingData.detail_order_grooming[0].orders.dataValues;
 
-            let differenceInMilliseconds
-            let differenceInDays
-            if(hotelData){
-                // Calculate the difference in milliseconds
-                differenceInMilliseconds = hotelData ? hotelData.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - hotelData.detail_order_hotel[0].dataValues.tanggal_masuk.getTime():''
+                let differenceInMilliseconds
+                let differenceInDays
+                if(hotelData){
+                    // Calculate the difference in milliseconds
+                    differenceInMilliseconds = hotelData ? hotelData.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - hotelData.detail_order_hotel[0].dataValues.tanggal_masuk.getTime():''
 
-                // Convert the difference to days
-                differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                    // Convert the difference to days
+                    differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
-                console.log(`The difference between the two dates is ${differenceInDays} days.`);
-            }
+                    console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                }
 
-            // CHECK STATUS TRANS
-            let coreApi = new midtransClient.CoreApi({
-                isProduction: false,
-                serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
-            });
-            let transactionStatus;
-            try {
-                transactionStatus = await coreApi.transaction.status(value.orderId);
-                // console.log(transactionStatus)
-            } catch (error) {
-                if (error.ApiResponse && error.ApiResponse.status_code === 500) {
-                    console.error('Midtrans Server error, status code: 500');
-                   
-                } else if(transactionStatus === undefined){
-                    console.error(`Error getting transaction status: ${error}`);
-
-                    // return res.json({
-                    //     "response_code": 200,
-                    //     "message": "No Data Available"
-                    // })
-                } else {
-                    console.error(`Error getting transaction status: ${error}`);
+                // CHECK STATUS TRANS
+                let coreApi = new midtransClient.CoreApi({
+                    isProduction: false,
+                    serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+                    clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                });
+                let transactionStatus;
+                try {
+                    transactionStatus = await coreApi.transaction.status(value.orderId);
+                    // console.log(transactionStatus)
+                } catch (error) {
+                    if (error.ApiResponse && error.ApiResponse.status_code === 500) {
+                        console.error('Midtrans Server error, status code: 500');
                     
+                    } else if(transactionStatus === undefined){
+                        console.error(`Error getting transaction status: ${error}`);
+
+                        // return res.json({
+                        //     "response_code": 200,
+                        //     "message": "No Data Available"
+                        // })
+                    } else {
+                        console.error(`Error getting transaction status: ${error}`);
+                        
+                    }
                 }
-            }
-            // console.log(transactionStatus)
+                // console.log(transactionStatus)
 
-            // Check if transaction is expired
-            if (transactionStatus.transaction_status === 'expire' && orderData.status_order === 'Waiting Payment') {
-                // Update order_status in database
-                await Order.update({
-                    status_pembayaran: "Expired",
-                    status_order: 'Expired'
-                }, 
-                {
-                    where:{
-                        id: value.orderId
-                    }
-                });
-            } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment'){
-                await Order.update({
-                    status_pembayaran: "Berhasil",
-                    status_order: "On Progress"
-                }, 
-                {
-                    where:{
-                        id: value.orderId
-                    }
-                });
-            } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Completed'){
-                await Order.update({
-                    status_pembayaran: "Berhasil",
-                }, 
-                {
-                    where:{
-                        id: value.orderId
-                    }
-                });
-            }
-            //tanggal_order
-            const orderDate = orderData.tanggal_order;
-            const diffInMilliseconds = now - orderDate; // Difference in milliseconds
-            let minutes = 0;
-            let seconds = 0
-            if (diffInMilliseconds < 15 * 60 * 1000) { // If less than 15 minutes
-                const diffInSeconds = Math.floor(diffInMilliseconds / 1000); // Convert to seconds
-                const remainingMilliseconds = 15 * 60 * 1000 - diffInMilliseconds;
-                const remainingSeconds = Math.floor(remainingMilliseconds / 1000); // Convert to seconds
-                minutes = Math.floor(remainingSeconds / 60);
-                seconds = remainingSeconds % 60;
-                remainingTime = `${minutes} minutes ${seconds} seconds`;
-            }
-
-            if(orderData.status_order === 'Cancel' || orderData.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
-                minutes = 0;
-                seconds = 0;
-            }
-
-            if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress' && orderData.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire'){
-                await Order.update({
-                    status_order: 'Expired'
-                }, 
-                {
-                    where:{
-                        id: value.orderId
-                    }
-                })
-            }
-
-            const userData = orderData.users.dataValues;
-            const reviewData = orderData.reviews ? orderData.reviews.dataValues : null ;
-            
-            if(hotelData !== null){
-                if(reviewData !== null){
-                    return {
-                        id_toko: tokoData.id_toko,
-                        nama_toko: tokoData.pet_shop_name,
-                        user_id: userData.user_id,
-                        order_id: orderData.order_id,
-                        // status_order: orderData.status_order,
-                        metode_pembayaran: orderData.metode_pembayaran,
-                        // remaining_time: remainingTime,
-                        time:{
-                            minutes: minutes,
-                            seconds: seconds
-                        },
-                        // total_price: orderData.total_price,
-                        virtual_number: orderData.virtual_number,
-                        order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
-                        tanggal_order: orderData.tanggal_order,
-                        updatedAt: orderData.updatedAt,
-                        createdAt: orderData.createdAt,
-                        deletedAt: orderData.deletedAt,
-                        order_detail: tokoData.hotels.map(hotel => {
-                            const hotelData = hotel.dataValues;
-                            totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity * differenceInDays
-                            return {
-                                hotel_id: hotelData.id,
-                                hotel_title: hotelData.title_hotel,
-                                quantity: hotelData.detail_order_hotel[0].dataValues.quantity
-                            };
-                        }),
-                        total_price: totalPrice, 
-                        review: {
-                            rate: reviewData.review,
-                            review_description: reviewData.review_description
-                        },
-                        service_type: "Hotel"
-                    };
-                } else {
-                    return {
-                        id_toko: tokoData.id_toko,
-                        nama_toko: tokoData.pet_shop_name,
-                        user_id: userData.user_id,
-                        order_id: orderData.order_id,
-                        order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
-                        metode_pembayaran: orderData.metode_pembayaran,
-                        // remaining_time: remainingTime,
-                        time:{
-                            minutes: minutes,
-                            seconds: seconds
-                        },
-                        // total_price: orderData.total_price,
-                        virtual_number: orderData.virtual_number,
-                        // status_order: orderData.status_order,
-                        tanggal_order: orderData.tanggal_order,
-                        updatedAt: orderData.updatedAt,
-                        createdAt: orderData.createdAt,
-                        deletedAt: orderData.deletedAt,
-                        order_detail: tokoData.hotels.map(hotel => {
-                            const hotelData = hotel.dataValues;
-                            totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity * differenceInDays
-                            return {
-                                hotel_id: hotelData.id,
-                                hotel_title: hotelData.title_hotel,
-                                quantity: hotelData.detail_order_hotel[0].dataValues.quantity
-                            };
-                        }),
-                        total_price: totalPrice, 
-                        review: null,
-                        service_type: "Hotel"
-                    };
+                // Check if transaction is expired
+                if (transactionStatus.transaction_status === 'expire' && orderData.status_order === 'Waiting Payment') {
+                    // Update order_status in database
+                    await Order.update({
+                        status_pembayaran: "Expired",
+                        status_order: 'Expired'
+                    }, 
+                    {
+                        where:{
+                            id: value.orderId
+                        }
+                    });
+                } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment'){
+                    await Order.update({
+                        status_pembayaran: "Berhasil",
+                        status_order: "On Progress"
+                    }, 
+                    {
+                        where:{
+                            id: value.orderId
+                        }
+                    });
+                } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Completed'){
+                    await Order.update({
+                        status_pembayaran: "Berhasil",
+                    }, 
+                    {
+                        where:{
+                            id: value.orderId
+                        }
+                    });
                 }
-            } else if (groomingData !== null){
-                if(reviewData !== null){
-                    return {
-                        id_toko: tokoData.id_toko,
-                        nama_toko: tokoData.pet_shop_name,
-                        user_id: userData.user_id,
-                        order_id: orderData.order_id,
-                        order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
-                        metode_pembayaran: orderData.metode_pembayaran,
-                        // remaining_time: remainingTime,
-                        time:{
-                            minutes: minutes,
-                            seconds: seconds
-                        },
-                        // total_price: orderData.total_price,
-                        virtual_number: orderData.virtual_number,
-                        // status_order: orderData.status_order,
-                        tanggal_order: orderData.tanggal_order,
-                        updatedAt: orderData.updatedAt,
-                        createdAt: orderData.createdAt,
-                        deletedAt: orderData.deletedAt,
-                        order_detail: tokoData.groomings.map(grooming => {
-                            const groomingData = grooming.dataValues;
-                            totalPrice += groomingData.harga * groomingData.detail_order_grooming[0].dataValues.quantity
-                            return {
-                                grooming_id: groomingData.id,
-                                grooming_title: groomingData.title_grooming,
-                                quantity: groomingData.detail_order_grooming[0].dataValues.quantity
-                            };
-                        }),
-                        total_price: totalPrice, 
-                        review: {
-                            rate: reviewData.review,
-                            review_description: reviewData.ulasan
-                        },
-                        service_type: "Grooming"
-                    };
-                } else {
-                    return {
-                        id_toko: tokoData.id_toko,
-                        nama_toko: tokoData.pet_shop_name,
-                        user_id: userData.user_id,
-                        order_id: orderData.order_id,
-                        order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
-                        metode_pembayaran: orderData.metode_pembayaran,
-                        // remaining_time: remainingTime,
-                        time:{
-                            minutes: minutes,
-                            seconds: seconds
-                        },
-                        // total_price: orderData.total_price,
-                        virtual_number: orderData.virtual_number,
-                        // status_order: orderData.status_order,
-                        tanggal_order: orderData.tanggal_order,
-                        updatedAt: orderData.updatedAt,
-                        createdAt: orderData.createdAt,
-                        deletedAt: orderData.deletedAt,
-                        order_detail: tokoData.groomings.map(grooming => {
-                            const groomingData = grooming.dataValues;
-                            totalPrice += groomingData.harga * groomingData.detail_order_grooming[0].dataValues.quantity
-                            return {
-                                grooming_id: groomingData.id,
-                                grooming_title: groomingData.title_grooming,
-                                quantity: groomingData.detail_order_grooming[0].dataValues.quantity,
-                            };
-                        }),
-                        total_price: totalPrice, 
-                        review: null,
-                        service_type: "Grooming"
-                    };
+                //tanggal_order
+                const orderDate = orderData.tanggal_order;
+                const diffInMilliseconds = now - orderDate; // Difference in milliseconds
+                let minutes = 0;
+                let seconds = 0
+                if (diffInMilliseconds < 15 * 60 * 1000) { // If less than 15 minutes
+                    const diffInSeconds = Math.floor(diffInMilliseconds / 1000); // Convert to seconds
+                    const remainingMilliseconds = 15 * 60 * 1000 - diffInMilliseconds;
+                    const remainingSeconds = Math.floor(remainingMilliseconds / 1000); // Convert to seconds
+                    minutes = Math.floor(remainingSeconds / 60);
+                    seconds = remainingSeconds % 60;
+                    remainingTime = `${minutes} minutes ${seconds} seconds`;
                 }
+
+                if(orderData.status_order === 'Cancel' || orderData.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
+                    minutes = 0;
+                    seconds = 0;
+                }
+
+                if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress' && orderData.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire'){
+                    await Order.update({
+                        status_order: 'Expired'
+                    }, 
+                    {
+                        where:{
+                            id: value.orderId
+                        }
+                    })
+                }
+
+                const userData = orderData.users.dataValues;
+                const reviewData = orderData.reviews ? orderData.reviews.dataValues : null ;
+                
+                if(hotelData !== null){
+                    if(reviewData !== null){
+                        return {
+                            id_toko: tokoData.id_toko,
+                            nama_toko: tokoData.pet_shop_name,
+                            user_id: userData.user_id,
+                            order_id: orderData.order_id,
+                            // status_order: orderData.status_order,
+                            metode_pembayaran: orderData.metode_pembayaran,
+                            // remaining_time: remainingTime,
+                            time:{
+                                minutes: minutes,
+                                seconds: seconds
+                            },
+                            // total_price: orderData.total_price,
+                            virtual_number: orderData.virtual_number,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            tanggal_order: orderData.tanggal_order,
+                            updatedAt: orderData.updatedAt,
+                            createdAt: orderData.createdAt,
+                            deletedAt: orderData.deletedAt,
+                            order_detail: tokoData.hotels.map(hotel => {
+                                const hotelData = hotel.dataValues;
+                                totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity * differenceInDays
+                                return {
+                                    hotel_id: hotelData.id,
+                                    hotel_title: hotelData.title_hotel,
+                                    quantity: hotelData.detail_order_hotel[0].dataValues.quantity
+                                };
+                            }),
+                            total_price: totalPrice, 
+                            review: {
+                                rate: reviewData.review,
+                                review_description: reviewData.review_description
+                            },
+                            service_type: "Hotel"
+                        };
+                    } else {
+                        return {
+                            id_toko: tokoData.id_toko,
+                            nama_toko: tokoData.pet_shop_name,
+                            user_id: userData.user_id,
+                            order_id: orderData.order_id,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            metode_pembayaran: orderData.metode_pembayaran,
+                            // remaining_time: remainingTime,
+                            time:{
+                                minutes: minutes,
+                                seconds: seconds
+                            },
+                            // total_price: orderData.total_price,
+                            virtual_number: orderData.virtual_number,
+                            // status_order: orderData.status_order,
+                            tanggal_order: orderData.tanggal_order,
+                            updatedAt: orderData.updatedAt,
+                            createdAt: orderData.createdAt,
+                            deletedAt: orderData.deletedAt,
+                            order_detail: tokoData.hotels.map(hotel => {
+                                const hotelData = hotel.dataValues;
+                                totalPrice += hotelData.harga * hotelData.detail_order_hotel[0].dataValues.quantity * differenceInDays
+                                return {
+                                    hotel_id: hotelData.id,
+                                    hotel_title: hotelData.title_hotel,
+                                    quantity: hotelData.detail_order_hotel[0].dataValues.quantity
+                                };
+                            }),
+                            total_price: totalPrice, 
+                            review: null,
+                            service_type: "Hotel"
+                        };
+                    }
+                } else if (groomingData !== null){
+                    if(reviewData !== null){
+                        return {
+                            id_toko: tokoData.id_toko,
+                            nama_toko: tokoData.pet_shop_name,
+                            user_id: userData.user_id,
+                            order_id: orderData.order_id,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            metode_pembayaran: orderData.metode_pembayaran,
+                            // remaining_time: remainingTime,
+                            time:{
+                                minutes: minutes,
+                                seconds: seconds
+                            },
+                            // total_price: orderData.total_price,
+                            virtual_number: orderData.virtual_number,
+                            // status_order: orderData.status_order,
+                            tanggal_order: orderData.tanggal_order,
+                            updatedAt: orderData.updatedAt,
+                            createdAt: orderData.createdAt,
+                            deletedAt: orderData.deletedAt,
+                            order_detail: tokoData.groomings.map(grooming => {
+                                const groomingData = grooming.dataValues;
+                                totalPrice += groomingData.harga * groomingData.detail_order_grooming[0].dataValues.quantity
+                                return {
+                                    grooming_id: groomingData.id,
+                                    grooming_title: groomingData.title_grooming,
+                                    quantity: groomingData.detail_order_grooming[0].dataValues.quantity
+                                };
+                            }),
+                            total_price: totalPrice, 
+                            review: {
+                                rate: reviewData.review,
+                                review_description: reviewData.ulasan
+                            },
+                            service_type: "Grooming"
+                        };
+                    } else {
+                        return {
+                            id_toko: tokoData.id_toko,
+                            nama_toko: tokoData.pet_shop_name,
+                            user_id: userData.user_id,
+                            order_id: orderData.order_id,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            metode_pembayaran: orderData.metode_pembayaran,
+                            // remaining_time: remainingTime,
+                            time:{
+                                minutes: minutes,
+                                seconds: seconds
+                            },
+                            // total_price: orderData.total_price,
+                            virtual_number: orderData.virtual_number,
+                            // status_order: orderData.status_order,
+                            tanggal_order: orderData.tanggal_order,
+                            updatedAt: orderData.updatedAt,
+                            createdAt: orderData.createdAt,
+                            deletedAt: orderData.deletedAt,
+                            order_detail: tokoData.groomings.map(grooming => {
+                                const groomingData = grooming.dataValues;
+                                totalPrice += groomingData.harga * groomingData.detail_order_grooming[0].dataValues.quantity
+                                return {
+                                    grooming_id: groomingData.id,
+                                    grooming_title: groomingData.title_grooming,
+                                    quantity: groomingData.detail_order_grooming[0].dataValues.quantity,
+                                };
+                            }),
+                            total_price: totalPrice, 
+                            review: null,
+                            service_type: "Grooming"
+                        };
+                    }
+                // }
             }
-            }
-            
         }));
 
-        
+        console.log(formattedData.filter(item => item !== null))
         
         return res.status(200).json({
             message: "Data detail order berhasil diambil",
             response_code: 200,
-            data: formattedData.filter(item => item !== null)
+            // data: formattedData.filter(item => item !== null)
+            data: formattedData
         })
     } catch(e) {
         console.log(e.message)
