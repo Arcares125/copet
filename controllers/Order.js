@@ -562,6 +562,7 @@ const getDetailOrder = async (req, res) => {
         });
 
         let totalPrice = 0;
+        console.log(data)
 
         const formattedData = await Promise.all(data.map( async toko => {  
             
@@ -569,7 +570,10 @@ const getDetailOrder = async (req, res) => {
             const now = new Date();
            
             const tokoData = toko.dataValues;
-            const hotelData = tokoData.hotels[0]? tokoData.hotels[0].dataValues : null;
+            if(tokoData.groomings.length === 0 && tokoData.hotels.length === 0){
+                
+            } else {
+                const hotelData = tokoData.hotels[0]? tokoData.hotels[0].dataValues : null;
             const groomingData = tokoData.groomings[0]? tokoData.groomings[0].dataValues : null;
             const orderData = hotelData ? hotelData.detail_order_hotel[0].orders.dataValues : groomingData.detail_order_grooming[0].orders.dataValues;
 
@@ -594,7 +598,7 @@ const getDetailOrder = async (req, res) => {
             let transactionStatus;
             try {
                 transactionStatus = await coreApi.transaction.status(value.orderId);
-                console.log(transactionStatus)
+                // console.log(transactionStatus)
             } catch (error) {
                 if (error.ApiResponse && error.ApiResponse.status_code === 500) {
                     console.error('Midtrans Server error, status code: 500');
@@ -821,6 +825,8 @@ const getDetailOrder = async (req, res) => {
                     };
                 }
             }
+            }
+            
         }));
         
         return res.status(200).json({
