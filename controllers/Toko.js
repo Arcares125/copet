@@ -153,7 +153,8 @@ const getDetailCardToko = async (req, res) => {
             CASE
                 WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
                 WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
-                ELSE 'Grooming'
+                WHEN count(b.id) <= 0 AND count(c.id) > 0 THEN 'Grooming'
+                ELSE null
             END AS services
             FROM toko a 
             LEFT JOIN hotel b ON a.id = b.toko_id
@@ -192,7 +193,8 @@ const getDetailCardToko = async (req, res) => {
             CASE
                 WHEN count(b.id) > 0 AND count(c.id) > 0 THEN 'Grooming, Hotel'
                 WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
-                ELSE 'Grooming'
+                WHEN count(b.id) <= 0 AND count(c.id) > 0 THEN 'Grooming'
+                ELSE null
             END AS services
             FROM toko a 
             LEFT JOIN hotel b ON a.id = b.toko_id
@@ -219,38 +221,50 @@ const getDetailCardToko = async (req, res) => {
         let isOpen = true;
         
         for (const service of detail) {
-            const jamBuka = new Date(service.jam_buka)
-            const jamTutup = new Date(service.jam_tutup)
-
-            if(currTime > jamBuka && currTime < jamTutup){
-                isOpen = {is_open: true}
+            if(service.services === null){
+                //do nothing
             } else {
-                isOpen = {is_open: false}
-            }
+                const jamBuka = new Date(service.jam_buka)
+                const jamTutup = new Date(service.jam_tutup)
 
-            if(service.rating === null){
-                service.rating = 0.0;
-            } else {
-                service.rating = parseFloat(service.rating).toFixed(2);
-            }
+                if(currTime.getHours() > jamBuka.getHours() && currTime.getHours() < jamTutup.getHours()){
+                    isOpen = {is_open: true}
+                } else {
+                    isOpen = {is_open: false}
+                }
+
+                if(service.rating === null){
+                    service.rating = 0.0;
+                } else {
+                    service.rating = parseFloat(service.rating).toFixed(2);
+                }
+                
+                const servicesString = service.services.replace('[', '').replace(']', '');
             
-            const servicesString = service.services.replace('[', '').replace(']', '');
-          
-            const servicesArray = servicesString.split(', ');
-          
-            service.services = servicesArray;
+                const servicesArray = servicesString.split(', ');
+            
+                service.services = servicesArray;
 
-            const mergeIsOpenWithDetail = {...service, ...isOpen}
+                const mergeIsOpenWithDetail = {...service, ...isOpen}
 
-            serviceDetail.push(mergeIsOpenWithDetail)
-
+                serviceDetail.push(mergeIsOpenWithDetail)
+            }
           }
 
-        return res.status(200).json({
-            message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
-            kode: 200,
-            data: serviceDetail
-        })
+          if(serviceDetail.length === 0){
+            return res.status(200).json({
+                message: "Tidak ada Toko tersedia / Belum ada Toko yang memiliki service",
+                kode: 200,
+                data: serviceDetail
+            })
+          } else {
+            return res.status(200).json({
+                message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
+                kode: 200,
+                data: serviceDetail
+            })
+          }
+        
     } catch (error) {
         return res.status(500).json({
             message: error.message,
