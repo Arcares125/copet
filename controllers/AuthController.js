@@ -161,6 +161,8 @@ const loginPenyediaJasa = async (req, res) =>{
         const penyediaJasa = {
             id: getEmail.id,
             email: getEmail.email,
+            no_telp: getEmail.no_telp,
+            username: getEmail.nama
         }
 
         const tokenLogin = jwt.sign(penyediaJasa, TOKEN_LOGIN, { expiresIn: '5m' })

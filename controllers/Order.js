@@ -871,7 +871,22 @@ const getDetailOrder = async (req, res) => {
 
 const getOrderStatusWaitingPayment = async (req, res) => {
 
+    const value = req.params
     try {
+
+        const userIsValid = await User.findOne({
+            where: {
+                id: value.userId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '404',
+                message: 'User not found'
+            })
+        }
+
         const data = await Toko.findAll({
             attributes: [
                 ['nama', 'title'],
@@ -893,9 +908,13 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                                 as: 'orders',
                                 attributes: [['id', 'order_id'], 'status_order'],
                                 where: {
-                                    status_order:{
-                                        [Op.iLike] : '%Waiting Payment%'
-                                    }
+                                    [Op.and]: [
+                                        { status_order: {[Op.iLike] : '%Waiting Payment%'} },
+                                        { user_id: value.userId }
+                                      ]
+                                    // status_order:{
+                                    //     [Op.iLike] : '%Waiting Payment%'
+                                    // },
                                 },
                             }]
                         },
@@ -917,9 +936,13 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                                 as: 'orders',
                                 attributes: [['id', 'order_id'], 'status_order'],
                                 where: {
-                                    status_order:{
-                                        [Op.iLike] : '%Waiting Payment%'
-                                    }
+                                    [Op.and]: [
+                                        { status_order: {[Op.iLike] : '%Waiting Payment%'} },
+                                        { user_id: value.userId }
+                                      ]
+                                    // status_order:{
+                                    //     [Op.iLike] : '%Waiting Payment%'
+                                    // },
                                 },
                             }]
                         },
@@ -934,7 +957,6 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                 "message": "Data not found"
             })
         }
-
 
         const formattedData = [];
 
@@ -1043,6 +1065,8 @@ const getOrderStatusWaitingPayment = async (req, res) => {
 
 const getOrderStatusOnProgress = async (req, res) => {
 
+    const value = req.params
+
     const getAllOrder = await Order.findAll({
         attributes: ['id', 'status_order'],
         where:{
@@ -1095,6 +1119,19 @@ const getOrderStatusOnProgress = async (req, res) => {
     }
 
     try {
+        const userIsValid = await User.findOne({
+            where: {
+                id: value.userId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '404',
+                message: 'User not found'
+            })
+        }
+
         await checkStatus().then(async () =>{
             const formattedData = [];
             const data = await Toko.findAll({
@@ -1118,9 +1155,13 @@ const getOrderStatusOnProgress = async (req, res) => {
                                     as: 'orders',
                                     attributes: [['id', 'order_id'], 'status_order'],
                                     where: {
-                                        status_order:{
-                                            [Op.iLike] : '%On Progress%'
-                                        }
+                                        [Op.and]: [
+                                            { status_order: {[Op.iLike] : '%On Progress%'} },
+                                            { user_id: value.userId }
+                                          ]
+                                        // status_order:{
+                                        //     [Op.iLike] : '%Waiting Payment%'
+                                        // },
                                     },
                                 }]
                             },
@@ -1142,9 +1183,13 @@ const getOrderStatusOnProgress = async (req, res) => {
                                     as: 'orders',
                                     attributes: [['id', 'order_id'], 'status_order'],
                                     where: {
-                                        status_order:{
-                                            [Op.iLike] : '%On Progress%'
-                                        }
+                                        [Op.and]: [
+                                            { status_order: {[Op.iLike] : '%On Progress%'} },
+                                            { user_id: value.userId }
+                                          ]
+                                        // status_order:{
+                                        //     [Op.iLike] : '%Waiting Payment%'
+                                        // },
                                     },
                                 }]
                             },
@@ -1221,6 +1266,9 @@ const getOrderStatusOnProgress = async (req, res) => {
 }
 
 const getOrderStatusCompleteExpireCancel = async (req, res) =>{
+
+    const value = req.params
+
     const getAllOrder = await Order.findAll({
         attributes: ['id', 'status_order'],
         where:{
@@ -1270,6 +1318,19 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
     }
 
     try {
+        const userIsValid = await User.findOne({
+            where: {
+                id: value.userId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '404',
+                message: 'User not found'
+            })
+        }
+        
         await checkStatus().then(async () =>{
             const formattedData = [];
             const data = await Toko.findAll({
@@ -1293,9 +1354,13 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                                     as: 'orders',
                                     attributes: [['id', 'order_id'], 'status_order'],
                                     where: {
-                                        status_order:{
-                                            [Op.in] : ['Completed', 'Expired', 'Cancel']
-                                        }
+                                        [Op.and]: [
+                                            { status_order: {[Op.in] : ['Completed', 'Expired', 'Cancel']} },
+                                            { user_id: value.userId }
+                                          ]
+                                        // status_order:{
+                                        //     [Op.iLike] : '%Waiting Payment%'
+                                        // },
                                     },
                                 }]
                             },
@@ -1317,9 +1382,13 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                                     as: 'orders',
                                     attributes: [['id', 'order_id'], 'status_order'],
                                     where: {
-                                        status_order:{
-                                            [Op.in] : ['Completed', 'Expired', 'Cancel']
-                                        }
+                                        [Op.and]: [
+                                            { status_order: {[Op.in] : ['Completed', 'Expired', 'Cancel']} },
+                                            { user_id: value.userId }
+                                          ]
+                                        // status_order:{
+                                        //     [Op.iLike] : '%Waiting Payment%'
+                                        // },
                                     },
                                 }]
                             },

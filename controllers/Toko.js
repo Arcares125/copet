@@ -134,13 +134,14 @@ const getDetailCardToko = async (req, res) => {
     let query;
     const param = req.params.search
     let detail;
+    const currTime = new Date()
 
     try {
         console.log(param)
         if(param){
             query = `
-            SELECT a.id, a.nama as pet_shop_name,z.rating, z.total_rating,
-            u.nama, u.no_telp,
+            SELECT a.id, a.nama as pet_shop_name, COALESCE(z.rating, 0) as rating, COALESCE(z.total_rating, 0) as total_rating,
+            u.nama, u.no_telp, a.jam_buka, a.jam_tutup,
             CASE
                 WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) < MIN(c.harga) THEN MIN(b.harga)
                 WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) > MIN(c.harga) THEN MIN(c.harga)
@@ -154,15 +155,19 @@ const getDetailCardToko = async (req, res) => {
                 WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
                 ELSE 'Grooming'
             END AS services
-            from (select a.toko_id, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
-                COUNT(a.id) as total_rating
-                from review a join "order" b ON a.order_id = b.id GROUP BY a.toko_id ) z,
-            toko a LEFT JOIN hotel b
-            ON a.id = b.toko_id
+            FROM toko a 
+            LEFT JOIN hotel b ON a.id = b.toko_id
             LEFT JOIN grooming c ON a.id = c.toko_id
             LEFT JOIN penyedia_jasa u ON u.id = a.penyedia_id
+            LEFT JOIN (
+                SELECT a.id, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
+                COUNT(a.id) as total_rating
+                FROM review a 
+                JOIN "order" b ON a.order_id = b.id 
+                GROUP BY a.id
+            ) z ON a.id = z.id
             WHERE a.nama ilike :search
-            GROUP BY a.id, a.nama, a.foto,z.rating, z.total_rating, u.nama, u.no_telp
+            GROUP BY a.id, a.nama, u.nama, u.no_telp, z.rating, z.total_rating
             `
             detail = await sequelize.query(query, 
                 {   
@@ -174,8 +179,8 @@ const getDetailCardToko = async (req, res) => {
             )
         } else {
             query = `
-            SELECT a.id, a.nama as pet_shop_name, AVG(z.rating) as rating, SUM(z.total_rating) as total_rating,
-            u.nama, u.no_telp,
+            SELECT a.id, a.nama as pet_shop_name, COALESCE(z.rating, 0) as rating, COALESCE(z.total_rating, 0) as total_rating,
+            u.nama, u.no_telp, a.jam_buka, a.jam_tutup,
             CASE
                 WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) < MIN(c.harga) THEN MIN(b.harga)
                 WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) > MIN(c.harga) THEN MIN(c.harga)
@@ -189,15 +194,18 @@ const getDetailCardToko = async (req, res) => {
                 WHEN count(b.id) > 0 AND count(c.id) <= 0 THEN 'Hotel'
                 ELSE 'Grooming'
             END AS services
-            from (select a.id, a, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
-                COUNT(a.id) as total_rating
-                from review a join "order" b ON a.order_id = b.id GROUP BY a.id) z,
-            toko a LEFT JOIN hotel b
-            ON a.id = b.toko_id
+            FROM toko a 
+            LEFT JOIN hotel b ON a.id = b.toko_id
             LEFT JOIN grooming c ON a.id = c.toko_id
             LEFT JOIN penyedia_jasa u ON u.id = a.penyedia_id
-            WHERE a.id = z.id
-            GROUP BY a.id, a.nama, u.nama, u.no_telp
+            LEFT JOIN (
+                SELECT a.id, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
+                COUNT(a.id) as total_rating
+                FROM review a 
+                JOIN "order" b ON a.order_id = b.id 
+                GROUP BY a.id
+            ) z ON a.id = z.id
+            GROUP BY a.id, a.nama, u.nama, u.no_telp, z.rating, z.total_rating
         `
             detail = await sequelize.query(query, 
                 {   
@@ -205,8 +213,21 @@ const getDetailCardToko = async (req, res) => {
                 }
             )
         }
+
+        let serviceDetail = []
+
+        let isOpen = true;
         
         for (const service of detail) {
+            const jamBuka = new Date(service.jam_buka)
+            const jamTutup = new Date(service.jam_tutup)
+
+            if(currTime > jamBuka && currTime < jamTutup){
+                isOpen = {is_open: true}
+            } else {
+                isOpen = {is_open: false}
+            }
+
             if(service.rating === null){
                 service.rating = 0.0;
             } else {
@@ -218,12 +239,17 @@ const getDetailCardToko = async (req, res) => {
             const servicesArray = servicesString.split(', ');
           
             service.services = servicesArray;
+
+            const mergeIsOpenWithDetail = {...service, ...isOpen}
+
+            serviceDetail.push(mergeIsOpenWithDetail)
+
           }
 
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
             kode: 200,
-            data: detail
+            data: serviceDetail[0]
         })
     } catch (error) {
         return res.status(500).json({
