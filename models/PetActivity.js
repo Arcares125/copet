@@ -6,11 +6,23 @@ module.exports = (sequelize, DataTypes) =>{
             primaryKey: true,
             allowNull: false
           },
+          hewan_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
           nama: {
             type: DataTypes.STRING(50),
             allowNull: false
           },
           tanggal_aktivitas: {
+            type: DataTypes.DATE,
+            allowNull:false,
+          },
+          mulai_aktivitas: {
+            type: DataTypes.DATE,
+            allowNull:false,
+          },
+          akhir_aktivitas: {
             type: DataTypes.DATE,
             allowNull:false,
           },

@@ -249,7 +249,7 @@ const getDetailCardToko = async (req, res) => {
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
             kode: 200,
-            data: serviceDetail[0]
+            data: serviceDetail
         })
     } catch (error) {
         return res.status(500).json({
