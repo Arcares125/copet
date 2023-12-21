@@ -405,6 +405,13 @@ const setPaymentToExpired = async (req, res) => {
                 return res.status(500).json({
                     message: "Sorry. Our system is recovering from unexpected issues. Please retry."
                 })
+            } else if(e.message.includes('HTTP status code: 412')){
+                return res.status(500).json({
+                    message: "Transaction status cannot be updated."
+                })
+                // Error occured: Midtrans API is returning API error. HTTP status code: 412. 
+                // API response: {"status_code":"412","status_message":"Transaction status cannot be updated.",
+                // "id":"44be8d42-472d-44cb-963b-70bf7216241a"}
             }
         });
 
