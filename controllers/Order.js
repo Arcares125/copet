@@ -128,7 +128,7 @@ const createOrder = async (req, res) => {
         let parameter = {
             "payment_type": "bank_transfer",
             "transaction_details": {
-                "order_id": dataOrder.dataValues.id,
+                "order_id": "AAA-"+dataOrder.dataValues.id,
                 "gross_amount": totalPrice
             },
             "custom_expiry":
@@ -157,6 +157,8 @@ const createOrder = async (req, res) => {
                 },
                 { where: {id: dataOrder.dataValues.id} }
             )
+
+            console.log(kode)
         
             return res.status(200).json({
                 message: "Data Order Berhasil Disimpan",
@@ -706,7 +708,7 @@ const getDetailOrder = async (req, res) => {
 
                 const userData = orderData.users?.dataValues;
                 const reviewData = orderData.reviews ? orderData.reviews?.dataValues : null ;
-                
+                console.log(orderData)
                 if(hotelData !== null){
                     if(reviewData !== null){
                         return {
