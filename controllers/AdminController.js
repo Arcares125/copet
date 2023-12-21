@@ -6,59 +6,128 @@ const { QueryTypes, Op } = require("sequelize");
 const {TOKEN_LOGIN,
         TOKEN_REFRESH } = process.env
 
-const confirmRegister = async (req, res) =>{
-    // const email = req.body.email
-    // const password = req
-    const { email, password } = req.body
+const confirmRegisterToko = async (req, res) =>{
     const value = req.params
     
     try {
-        const getEmail = await Admin.findOne({
+        const getDataToko = await Toko.findOne({
             where: {
-                email: email
+                id: value.tokoId
             },
             logging: true
         })
 
-        if(!getEmail) return res.status(404).json({
-            message: "Wrong email / password",
-        })
-        
-        const comparePass = await bcrypt.compare(password, getEmail.password)
-        if(!comparePass) return res.status(404).json({
-            message: "Wrong email / password",
-        })
-
-        const user = {
-            id: getEmail.id,
-            email: getEmail.email,
-            no_telp: getEmail.no_telp,
-            username: getEmail.nama
+        if(!getDataToko) {
+            return res.status(404).json({
+                response_code: "404",
+                message: "Toko not found"
+            })
+        } else {
+            await Toko.update({
+                is_acc: "true"
+            }, 
+            { 
+                where: {
+                    id: value.tokoId
+                } 
+            })
         }
 
-        const tokenLogin = jwt.sign(user, TOKEN_LOGIN, { expiresIn: '5m' })
-        const refreshToken = jwt.sign(user, TOKEN_REFRESH, { expiresIn: '7d' })
-
-        await User.update({ refreshToken: refreshToken },
-            { where: { email: user.email} }
-        )
-
         res.status(200).json({
-            message: "Login Success",
-            data: user,
-            token: tokenLogin,
-            refreshToken: refreshToken
+            response_code: "200",
+            message: "Toko Registration Accepted"
         })
     } catch (error) {
         console.log(error)
         res.status(500).json({
             error: error.message,
-            message: "Invalid Email/Password"
+            message: "Internal server error"
         })
     }
+}
 
+const confirmRegisterDokter = async (req, res) =>{
+    const value = req.params
+    
+    try {
+        const getDataDokter = await Dokter.findOne({
+            where: {
+                id: value.dokterId
+            },
+            logging: true
+        })
+
+        if(!getDataDokter) {
+            return res.status(404).json({
+                response_code: "404",
+                message: "Dokter not found"
+            })
+        } else {
+            await Dokter.update({
+                is_acc: "true"
+            }, 
+            { 
+                where: {
+                    id: value.dokterId
+                } 
+            })
+        }
+
+        res.status(200).json({
+            response_code: "200",
+            message: "Dokter Registration Accepted"
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            error: error.message,
+            message: "Internal server error"
+        })
+    }
+}
+
+const confirmRegisterTrainer = async (req, res) =>{
+    const value = req.params
+    
+    try {
+        const getDataTrainer = await Trainer.findOne({
+            where: {
+                id: value.trainerId
+            },
+            logging: true
+        })
+
+        if(!getDataTrainer) {
+            return res.status(404).json({
+                response_code: "404",
+                message: "Trainer not found"
+            })
+        } else {
+            await Trainer.update({
+                is_acc: "true"
+            }, 
+            { 
+                where: {
+                    id: value.trainerId
+                } 
+            })
+        }
+
+        res.status(200).json({
+            response_code: "200",
+            message: "Trainer Registration Accepted"
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            error: error.message,
+            message: "Internal server error"
+        })
+    }
 }
 
 module.exports = {
-    loginAdmin,
+    confirmRegisterToko,
+    confirmRegisterDokter,
+    confirmRegisterTrainer
 }

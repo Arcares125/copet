@@ -236,7 +236,7 @@ const getDetailCardToko = async (req, res) => {
                 }
 
                 if(service.rating === null){
-                    service.rating = 0.0;
+                    service.rating = 0.00.toFixed(2);
                 } else {
                     service.rating = parseFloat(service.rating).toFixed(2);
                 }

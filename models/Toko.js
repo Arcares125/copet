@@ -19,10 +19,10 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: true,
             // defaultValue: 
           },
-          fasilitas: {
-            type: DataTypes.STRING(255),
-            allowNull: true
-          },
+          // fasilitas: {
+          //   type: DataTypes.STRING(255),
+          //   allowNull: true
+          // },
           deskripsi: {
             type: DataTypes.STRING(255),
             allowNull: true
@@ -30,6 +30,11 @@ module.exports = (sequelize, DataTypes) =>{
           lokasi: {
             type: DataTypes.STRING(255),
             allowNull: true
+          },
+          is_acc: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: 'false'
           },
           createdAt: {
             type: DataTypes.DATE,
