@@ -128,13 +128,13 @@ const createOrder = async (req, res) => {
         let parameter = {
             "payment_type": "bank_transfer",
             "transaction_details": {
-                "order_id": "AAA-"+dataOrder.dataValues.id,
+                "order_id": dataOrder.dataValues.id,
                 "gross_amount": totalPrice
             },
             "custom_expiry":
             {   
                 // "order_time":  dataOrder.dataValues.tanggal_order,
-                "expiry_duration": 15,
+                "expiry_duration": 3,
                 "unit": "minute"
             },
             "bank_transfer": {
@@ -157,8 +157,6 @@ const createOrder = async (req, res) => {
                 },
                 { where: {id: dataOrder.dataValues.id} }
             )
-
-            console.log(kode)
         
             return res.status(200).json({
                 message: "Data Order Berhasil Disimpan",
@@ -642,7 +640,7 @@ const getDetailOrder = async (req, res) => {
                         
                     }
                 }
-                // console.log(transactionStatus)
+                console.log(transactionStatus)
 
                 // Check if transaction is expired
                 if (transactionStatus.transaction_status === 'expire' && orderData.status_order === 'Waiting Payment') {
@@ -681,9 +679,9 @@ const getDetailOrder = async (req, res) => {
                 const diffInMilliseconds = now - orderDate; // Difference in milliseconds
                 let minutes = 0;
                 let seconds = 0
-                if (diffInMilliseconds < 15 * 60 * 1000) { // If less than 15 minutes
+                if (diffInMilliseconds < 3 * 60 * 1000) { // If less than 15 minutes
                     const diffInSeconds = Math.floor(diffInMilliseconds / 1000); // Convert to seconds
-                    const remainingMilliseconds = 15 * 60 * 1000 - diffInMilliseconds;
+                    const remainingMilliseconds = 3 * 60 * 1000 - diffInMilliseconds;
                     const remainingSeconds = Math.floor(remainingMilliseconds / 1000); // Convert to seconds
                     minutes = Math.floor(remainingSeconds / 60);
                     seconds = remainingSeconds % 60;

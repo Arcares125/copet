@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) =>{
           },
           fasilitas: {
             type: DataTypes.STRING(255),
-            allowNull: false
+            allowNull: true
           },
           deskripsi: {
             type: DataTypes.STRING(255),
