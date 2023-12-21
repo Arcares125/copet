@@ -159,15 +159,16 @@ const loginPenyediaJasa = async (req, res) =>{
         })
 
         const penyediaJasa = {
-            id: getEmail.id,
-            email: getEmail.email,
-            no_telp: getEmail.no_telp,
-            username: getEmail.nama,
-            jenis_jasa: getEmail.jenis_jasa
+            id: getEmail.dataValues.id,
+            email: getEmail.dataValues.email,
+            no_telp: getEmail.dataValues.no_telp,
+            username: getEmail.dataValues.nama,
+            jenis_jasa: getEmail.dataValues.jenis_jasa
         }
 
         const tokenLogin = jwt.sign(penyediaJasa, TOKEN_LOGIN, { expiresIn: '5m' })
         const refreshToken = jwt.sign(penyediaJasa, TOKEN_REFRESH, { expiresIn: '7d' })
+        console.log(refreshToken)
 
         await PenyediaJasa.update({ refreshToken: refreshToken },
             { where: { email: penyediaJasa.email} }
