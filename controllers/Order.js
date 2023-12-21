@@ -128,7 +128,7 @@ const createOrder = async (req, res) => {
         let parameter = {
             "payment_type": "bank_transfer",
             "transaction_details": {
-                "order_id": dataOrder.dataValues.id,
+                "order_id": "BBB-"+dataOrder.dataValues.id,
                 "gross_amount": totalPrice
             },
             "custom_expiry":
@@ -622,7 +622,7 @@ const getDetailOrder = async (req, res) => {
                 });
                 let transactionStatus;
                 try {
-                    transactionStatus = await coreApi.transaction.status(value.orderId);
+                    transactionStatus = await coreApi.transaction.status("BBB-"+value.orderId);
                     // console.log(transactionStatus)
                 } catch (error) {
                     if (error.ApiResponse && error.ApiResponse.status_code === 500) {
@@ -991,7 +991,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                         });
                         let transactionStatus;
                         try {
-                            transactionStatus = await coreApi.transaction.status(order.orders.dataValues.order_id);
+                            transactionStatus = await coreApi.transaction.status("BBB-"+order.orders.dataValues.order_id);
                         } catch (error) {
                             if(error.ApiResponse.status_code === '404'){
                                 console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
@@ -1086,7 +1086,7 @@ const getOrderStatusOnProgress = async (req, res) => {
         let transactionStatusOrder;
         for(let order of getAllOrder){
             try {
-                transactionStatusOrder = await coreApiOrder.transaction.status(order.dataValues.id);
+                transactionStatusOrder = await coreApiOrder.transaction.status("BBB-"+order.dataValues.id);
             } catch (error) {
                 if(error.ApiResponse.status_code === '404'){
                     // console.log('tester masuk')
@@ -1287,7 +1287,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
         let transactionStatusOrder;
         for(let order of getAllOrder){
             try {
-                transactionStatusOrder = await coreApiOrder.transaction.status(order.dataValues.id);
+                transactionStatusOrder = await coreApiOrder.transaction.status("BBB-"+order.dataValues.id);
             } catch (error) {
                 if(error.ApiResponse.status_code === '404'){
                     console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
