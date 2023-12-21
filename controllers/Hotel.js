@@ -11,12 +11,25 @@ const registerHotel = async (req, res) => {
     try {
         const data = req.body
 
-    const dataHotel = await Hotel.create(data)
-            return res.status(201).json({
-                message: "Data Hotel Berhasil Disimpan",
-                kode: 201,
-                data: dataHotel
+        const getDataToko = await Toko.findOne({
+            where:{
+                id: data.toko_id
+            }
+        })
+
+        if(getDataToko.dataValues.is_acc === false){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Toko belum disetujui oleh Admin.",
             })
+        }
+
+        const dataHotel = await Hotel.create(data)
+        return res.status(201).json({
+            response_code: 201,
+            message: "Data Hotel Berhasil Disimpan",
+            data: dataHotel
+        })
         
     } catch (error) {
         return res.status(500).json({

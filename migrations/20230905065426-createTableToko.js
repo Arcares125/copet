@@ -23,10 +23,6 @@ module.exports = {
         allowNull: true,
         // defaultValue: 
       },
-      fasilitas: {
-        type: Sequelize.STRING(255),
-        allowNull: false
-      },
       deskripsi: {
         type: Sequelize.STRING(255),
         allowNull: true
@@ -42,6 +38,11 @@ module.exports = {
       jam_tutup: {
         type: Sequelize.DATE,
         allowNull:false,
+      },
+      is_acc: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: 'false'
       },
       createdAt: {
         type: Sequelize.DATE,

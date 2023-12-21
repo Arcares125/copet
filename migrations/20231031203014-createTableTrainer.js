@@ -34,6 +34,11 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false
       },
+      is_acc: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: 'false'
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull:false,

@@ -1,4 +1,4 @@
-const {User, PenyediaJasa, Admin, sequelize, Sequelize} = require("../models")
+const {User, PenyediaJasa, Admin, sequelize, Sequelize, Toko, Dokter, Trainer} = require("../models")
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
