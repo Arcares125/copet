@@ -12,13 +12,25 @@ const registerPenyediaJasa = async (req, res) => {
     const data = req.body
     try {
         const passHash = await bcrypt.hash(data.password, saltRounds);
-        const result = await PenyediaJasa.create({...data, password: passHash})
-        console.log(data)
 
-        res.status(200).json({
-            message: "Register Success",
-            data: result
-        })    
+
+        const isEmailValid = await PenyediaJasa.findOne({
+            where:{
+                email: data.email
+            }
+        })
+
+        if(isEmailValid){
+            res.status(200).json({
+                message: "Email sudah digunakan",
+            })    
+        } else {
+            const result = await PenyediaJasa.create({...data, password: passHash})
+            res.status(200).json({
+                message: "Register Success",
+                data: result
+            })    
+        }
     } catch (error) {
         res.status(500).json({
             message: error.message

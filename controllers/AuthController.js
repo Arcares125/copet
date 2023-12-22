@@ -156,10 +156,15 @@ const loginPenyediaJasa = async (req, res) =>{
             email: getDataPenyedia.dataValues.email,
             no_telp: getDataPenyedia.dataValues.no_telp,
             username: getDataPenyedia.dataValues.nama,
-            jenis_jasa: getDataPenyedia.dataValues.jenis_jasa
+            jenis_jasa: getDataPenyedia.dataValues.jenis_jasa,
+            is_acc: getDataPenyedia.dataValues.is_acc
         }
 
-        if(getDataPenyedia.dataValues.jenis_jasa !== null){
+        
+        const tokenLogin = jwt.sign(penyediaJasa, TOKEN_LOGIN, { expiresIn: '5m' })
+        const refreshToken = jwt.sign(penyediaJasa, TOKEN_REFRESH, { expiresIn: '7d' })
+
+        if(getDataPenyedia.dataValues.jenis_jasa !== null && getDataPenyedia.dataValues.is_acc === false){
             const getDataToko = await Toko.findOne({
                 where: {
                     penyedia_id: getDataPenyedia.dataValues.id
@@ -175,33 +180,50 @@ const loginPenyediaJasa = async (req, res) =>{
                         id: getDataPenyedia.dataValues.id
                     }
                 })
+
+                await PenyediaJasa.update({ refreshToken: refreshToken },
+                    { where: { email: penyediaJasa.email} }
+                )
+
+                res.status(200).json({
+                    code: 200,
+                    message: "Login Success",
+                    data: {...penyediaJasa, is_acc: 'true'},
+                    token: tokenLogin,
+                    refreshToken: refreshToken
+                })
+            } else {
+                await PenyediaJasa.update({ refreshToken: refreshToken },
+                    { where: { email: penyediaJasa.email} }
+                )
+        
+                res.status(200).json({
+                    code: 200,
+                    message: "Login Success",
+                    data: penyediaJasa,
+                    token: tokenLogin,
+                    refreshToken: refreshToken
+                })
             }
-
-            console.log(getDataToko)
+        } else {
+            await PenyediaJasa.update({ refreshToken: refreshToken },
+                { where: { email: penyediaJasa.email} }
+            )
+    
+            res.status(200).json({
+                code: 200,
+                message: "Login Success",
+                data: penyediaJasa,
+                token: tokenLogin,
+                refreshToken: refreshToken
+            })
         }
-
-        const tokenLogin = jwt.sign(penyediaJasa, TOKEN_LOGIN, { expiresIn: '5m' })
-        const refreshToken = jwt.sign(penyediaJasa, TOKEN_REFRESH, { expiresIn: '7d' })
-        console.log(refreshToken)
-
-        await PenyediaJasa.update({ refreshToken: refreshToken },
-            { where: { email: penyediaJasa.email} }
-        )
-
-        res.status(200).json({
-            code: 200,
-            message: "Login Success",
-            data: penyediaJasa,
-            token: tokenLogin,
-            refreshToken: refreshToken
-        })
     } catch (error) {
         res.json({
             response_code: 500,
             message: error.message
         })
     }
-
 }
 
 module.exports = {
