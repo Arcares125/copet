@@ -56,40 +56,39 @@ const registerToko = async (req, res) => {
                 type: QueryTypes.SELECT
             }
         )
-            console.log(getPenyediaJasaID[0].dataValues.id)
-            if(checkRoleTokoPenyediaJasa[0].jenis_jasa === null){
 
-                await PenyediaJasa.update({
-                    jenis_jasa: 'Toko'
-                }, 
-                {
-                    where:{
-                        id: data.penyedia_id
-                    }
-                })
+        if(checkRoleTokoPenyediaJasa[0].jenis_jasa === null){
 
-                const dataToko = await Toko.create(data)
-                return res.status(201).json({
-                    message: "Data Toko Berhasil Disimpan",
-                    kode: 201,
-                    data: dataToko
-                })
-            } else if(currJenisJasa !== checkRoleTokoPenyediaJasa[0].jenis_jasa ||
-                getDokterTaken.length > 0 || getTrainerTaken.length > 0 || getTokoTaken.length > 0){
-                return res.status(404).json({
-                    message: "Penyedia Jasa hanya dapat mendaftarkan 1 jenis jasa / usaha",
-                    kode: 404,
-                    data: ''
-                })
-            } else {
-                const dataToko = await Toko.create(data)
-                return res.status(201).json({
-                    message: "Data Toko Berhasil Disimpan",
-                    kode: 201,
-                    data: dataToko
-                })
-            }
-        
+            await PenyediaJasa.update({
+                jenis_jasa: 'Toko'
+            }, 
+            {
+                where:{
+                    id: data.penyedia_id
+                }
+            })
+
+            const dataToko = await Toko.create(data)
+            return res.status(201).json({
+                message: "Data Toko Berhasil Disimpan",
+                kode: 201,
+                data: dataToko
+            })
+        } else if(currJenisJasa !== checkRoleTokoPenyediaJasa[0].jenis_jasa ||
+            getDokterTaken.length > 0 || getTrainerTaken.length > 0 || getTokoTaken.length > 0){
+            return res.status(404).json({
+                message: "Penyedia Jasa hanya dapat mendaftarkan 1 jenis jasa / usaha",
+                kode: 404,
+                data: ''
+            })
+        } else {
+            const dataToko = await Toko.create(data)
+            return res.status(201).json({
+                message: "Data Toko Berhasil Disimpan",
+                kode: 201,
+                data: dataToko
+            })
+        } 
     } catch (error) {
         return res.status(500).json({
             message: error.message,
