@@ -11,8 +11,20 @@ const registerGrooming = async (req, res) => {
     try {
         const data = req.body
 
+        const getDataToko = await Toko.findOne({
+            where:{
+                id: data.toko_id
+            }
+        })
 
-    const dataGrooming = await Grooming.create(data)
+        if(getDataToko.dataValues.is_acc === false){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Toko belum disetujui oleh Admin.",
+            })
+        }
+
+        const dataGrooming = await Grooming.create(data)
             return res.status(201).json({
                 message: "Data Grooming Berhasil Disimpan",
                 kode: 201,
