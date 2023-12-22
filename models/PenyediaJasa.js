@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) =>{
             values: ['Dokter', 'Trainer', 'Toko'],
             allowNull: true
           },
+          is_acc: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: 'false'
+          },
           refreshToken: {
             type: DataTypes.TEXT,
             allowNull: true

@@ -1,4 +1,4 @@
-const {User, PenyediaJasa , sequelize, Sequelize} = require("../models")
+const {User, PenyediaJasa , sequelize, Sequelize, Toko} = require("../models")
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
@@ -77,13 +77,6 @@ const registerUser = async (req, res) => {
             })    
         }
 
-        // if(data.email === "" || data.email === null){
-        //     return res.status(200).json({
-        //         code: 200,
-        //         message: "Email cannot be empty",
-        //     })  
-        // }
-
         const passHash = await bcrypt.hash(data.password, saltRounds);
         const result = await User.create({...data, password: passHash})
 
@@ -142,28 +135,49 @@ const loginPenyediaJasa = async (req, res) =>{
     const { email, password } = req.body
     
     try {
-        const getEmail = await PenyediaJasa.findOne({
+        const getDataPenyedia = await PenyediaJasa.findOne({
             where: {
                 email: email
             },
             logging: false
         })
 
-        if(!getEmail) return res.status(404).json({
+        if(!getDataPenyedia) return res.status(404).json({
             message: "Wrong email / password"
         })
         
-        const comparePass = await bcrypt.compare(password, getEmail.password)
+        const comparePass = await bcrypt.compare(password, getDataPenyedia.password)
         if(!comparePass) return res.status(404).json({
             message: "Wrong email / password"
         })
 
         const penyediaJasa = {
-            id: getEmail.dataValues.id,
-            email: getEmail.dataValues.email,
-            no_telp: getEmail.dataValues.no_telp,
-            username: getEmail.dataValues.nama,
-            jenis_jasa: getEmail.dataValues.jenis_jasa
+            id: getDataPenyedia.dataValues.id,
+            email: getDataPenyedia.dataValues.email,
+            no_telp: getDataPenyedia.dataValues.no_telp,
+            username: getDataPenyedia.dataValues.nama,
+            jenis_jasa: getDataPenyedia.dataValues.jenis_jasa
+        }
+
+        if(getDataPenyedia.dataValues.jenis_jasa !== null){
+            const getDataToko = await Toko.findOne({
+                where: {
+                    penyedia_id: getDataPenyedia.dataValues.id
+                }
+            })
+
+            if(getDataToko.dataValues.is_acc === true){
+                await PenyediaJasa.update({
+                    is_acc: 'true'
+                },
+                {
+                    where: {
+                        id: getDataPenyedia.dataValues.id
+                    }
+                })
+            }
+
+            console.log(getDataToko)
         }
 
         const tokenLogin = jwt.sign(penyediaJasa, TOKEN_LOGIN, { expiresIn: '5m' })
@@ -183,8 +197,8 @@ const loginPenyediaJasa = async (req, res) =>{
         })
     } catch (error) {
         res.json({
-            error: error,
-            message: "Invalid Email/Password"
+            response_code: 500,
+            message: error.message
         })
     }
 
