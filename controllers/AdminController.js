@@ -206,11 +206,39 @@ const getAllDataDokter = async (req, res) =>{
         })
     }
 }
+
+const getAllDataPenyediaJasa = async (req, res) =>{
+
+    try {
+        
+        const dataPenyediaJasa = await PenyediaJasa.findAll()
+
+        if(dataPenyediaJasa.length === 0){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Penyedia Jasa Kosong!"
+            })
+        } else {
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Penyedia Jasa ditemukan.",
+                data: dataPenyediaJasa
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error",
+            error_message: error.message
+        })
+    }
+}
 module.exports = {
     confirmRegisterToko,
     confirmRegisterDokter,
     confirmRegisterTrainer,
     getAllDataToko,
     getAllDataDokter,
-    getAllDataTrainer
+    getAllDataTrainer,
+    getAllDataPenyediaJasa
 }

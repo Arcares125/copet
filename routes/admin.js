@@ -2,7 +2,7 @@ var express = require('express');
 const { confirmRegisterToko, 
     confirmRegisterDokter, 
     confirmRegisterTrainer,
-    getAllDataToko, getAllDataDokter, getAllDataTrainer } = require('../controllers/AdminController');
+    getAllDataToko, getAllDataDokter, getAllDataTrainer, getAllDataPenyediaJasa } = require('../controllers/AdminController');
 // const authentication = require('../middleware/authentication');
 var router = express.Router();
 
@@ -13,5 +13,6 @@ router.post('/confirmRegisterTrainer/:trainerId', confirmRegisterTrainer)
 router.get('/getDataToko', getAllDataToko)
 router.get('/getDataDokter', getAllDataDokter)
 router.get('/getDataTrainer', getAllDataTrainer)
+router.get('/getDataPenyediaJasa', getAllDataPenyediaJasa)
 
 module.exports = router;
