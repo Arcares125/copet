@@ -20,11 +20,13 @@ const loginUser = async (req, res) =>{
         })
 
         if(!getEmail) return res.status(404).json({
+            response_code: 404,
             message: "Wrong email / password",
         })
         
         const comparePass = await bcrypt.compare(password, getEmail.password)
         if(!comparePass) return res.status(404).json({
+            response_code: 404,
             message: "Wrong email / password",
         })
 
@@ -43,6 +45,7 @@ const loginUser = async (req, res) =>{
         )
 
         res.status(200).json({
+            response_code: 200,
             message: "Login Success",
             data: user,
             token: tokenLogin,
@@ -51,6 +54,7 @@ const loginUser = async (req, res) =>{
     } catch (error) {
         console.log(error)
         res.status(500).json({
+            response_code: 500,
             error: error.message,
             message: "Invalid Email/Password"
         })
@@ -143,11 +147,13 @@ const loginPenyediaJasa = async (req, res) =>{
         })
 
         if(!getDataPenyedia) return res.status(404).json({
+            response_code: 404,
             message: "Wrong email / password"
         })
         
         const comparePass = await bcrypt.compare(password, getDataPenyedia.password)
         if(!comparePass) return res.status(404).json({
+            response_code: 404,
             message: "Wrong email / password"
         })
 
@@ -211,7 +217,7 @@ const loginPenyediaJasa = async (req, res) =>{
             )
     
             res.status(200).json({
-                code: 200,
+                response_code: 200,
                 message: "Login Success",
                 data: penyediaJasa,
                 token: tokenLogin,

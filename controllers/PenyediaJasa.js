@@ -5,8 +5,6 @@ const jwt = require('jsonwebtoken')
 const {TOKEN_LOGIN,
         TOKEN_REFRESH } = process.env
 
-        // Penyedia Jasa
-
 const registerPenyediaJasa = async (req, res) => {
     // const {nama, email, phone, gender, password} = req.body
     const data = req.body
@@ -33,6 +31,7 @@ const registerPenyediaJasa = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({
+            response_code: 500,
             message: error.message
         })
     }

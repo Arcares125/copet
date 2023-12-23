@@ -126,8 +126,91 @@ const confirmRegisterTrainer = async (req, res) =>{
     }
 }
 
+const getAllDataToko = async (req, res) =>{
+
+    try {
+        
+        const dataToko = await Toko.findAll()
+
+        if(dataToko.length === 0){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Toko Kosong!"
+            })
+        } else {
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Toko ditemukan.",
+                data: dataToko
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error",
+            error_message: error.message
+        })
+    }
+}
+
+const getAllDataTrainer = async (req, res) =>{
+
+    try {
+        
+        const dataTrainer = await Trainer.findAll()
+
+        if(dataTrainer.length === 0){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Trainer Kosong!"
+            })
+        } else {
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Trainer ditemukan.",
+                data: dataTrainer
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error",
+            error_message: error.message
+        })
+    }
+}
+
+const getAllDataDokter = async (req, res) =>{
+
+    try {
+        
+        const dataDokter = await Dokter.findAll()
+
+        if(dataDokter.length === 0){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Dokter Kosong!"
+            })
+        } else {
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Dokter ditemukan.",
+                data: dataDokter
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error",
+            error_message: error.message
+        })
+    }
+}
 module.exports = {
     confirmRegisterToko,
     confirmRegisterDokter,
-    confirmRegisterTrainer
+    confirmRegisterTrainer,
+    getAllDataToko,
+    getAllDataDokter,
+    getAllDataTrainer
 }
