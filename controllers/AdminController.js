@@ -219,10 +219,53 @@ const getAllDataPenyediaJasa = async (req, res) =>{
                 message: "Data Penyedia Jasa Kosong!"
             })
         } else {
+            const penyediaJasaList = {
+                id: dataPenyediaJasa[0].dataValues.id,
+                email: dataPenyediaJasa[0].dataValues.email,
+                no_telp: dataPenyediaJasa[0].dataValues.no_telp,
+                username: dataPenyediaJasa[0].dataValues.nama,
+                jenis_jasa: dataPenyediaJasa[0].dataValues.jenis_jasa,
+                is_acc: dataPenyediaJasa[0].dataValues.is_acc
+            }
             return res.status(200).json({
                 response_code: 200,
                 message: "Data Penyedia Jasa ditemukan.",
-                data: dataPenyediaJasa
+                data: penyediaJasaList
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error",
+            error_message: error.message
+        })
+    }
+}
+
+const getAllDataUser = async (req, res) =>{
+
+    try {
+        
+        const dataUser = await User.findAll()
+
+        if(dataUser.length === 0){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data User Kosong!"
+            })
+        } else {
+
+            const userList = {
+                id: dataUser[0].dataValues.id,
+                email: dataUser[0].dataValues.email,
+                no_telp: dataUser[0].dataValues.no_telp,
+                username: dataUser[0].dataValues.nama
+            }
+
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data User ditemukan.",
+                data: userList
             })
         }
     } catch (error) {
@@ -240,5 +283,6 @@ module.exports = {
     getAllDataToko,
     getAllDataDokter,
     getAllDataTrainer,
-    getAllDataPenyediaJasa
+    getAllDataPenyediaJasa,
+    getAllDataUser
 }
