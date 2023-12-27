@@ -358,7 +358,7 @@ const setPaymentToExpired = async (req, res) => {
                 id: orderId
             }
         })
-        console.log(orderIsValid)
+        // console.log(orderIsValid)
 
         if(!orderIsValid){
             return res.status(404).json({
@@ -366,7 +366,7 @@ const setPaymentToExpired = async (req, res) => {
                 "message": "Order not found"
             })
         }
-        console.log("CCC-"+orderId)
+        // console.log("CCC-"+orderId)
         let transactionStatus;
                 try {
                     transactionStatus = await coreApi.transaction.status("CCC-"+orderId);
@@ -638,7 +638,7 @@ const getDetailOrder = async (req, res) => {
         // console.log(value.orderId)
 
         const formattedData = await Promise.all(data.map(async toko => {  
-            console.log(toko)
+            // console.log(toko)
             
             let remainingTime = 0;
             const now = new Date();
@@ -689,7 +689,7 @@ const getDetailOrder = async (req, res) => {
                         
                     }
                 }
-                console.log(transactionStatus)
+                // console.log(transactionStatus)
 
                 // Check if transaction is expired
                 if (transactionStatus.transaction_status === 'expire' && orderData.status_order === 'Waiting Payment') {
@@ -755,7 +755,7 @@ const getDetailOrder = async (req, res) => {
 
                 const userData = orderData.users?.dataValues;
                 const reviewData = orderData.reviews ? orderData.reviews?.dataValues : null ;
-                console.log(orderData)
+                // console.log(orderData)
                 if(hotelData !== null){
                     if(reviewData !== null){
                         return {
@@ -901,8 +901,6 @@ const getDetailOrder = async (req, res) => {
                 // }
             }
         }));
-
-        console.log(formattedData.filter(item => item !== null))
         
         return res.status(200).json({
             message: "Data detail order berhasil diambil",
@@ -1020,7 +1018,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                     for (const order of orders) {
                         // console.log(order)
                         // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
-                        console.log(order.dataValues.orders.dataValues.order_id)
+                        // console.log(order.dataValues.orders.dataValues.order_id)
                         let differenceInMilliseconds = 0;
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){
@@ -1265,7 +1263,7 @@ const getOrderStatusOnProgress = async (req, res) => {
 
                     for (const order of orders) {
                         // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
-                        console.log(order.dataValues.orders.dataValues.order_id)
+                        // console.log(order.dataValues.orders.dataValues.order_id)
                         let differenceInMilliseconds = 0;
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){
@@ -1464,8 +1462,6 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
 
                     for (const order of orders) {
                         // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
-                        order.orders.status_order
-                        console.log(order.dataValues.orders.dataValues.order_id)
                         let differenceInMilliseconds = 0;
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){

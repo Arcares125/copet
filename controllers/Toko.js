@@ -138,7 +138,7 @@ const getDetailCardToko = async (req, res) => {
     const currTime = new Date()
 
     try {
-        console.log(param)
+        // console.log(param)
         if(param){
             query = `
             SELECT a.id, a.nama as pet_shop_name, COALESCE(z.rating, 0) as rating, COALESCE(z.total_rating, 0) as total_rating,
@@ -323,7 +323,7 @@ const getDetailCardTokoFull = async (req, res) => {
             where: {
                 id: value.id
             },
-            logging: console.log
+            // logging: console.log
         })
 
         data = data.map(toko => {
@@ -417,7 +417,7 @@ const getDetailTokoPenyedia = async (req, res) => {
             where: {
                 penyedia_id: value.penyediaId
             },
-            logging: console.log
+            // logging: console.log
         })
 
         data = data.map(toko => {
@@ -446,8 +446,6 @@ const getDetailTokoPenyedia = async (req, res) => {
                 groomings,
             };
         });
-
-        console.log(data)
 
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
@@ -504,7 +502,7 @@ const getPackageListStore = async (req, res) => {
                         idToko: value.toko_id
                     },
                     type: QueryTypes.SELECT,
-                    logging: console.log
+                    // logging: console.log
                 },
             )
         }
