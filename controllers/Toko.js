@@ -366,6 +366,102 @@ const getDetailCardTokoFull = async (req, res) => {
     }
 }
 
+const getDetailTokoPenyedia = async (req, res) => {
+
+    const value = req.params
+    let query;
+    let data;
+
+    try {
+        data = await Toko.findAll({
+            attributes: [
+                'id', ['nama', 'pet_shop_name'], 'penyedia_id',
+                [sequelize.literal('(SELECT MIN(harga) FROM (SELECT harga FROM Hotel UNION ALL SELECT harga FROM Grooming) AS harga)'), 'start_from'],
+                ['deskripsi', 'description'],
+                ['lokasi', 'location'],
+                ['foto', 'pet_shop_picture'],
+                [sequelize.literal('(SELECT CAST(AVG(a.rating) AS DECIMAL(10,2)) FROM review a JOIN "order" b ON a.order_id = b.id)'), 'rating'],
+                [sequelize.literal('(SELECT COUNT(a.id) as total_rating FROM review a JOIN "order" b ON a.order_id = b.id)'), 'total_rating'],
+                [sequelize.literal(`(SELECT json_agg(json_build_object('nama_user', u.nama, 'rate', r.rating, 'review_description', r.ulasan)) FROM review r JOIN users u ON r.customer_id = u.id)`), 'review']            
+            ],
+            include: [
+                {
+                    model: Hotel,
+                    as: 'hotels',
+                    attributes: ['id', 'toko_id',
+                    ['tipe_hotel', 'title_hotel'], 
+                    ['harga', 'price_hotel'], 
+                    [sequelize.fn('string_to_array', sequelize.col('hotels.fasilitas'), ','), 'service_detail_hotel']
+                ],                    
+                    where:
+                        sequelize.where(sequelize.col('hotels.toko_id'), '=', sequelize.col('Toko.id'))
+                        // toko_id: sequelize.col('Toko.id')
+                    ,
+                    required: false,
+                },
+                {
+                    model: Grooming,
+                    as: 'groomings',
+                    attributes: ['id', 'toko_id', 
+                    ['tipe', 'title_grooming'], 
+                    ['harga', 'price_grooming'], 
+                    [sequelize.fn('string_to_array', sequelize.col('groomings.fasilitas'), ','), 'service_detail_grooming']
+                ],                   
+                // where:{
+                //     toko_id: sequelize.col('Toko.id')
+                // },
+                    where:  sequelize.where(sequelize.col('groomings.toko_id'), '=', sequelize.col('Toko.id')),
+                    required: false,
+                },
+            ],
+            where: {
+                penyedia_id: value.penyediaId
+            },
+            logging: console.log
+        })
+
+        data = data.map(toko => {
+            const tokoPlain = toko.get({ plain: true });
+            let {hotels, groomings, ...otherData} = tokoPlain;
+            let services = [];
+            if (hotels && hotels.length > 0) {
+                services.push('Hotel');
+            } else {
+                hotels = null
+            }
+            if (groomings && groomings.length > 0) {
+                services.push('Grooming');
+            } else {
+                groomings = null
+            }
+
+            if (otherData.rating === null) {
+                otherData.rating = 0;
+            }
+
+            return {
+                ...otherData,
+                services,
+                hotels,
+                groomings,
+            };
+        });
+
+        console.log(data)
+
+        return res.status(200).json({
+            message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
+            kode: 200,
+            data: data[0]
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
+
 const getPackageListStore = async (req, res) => {
 
     const value = req.params
@@ -432,5 +528,6 @@ module.exports = {
     getDataToko,
     getDetailCardToko,
     getDetailCardTokoFull,
-    getPackageListStore
+    getPackageListStore,
+    getDetailTokoPenyedia
 }
