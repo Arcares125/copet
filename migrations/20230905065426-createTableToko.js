@@ -19,7 +19,7 @@ module.exports = {
         allowNull: false
       },
       foto: {
-        type: Sequelize.BLOB('long'),
+        type: Sequelize.TEXT,
         allowNull: true,
         // defaultValue: 
       },

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: false
           },
           foto: {
-            type: DataTypes.BLOB('long'),//string 255
+            type: DataTypes.TEXT,
             allowNull: true,
             // defaultValue: 
           },
