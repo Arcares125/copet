@@ -327,7 +327,8 @@ const checkPaymentStatus = async (req, res) => {
         }).catch((e) => {
             console.log('Error occured:', e.message);
             if(e.message.includes('HTTP status code: 404')){
-                return res.status(200).json({
+                return res.status(404).json({
+                    response_code: 404,
                     message: "Order ID Not Found"
                 })
             }

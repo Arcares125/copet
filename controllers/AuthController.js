@@ -76,7 +76,7 @@ const registerUser = async (req, res) => {
 
         if(checkEmail){
             return res.status(200).json({
-                code: 200,
+                response_code: 200,
                 message: "Email already registered",
             })    
         }
@@ -85,7 +85,7 @@ const registerUser = async (req, res) => {
         const result = await User.create({...data, password: passHash})
 
         res.status(200).json({
-            code:200,
+            response_code:200,
             message: "Register Success",
             data: result
         })    
@@ -192,7 +192,7 @@ const loginPenyediaJasa = async (req, res) =>{
                 )
 
                 res.status(200).json({
-                    code: 200,
+                    response_code: 200,
                     message: "Login Success",
                     data: {...penyediaJasa, is_acc: 'true'},
                     token: tokenLogin,
@@ -204,7 +204,7 @@ const loginPenyediaJasa = async (req, res) =>{
                 )
         
                 res.status(200).json({
-                    code: 200,
+                    response_code: 200,
                     message: "Login Success",
                     data: penyediaJasa,
                     token: tokenLogin,

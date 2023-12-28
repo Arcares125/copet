@@ -24,13 +24,14 @@ const getProfile = async (req, res) =>{
         }
 
         return res.status(200).json({
+            response_code: 200,
             message: "Profile",
-            data: { getEmail },
-            code: 200
+            data: { getEmail }
         })
     } catch (error) {
-        res.json({
-            error: error,
+        res.status(500).json({
+            response_code: 500,
+            error: error.message,
             message: "Internal Server Error"
         })
     }
