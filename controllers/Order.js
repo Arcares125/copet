@@ -128,7 +128,7 @@ const createOrder = async (req, res) => {
         let parameter = {
             "payment_type": "bank_transfer",
             "transaction_details": {
-                "order_id": "CCC-"+dataOrder.dataValues.id,
+                "order_id": "DDD-"+dataOrder.dataValues.id,
                 "gross_amount": totalPrice
             },
             "custom_expiry":
@@ -366,10 +366,10 @@ const setPaymentToExpired = async (req, res) => {
                 "message": "Order not found"
             })
         }
-        // console.log("CCC-"+orderId)
+        // console.log("DDD-"+orderId)
         let transactionStatus;
                 try {
-                    transactionStatus = await coreApi.transaction.status("CCC-"+orderId);
+                    transactionStatus = await coreApi.transaction.status("DDD-"+orderId);
                     // console.log(transactionStatus)
                 } catch (error) {
                     if (error.ApiResponse && error.ApiResponse.status_code === 500) {
@@ -407,9 +407,9 @@ const setPaymentToExpired = async (req, res) => {
                         "Transaction Status": "Expired"
                     })
                 }
-        // transactionStatus = await coreApi.transaction.status("CCC-"+value.orderId);
+        // transactionStatus = await coreApi.transaction.status("DDD-"+value.orderId);
         
-        // coreApi.transaction.status("CCC-"+orderId).then(async (response) => {
+        // coreApi.transaction.status("DDD-"+orderId).then(async (response) => {
         //     console.log('Transaction status:', response.transaction_status);
         
         //     if(response.transaction_status === 'expire') {
@@ -671,7 +671,7 @@ const getDetailOrder = async (req, res) => {
                 });
                 let transactionStatus;
                 try {
-                    transactionStatus = await coreApi.transaction.status("CCC-"+value.orderId);
+                    transactionStatus = await coreApi.transaction.status("DDD-"+value.orderId);
                     // console.log(transactionStatus)
                 } catch (error) {
                     if (error.ApiResponse && error.ApiResponse.status_code === 500) {
@@ -1038,7 +1038,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                         });
                         let transactionStatus;
                         try {
-                            transactionStatus = await coreApi.transaction.status("CCC-"+order.orders.dataValues.order_id);
+                            transactionStatus = await coreApi.transaction.status("DDD-"+order.orders.dataValues.order_id);
                         } catch (error) {
                             if(error.ApiResponse.status_code === '404'){
                                 console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
@@ -1133,7 +1133,7 @@ const getOrderStatusOnProgress = async (req, res) => {
         let transactionStatusOrder;
         for(let order of getAllOrder){
             try {
-                transactionStatusOrder = await coreApiOrder.transaction.status("CCC-"+order.dataValues.id);
+                transactionStatusOrder = await coreApiOrder.transaction.status("DDD-"+order.dataValues.id);
             } catch (error) {
                 if(error.ApiResponse.status_code === '404'){
                     // console.log('tester masuk')
@@ -1334,7 +1334,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
         let transactionStatusOrder;
         for(let order of getAllOrder){
             try {
-                transactionStatusOrder = await coreApiOrder.transaction.status("CCC-"+order.dataValues.id);
+                transactionStatusOrder = await coreApiOrder.transaction.status("DDD-"+order.dataValues.id);
             } catch (error) {
                 if(error.ApiResponse.status_code === '404'){
                     console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
@@ -1510,6 +1510,577 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
     }
 }
 
+// penyedia jasa
+const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
+
+    const value = req.params
+    try {
+
+        const userIsValid = await PenyediaJasa.findOne({
+            where: {
+                id: value.penyediaId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '404',
+                message: 'Penyedia Jasa not found'
+            })
+        }
+
+        const data = await Toko.findAll({
+            attributes: [
+                ['nama', 'title'],
+            ],
+            include: [
+                {
+                    model: Hotel,
+                    as: 'hotels',
+                    attributes: ['harga'],                    
+                    required: false,
+                    include: [
+                        {
+                            model: DetailOrderHotel,
+                            as: 'detail_order_hotel',
+                            attributes: ['quantity', 'tanggal_masuk', 'tanggal_keluar'],
+                            required: true,
+                            include: [{
+                                model: Order,
+                                as: 'orders',
+                                attributes: [['id', 'order_id'], 'status_order'],
+                                where: {
+                                    status_order: {[Op.iLike] : '%Waiting Payment%'} 
+                                },
+                            }]
+                        },
+                    ]
+                },
+                {
+                    model: Grooming,
+                    as: 'groomings',
+                    attributes: ['harga'],                    
+                    required: false,
+                    include: [
+                        {
+                            model: DetailOrderGrooming,
+                            as: 'detail_order_grooming',
+                            attributes: ['quantity'],
+                            required: true,
+                            include: [{
+                                model: Order,
+                                as: 'orders',
+                                attributes: [['id', 'order_id'], 'status_order'],
+                                where: {
+                                    status_order: {[Op.iLike] : '%Waiting Payment%'} 
+                                },
+                            }]
+                        },
+                    ]
+                }
+            ],
+            where: {
+                penyedia_id: value.penyediaId
+            },
+            logging:false
+        },)
+
+        if(!data){
+            return res.status(404).json({
+                "response_code": 404,
+                "message": "Data not found"
+            })
+        }
+
+        const formattedData = [];
+
+            for (const toko of data) {
+                const services = [...toko.hotels, ...toko.groomings];
+
+                for (const service of services) {
+                    const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
+                    const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
+                    const orders = [...hotelOrders, ...groomingOrders];
+
+                    for (const order of orders) {
+                        // console.log(order)
+                        // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
+                        // console.log(order.dataValues.orders.dataValues.order_id)
+                        let differenceInMilliseconds = 0;
+                        let differenceInDays = 0;
+                        if(hotelOrders.length > 0){
+                            // Calculate the difference in milliseconds
+                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+
+                            // Convert the difference to days
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+                            console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                        }
+
+                        let coreApi = new midtransClient.CoreApi({
+                            isProduction: false,
+                            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+                            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                        });
+                        let transactionStatus;
+                        try {
+                            transactionStatus = await coreApi.transaction.status("DDD-"+order.orders.dataValues.order_id);
+                        } catch (error) {
+                            if(error.ApiResponse.status_code === '404'){
+                                console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
+                                return res.status(404).json({
+                                    response_code: 404,
+                                    message: `Error: ${error.ApiResponse.status_message}`
+                                })
+                            } else {
+                                console.error(`Error getting transaction status: ${error}`);
+                            }
+                            
+                        }
+
+                        if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
+                            await Order.update({
+                                status_pembayaran: "Expired",
+                                status_order: 'Expired'
+                            }, 
+                            {
+                                where:{
+                                    id: order.orders.dataValues.order_id
+                                }
+                            });
+                        } else if(transactionStatus.transaction_status === 'settlement'){
+                            await Order.update({
+                                status_pembayaran: "Berhasil",
+                                status_order: "On Progress"
+                            }, 
+                            {
+                                where:{
+                                    id: order.orders.dataValues.order_id
+                                }
+                            });
+                        }
+
+                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                        if (existingOrder) {
+                            // sum total_payment from same order_id
+                            existingOrder.total_payment += service.harga * order.quantity;
+                        } else {
+                            formattedData.push({
+                                order_id: order.orders.dataValues.order_id,
+                                title: toko.dataValues.title,
+                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                status: order.orders.status_order,
+                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                            });
+                        }
+                        
+                    }
+                }
+            }
+
+        return res.status(200).json({
+            message: "Data Ditemukan",
+            response_code: 200,
+            data: formattedData
+
+        })
+    
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
+
+const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
+
+    const value = req.params
+
+    const getAllOrder = await Order.findAll({
+        attributes: ['id', 'status_order'],
+        where:{
+            status_order: {
+                [Op.in]: ['Waiting Payment']
+            }
+        }
+    })
+    // console.log(getAllOrder)
+
+    const checkStatus = async () =>{
+        let coreApiOrder = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+        let transactionStatusOrder;
+        for(let order of getAllOrder){
+            try {
+                transactionStatusOrder = await coreApiOrder.transaction.status("DDD-"+order.dataValues.id);
+            } catch (error) {
+                if(error.ApiResponse.status_code === '404'){
+                    // console.log('tester masuk')
+                    console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
+                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
+                    // return res.status(404).json({
+                    //     response_code: 404,
+                    //     message: `Error: ${error.ApiResponse.status_message}`
+                    // })
+                } else {
+                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
+                    // console.error(`Error getting transaction status: ${error}`);
+                }
+            }
+
+            if(transactionStatusOrder.transaction_status === 'settlement' && order.dataValues.status_order === 'Waiting Payment'){
+                await Order.update({
+                    status_pembayaran: "Berhasil",
+                    status_order: "On Progress"
+                }, 
+                {
+                    where:{
+                        id: order.dataValues.id
+                    }
+                });
+            }
+
+        }
+        
+    }
+
+    try {
+        const userIsValid = await PenyediaJasa.findOne({
+            where: {
+                id: value.penyediaId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '404',
+                message: 'Penyedia Jasa not found'
+            })
+        }
+
+        await checkStatus().then(async () =>{
+            const formattedData = [];
+            const data = await Toko.findAll({
+                attributes: [
+                    ['nama', 'title'],
+                ],
+                include: [
+                    {
+                        model: Hotel,
+                        as: 'hotels',
+                        attributes: ['harga'],                    
+                        required: false,
+                        include: [
+                            {
+                                model: DetailOrderHotel,
+                                as: 'detail_order_hotel',
+                                attributes: ['quantity', 'tanggal_masuk', 'tanggal_keluar'],
+                                required: true,
+                                include: [{
+                                    model: Order,
+                                    as: 'orders',
+                                    attributes: [['id', 'order_id'], 'status_order'],
+                                    where: {
+                                        status_order: {[Op.iLike] : '%On Progress%'}
+                                    },
+                                }]
+                            },
+                        ]
+                    },
+                    {
+                        model: Grooming,
+                        as: 'groomings',
+                        attributes: ['harga'],                    
+                        required: false,
+                        include: [
+                            {
+                                model: DetailOrderGrooming,
+                                as: 'detail_order_grooming',
+                                attributes: ['quantity'],
+                                required: true,
+                                include: [{
+                                    model: Order,
+                                    as: 'orders',
+                                    attributes: [['id', 'order_id'], 'status_order'],
+                                    where: {
+                                        status_order: {[Op.iLike] : '%On Progress%'}
+                                    },
+                                }]
+                            },
+                        ]
+                    }
+                ],
+                where:{
+                    penyedia_id: value.penyediaId
+                },
+                logging:false
+            },)
+    
+            if(data.length < 1){
+                return res.status(404).json({
+                    "response_code": 404,
+                    "message": "Data not found"
+                })
+            }
+
+            for (const toko of data) {
+                const services = [...toko.hotels, ...toko.groomings];
+                // console.log(services)
+
+                for (const service of services) {
+                    const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
+                    const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
+                    const orders = [...hotelOrders, ...groomingOrders];
+
+                    for (const order of orders) {
+                        // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
+                        // console.log(order.dataValues.orders.dataValues.order_id)
+                        let differenceInMilliseconds = 0;
+                        let differenceInDays = 0;
+                        if(hotelOrders.length > 0){
+                            // Calculate the difference in milliseconds
+                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+
+                            // Convert the difference to days
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+                            console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                        }
+
+                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                        if (existingOrder) {
+                            // sum total_payment from same order_id
+                            existingOrder.total_payment += service.harga * order.quantity;
+                        } else {
+                            formattedData.push({
+                                order_id: order.orders.dataValues.order_id,
+                                title: toko.dataValues.title,
+                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                status: order.orders.status_order,
+                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                            });
+                        }
+                        
+                    }
+                }
+            }
+            formattedData.sort((a, b) => b.order_id - a.order_id);
+        return res.status(200).json({
+            message: "Data Ditemukan",
+            response_code: 200,
+            data: formattedData
+
+        })
+        })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
+
+const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
+
+    const value = req.params
+
+    const getAllOrder = await Order.findAll({
+        attributes: ['id', 'status_order'],
+        where:{
+            status_order: {
+                [Op.in]: ['Completed', 'Expired', 'Cancel']
+            }
+        }
+    })
+
+    const checkStatus = async () =>{
+        let coreApiOrder = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+        let transactionStatusOrder;
+        for(let order of getAllOrder){
+            try {
+                transactionStatusOrder = await coreApiOrder.transaction.status("DDD-"+order.dataValues.id);
+            } catch (error) {
+                if(error.ApiResponse.status_code === '404'){
+                    console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
+                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
+                    // return res.status(404).json({
+                    //     response_code: 404,
+                    //     message: `Error: ${error.ApiResponse.status_message}`
+                    // })
+                } else {
+                    console.error(`Error getting transaction status: ${error}`);
+                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
+                }
+            }
+
+            if(transactionStatusOrder.transaction_status === 'expire' && order.dataValues.status_order === 'Waiting Payment'){
+                await Order.update({
+                    status_pembayaran: "Expired",
+                    status_order: "Expired"
+                }, 
+                {
+                    where:{
+                        id: order.dataValues.id
+                    }
+                });
+            }
+
+        }
+    }
+
+    try {
+        const userIsValid = await PenyediaJasa.findOne({
+            where: {
+                id: value.penyediaId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '404',
+                message: 'Penyedia Jasa not found'
+            })
+        }
+        
+        await checkStatus().then(async () =>{
+            const formattedData = [];
+            const data = await Toko.findAll({
+                attributes: [
+                    ['nama', 'title'],
+                ],
+                include: [
+                    {
+                        model: Hotel,
+                        as: 'hotels',
+                        attributes: ['harga'],                    
+                        required: false,
+                        include: [
+                            {
+                                model: DetailOrderHotel,
+                                as: 'detail_order_hotel',
+                                attributes: ['quantity', 'tanggal_masuk', 'tanggal_keluar'],
+                                required: true,
+                                include: [{
+                                    model: Order,
+                                    as: 'orders',
+                                    attributes: [['id', 'order_id'], 'status_order'],
+                                    where: {
+                                        status_order: {[Op.in] : ['Completed', 'Expired', 'Cancel']}
+                                    },
+                                }]
+                            },
+                        ]
+                    },
+                    {
+                        model: Grooming,
+                        as: 'groomings',
+                        attributes: ['harga'],                    
+                        required: false,
+                        include: [
+                            {
+                                model: DetailOrderGrooming,
+                                as: 'detail_order_grooming',
+                                attributes: ['quantity'],
+                                required: true,
+                                include: [{
+                                    model: Order,
+                                    as: 'orders',
+                                    attributes: [['id', 'order_id'], 'status_order'],
+                                    where: {
+                                        status_order: {[Op.in] : ['Completed', 'Expired', 'Cancel']}
+                                    },
+                                }]
+                            },
+                        ]
+                    }
+                ],
+                where: {
+                    penyedia_id: value.penyediaId
+                },
+                logging:false
+            },)
+    
+            if(data.length < 1){
+                return res.status(404).json({
+                    "response_code": 404,
+                    "message": "Data not found"
+                })
+            }
+
+            for (const toko of data) {
+                const services = [...toko.hotels, ...toko.groomings];
+                // console.log(services)
+
+                for (const service of services) {
+                    const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
+                    const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
+                    const orders = [...hotelOrders, ...groomingOrders];
+
+                    for (const order of orders) {
+                        // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
+                        let differenceInMilliseconds = 0;
+                        let differenceInDays = 0;
+                        if(hotelOrders.length > 0){
+                            // Calculate the difference in milliseconds
+                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+
+                            // Convert the difference to days
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+                            console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                        }
+
+                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                        if (existingOrder) {
+                            // sum total_payment from same order_id
+                            existingOrder.total_payment += service.harga * order.quantity;
+                        } else {
+                            formattedData.push({
+                                order_id: order.orders.dataValues.order_id,
+                                title: toko.dataValues.title,
+                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                status: order.orders.status_order,
+                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                            });
+                        }
+                        
+                    }
+                }
+            }
+
+        return res.status(200).json({
+            message: "Data Ditemukan",
+            response_code: 200,
+            data: formattedData
+
+        })
+        })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: error.message,
+            kode: 500,
+        })
+    }
+}
+
 module.exports = {
     createOrder,
     getPaymentData,
@@ -1518,6 +2089,10 @@ module.exports = {
     getDetailOrder,
     getOrderStatusWaitingPayment,
     getOrderStatusOnProgress,
+    getOrderStatusCompleteExpireCancel,
     setOrderToCompleted,
-    getOrderStatusCompleteExpireCancel
+    getOrderStatusWaitingPaymentPenyediaJasa,
+    getOrderStatusOnProgressPenyediaJasa,
+    getOrderStatusCompleteExpireCancelPenyediaJasa,
+
 }

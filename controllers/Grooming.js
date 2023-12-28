@@ -12,6 +12,12 @@ const registerGrooming = async (req, res) => {
         const data = req.body
 
         const getDataToko = await Toko.findOne({
+            include: {
+                model: PenyediaJasa,
+                as: 'role_toko',
+                required: true,
+                attributes: ['id'],
+            },
             where:{
                 id: data.toko_id
             }
@@ -25,10 +31,11 @@ const registerGrooming = async (req, res) => {
         }
 
         const dataGrooming = await Grooming.create(data)
+
             return res.status(201).json({
                 message: "Data Grooming Berhasil Disimpan",
                 kode: 201,
-                data: dataGrooming
+                data: {...dataGrooming.dataValues, penyedia_id: getDataToko.dataValues.role_toko.dataValues.id}
             })
         
     } catch (error) {
