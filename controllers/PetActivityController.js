@@ -1,9 +1,8 @@
 const {
-    PetActivity, HewanPeliharaan, sequelize
+    PetActivity, HewanPeliharaan, User, sequelize
 } = require("../models")
-    const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
-const { QueryTypes } = require("sequelize");
+const { QueryTypes, Op } = require("sequelize");
 const {TOKEN_LOGIN,
         TOKEN_REFRESH } = process.env
 
@@ -15,7 +14,7 @@ const createActivity = async (req, res) => {
 
     try {
 
-        const isHewanValid = await sequelize.findOne({
+        const isHewanValid = await HewanPeliharaan.findOne({
             where : {
                 id: data.hewan_id
             }

@@ -10,6 +10,10 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
+      hewan_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       nama: {
         type: Sequelize.STRING(50),
         allowNull: false
@@ -18,9 +22,18 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull:false,
       },
+      mulai_aktivitas: {
+        type: Sequelize.DATE,
+        allowNull:false,
+      },
+      akhir_aktivitas: {
+        type: Sequelize.DATE,
+        allowNull:false,
+      },
       isAllDay: {
         type: Sequelize.BOOLEAN,
-        allowNull: true
+        allowNull: true,
+        defaultValue: false
       },
       background: {
         type: Sequelize.STRING(255),
@@ -28,8 +41,7 @@ module.exports = {
       },
       description: {
         type: Sequelize.STRING(255),
-        allowNull: true,
-        defaultValue: false
+        allowNull: true
       },
       createdAt: {
         type: Sequelize.DATE,

@@ -53,6 +53,20 @@ const getHewanPeliharaan = async (req, res) =>{
 const createHewanPeliharaan = async (req, res) => {
     const data = req.body
     try {
+
+        const userIsValid = await User.findOne({
+            where:{
+                id: data.user_id
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: 404,
+                message: "Data User / Pengguna tidak ditemukan",
+            })
+        }
+
         const dataHewan = await HewanPeliharaan.create(data)
         return res.status(201).json({
             response_code: 201,

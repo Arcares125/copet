@@ -6,7 +6,7 @@ var router = express.Router();
 
 /* GET users listing. */
 // router.get('/:id?', getHewanPeliharaan)
-router.post('/create', createActivity)
+router.post('/createActivity', createActivity)
 // router.post('/get-payment', getPaymentData)
 // router.post('/check-payment', checkPaymentStatus)
 // router.get('/getOrderStatusWaitingPayment', getOrderStatusWaitingPayment)
