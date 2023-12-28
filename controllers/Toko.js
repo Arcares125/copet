@@ -82,14 +82,30 @@ const registerToko = async (req, res) => {
             // }
 
             //path
+            // if (req.files && req.files.foto) {
+            //     let foto = req.files.foto;
+            //     // Define the path where the image will be saved
+            //     let imagePath = path.join(__dirname, '/../public/images/', foto.name);
+            //     // Write the file to the defined path
+            //     fs.writeFileSync(imagePath, foto.data);
+            //     // Store the path to the image file in the 'foto' field
+            //     data.foto = imagePath;
+            // }
+            // Handle image upload if present
             if (req.files && req.files.foto) {
-                let foto = req.files.foto;
-                // Define the path where the image will be saved
-                let imagePath = path.join(__dirname, '/../public/images/', foto.name);
-                // Write the file to the defined path
-                fs.writeFileSync(imagePath, foto.data);
-                // Store the path to the image file in the 'foto' field
-                data.foto = imagePath;
+                const foto = req.files.foto;
+
+                // Extract filename from the uploaded file information
+                const filename = foto.originalname;
+
+                // Construct the desired path to save the image
+                const imagePath = path.join(__dirname, '/../public/images', filename);
+
+                // Move the uploaded file to the desired path
+                await foto.mv(imagePath); // Use mv for efficient moving
+
+                // Store the relative path to the image in the database
+                data.foto = '/images/' + filename; // Assuming images are served from /images
             }
 
             const dataToko = await Toko.create(data)
