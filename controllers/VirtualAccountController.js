@@ -47,7 +47,7 @@
 //     } catch (error) {
 //         return res.status(500).json({
 //             message: error.message,
-//             kode: 500,
+//             response_code: 500,
 //         })
 //     }
 // }

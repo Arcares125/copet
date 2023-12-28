@@ -33,8 +33,8 @@ const registerHotel = async (req, res) => {
         
     } catch (error) {
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
@@ -49,16 +49,16 @@ const getDataHotel = async (req, res) => {
 
     try {
         return res.status(200).json({
+            response_code: 200,
             message: "Data Toko berhasil diambil",
-            kode: 200,
             data: dataToko[0]
         })
 
         
     } catch (error) {
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }

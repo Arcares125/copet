@@ -59,14 +59,14 @@ const registerTrainer = async (req, res) => {
             getDokterTaken.length > 0 || getTrainerTaken.length > 0 || getTokoTaken.length > 0){
             return res.status(404).json({
                 message: "Penyedia Jasa hanya dapat mendaftarkan 1 jenis jasa / usaha",
-                kode: 404,
+                response_code: 404,
                 data: ''
             })
         } else {
             const dataTrainer = await Trainer.create(data)
             return res.status(201).json({
                 message: "Data Trainer Berhasil Disimpan",
-                kode: 201,
+                response_code: 201,
                 data: dataTrainer
             })
         }
@@ -74,7 +74,7 @@ const registerTrainer = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }
@@ -90,7 +90,7 @@ const getDataTrainer = async (req, res) => {
     try {
         return res.status(200).json({
             message: "Data Trainer berhasil diambil",
-            kode: 200,
+            response_code: 200,
             data: dataTrainer[0]
         })
 
@@ -98,7 +98,7 @@ const getDataTrainer = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }

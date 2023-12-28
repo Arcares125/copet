@@ -33,15 +33,15 @@ const registerGrooming = async (req, res) => {
         const dataGrooming = await Grooming.create(data)
 
             return res.status(201).json({
+                response_code: 201,
                 message: "Data Grooming Berhasil Disimpan",
-                kode: 201,
                 data: {...dataGrooming.dataValues, penyedia_id: getDataToko.dataValues.role_toko.dataValues.id}
             })
         
     } catch (error) {
         return res.status(500).json({
-            message: error.message,
-            kode: 500,
+            response_code: 500,
+            message: error.message
         })
     }
 }
@@ -56,16 +56,16 @@ const getDataGrooming = async (req, res) => {
 
     try {
         return res.status(200).json({
+            response_code: 200,
             message: "Data Grooming berhasil diambil",
-            kode: 200,
             data: dataGrooming[0]
         })
 
         
     } catch (error) {
         return res.status(500).json({
-            message: error.message,
-            kode: 500,
+            response_code: 500,
+            message: error.message
         })
     }
 }

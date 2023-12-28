@@ -13,16 +13,16 @@ const createDetailOrderHotel = async (req, res) => {
     try {
         const dataDetailOrderHotel = await DetailOrderHotel.create(data)
         return res.status(201).json({
+            response_code: 201,
             message: "Data Detail Order Hotel Berhasil Disimpan",
-            kode: 201,
             data: dataDetailOrderHotel
         })
       
 
     } catch (error) {
         return res.status(500).json({
-            message: error.message,
-            kode: 500,
+            response_code: 500,
+            message: error.message
         })
     }
 }

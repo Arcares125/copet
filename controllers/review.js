@@ -15,13 +15,13 @@ const createReview = async (req, res) => {
         const dataReview = await Review.create(data)
         return res.status(201).json({
             message: "Review Berhasil Disimpan",
-            kode: 201,
+            response_code: 201,
             data: dataReview
         })
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }

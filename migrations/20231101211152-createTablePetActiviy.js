@@ -28,7 +28,8 @@ module.exports = {
       },
       description: {
         type: Sequelize.STRING(255),
-        allowNull: true
+        allowNull: true,
+        defaultValue: false
       },
       createdAt: {
         type: Sequelize.DATE,

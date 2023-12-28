@@ -1,5 +1,5 @@
 const {
-    PetActivity,
+    PetActivity, HewanPeliharaan, sequelize
 } = require("../models")
     const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
@@ -15,18 +15,34 @@ const createActivity = async (req, res) => {
 
     try {
 
+        const isHewanValid = await sequelize.findOne({
+            where : {
+                id: data.hewan_id
+            }
+        })
+
+        if(!isHewanValid){
+            return res.status(404).json({
+                response_code: 404,
+                message: "Hewan peliharaan tidak ditemukan"
+            })
+        }
+
         const dataActivity = await PetActivity.create({
             nama: data.nama,
-            tanggal_aktivitas: data.tanggal_aktivitas
-        })  
-
-        
-
+            hewan_id: data.hewan_id,
+            tanggal_aktivitas: data.tanggal_aktivitas,
+            mulai_aktivitas: data.mulai_aktivitas,
+            akhir_aktivitas: data.akhir_aktivitas,
+            // isAllDay: data.isAllDay ?,
+            // background: ,
+            // description: 
+        })      
 
     } catch (error) {
         return res.status(500).json({
-            message: error.message,
-            kode: 500,
+            response_code: 500,
+            message: error.message
         })
     }
 }

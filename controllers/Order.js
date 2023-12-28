@@ -159,8 +159,8 @@ const createOrder = async (req, res) => {
             )
         
             return res.status(200).json({
-                message: "Data Order Berhasil Disimpan",
                 response_code: 200,
+                message: "Data Order Berhasil Disimpan",
                 data: {
                     order: {...dataOrder.dataValues, virtual_number: kode},
                     detail: details,
@@ -186,8 +186,8 @@ const createOrder = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
@@ -249,8 +249,8 @@ const getPaymentData = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
@@ -335,8 +335,8 @@ const checkPaymentStatus = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
@@ -459,8 +459,8 @@ const setPaymentToExpired = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
@@ -506,8 +506,8 @@ const setOrderToCompleted = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
@@ -903,8 +903,8 @@ const getDetailOrder = async (req, res) => {
         }));
         
         return res.status(200).json({
-            message: "Data detail order berhasil diambil",
             response_code: 200,
+            message: "Data detail order berhasil diambil",
             // data: formattedData.filter(item => item !== null)
             data: formattedData
         })
@@ -1094,8 +1094,8 @@ const getOrderStatusWaitingPayment = async (req, res) => {
             }
 
         return res.status(200).json({
-            message: "Data Ditemukan",
             response_code: 200,
+            message: "Data Ditemukan",
             data: formattedData
 
         })
@@ -1104,8 +1104,8 @@ const getOrderStatusWaitingPayment = async (req, res) => {
     } catch (error) {
         console.log(error)
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
@@ -1296,8 +1296,8 @@ const getOrderStatusOnProgress = async (req, res) => {
             }
             formattedData.sort((a, b) => b.order_id - a.order_id);
         return res.status(200).json({
-            message: "Data Ditemukan",
             response_code: 200,
+            message: "Data Ditemukan",
             data: formattedData
 
         })
@@ -1306,8 +1306,8 @@ const getOrderStatusOnProgress = async (req, res) => {
     } catch (error) {
         console.log(error)
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
@@ -1505,7 +1505,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
         console.log(error)
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }
@@ -1692,7 +1692,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
         console.log(error)
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }
@@ -1886,7 +1886,7 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
         console.log(error)
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }
@@ -2076,7 +2076,7 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
         console.log(error)
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }

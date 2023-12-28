@@ -13,16 +13,16 @@ const createDetailOrderGrooming = async (req, res) => {
     try {
         const dataDetailOrderGrooming = await DetailOrderGrooming.create(data)
         return res.status(201).json({
+            response_code: 201,
             message: "Data Detail Order Grooming Berhasil Disimpan",
-            kode: 201,
             data: dataDetailOrderGrooming
         })
       
 
     } catch (error) {
         return res.status(500).json({
-            message: error.message,
-            kode: 500,
+            response_code: 500,
+            message: error.message
         })
     }
 }

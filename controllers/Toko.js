@@ -71,28 +71,28 @@ const registerToko = async (req, res) => {
             const dataToko = await Toko.create(data)
             return res.status(201).json({
                 message: "Data Toko Berhasil Disimpan",
-                kode: 201,
+                response_code: 201,
                 data: dataToko
             })
         } else if(currJenisJasa !== checkRoleTokoPenyediaJasa[0].jenis_jasa ||
             getDokterTaken.length > 0 || getTrainerTaken.length > 0 || getTokoTaken.length > 0){
             return res.status(404).json({
                 message: "Penyedia Jasa hanya dapat mendaftarkan 1 jenis jasa / usaha",
-                kode: 404,
+                response_code: 404,
                 data: ''
             })
         } else {
             const dataToko = await Toko.create(data)
             return res.status(201).json({
                 message: "Data Toko Berhasil Disimpan",
-                kode: 201,
+                response_code: 201,
                 data: dataToko
             })
         } 
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }
@@ -117,7 +117,7 @@ const getDataToko = async (req, res) => {
     try {
         return res.status(200).json({
             message: "Data Toko berhasil diambil",
-            kode: 200,
+            response_code: 200,
             data: dataToko
         })
 
@@ -125,7 +125,7 @@ const getDataToko = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }
@@ -255,13 +255,13 @@ const getDetailCardToko = async (req, res) => {
           if(serviceDetail.length === 0){
             return res.status(200).json({
                 message: "Tidak ada Toko tersedia / Belum ada Toko yang memiliki service",
-                kode: 200,
+                response_code: 200,
                 data: serviceDetail
             })
           } else {
             return res.status(200).json({
                 message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
-                kode: 200,
+                response_code: 200,
                 data: serviceDetail
             })
           }
@@ -269,7 +269,7 @@ const getDetailCardToko = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }
@@ -355,13 +355,13 @@ const getDetailCardTokoFull = async (req, res) => {
 
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
-            kode: 200,
+            response_code: 200,
             data: data[0]
         })
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }
@@ -449,13 +449,13 @@ const getDetailTokoPenyedia = async (req, res) => {
 
         return res.status(200).json({
             message: "Data Detail Toko Grooming dan Hotel berhasil diambil",
-            kode: 200,
+            response_code: 200,
             data: data[0]
         })
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }
@@ -509,14 +509,14 @@ const getPackageListStore = async (req, res) => {
 
         return res.status(200).json({
             message: "Success",
-            kode: 200,
+            response_code: 200,
             data: services
         })
 
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-            kode: 500,
+            response_code: 500,
         })
     }
 }

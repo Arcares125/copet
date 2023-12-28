@@ -61,23 +61,23 @@ const registerDokter = async (req, res) => {
         if(currJenisJasa !== checkRoleTokoPenyediaJasa[0].jenis_jasa ||
             getDokterTaken.length > 0 || getTrainerTaken.length > 0 || getTokoTaken.length > 0){
             return res.status(404).json({
+                response_code: 404,
                 message: "Penyedia Jasa hanya dapat memiliki 1 jenis jasa / usaha",
-                kode: 404,
                 data: ''
             })
         } else {
             const dataDokter = await Dokter.create(data)
             return res.status(201).json({
+                response_code: 201,
                 message: "Data Dokter Berhasil Disimpan",
-                kode: 201,
                 data: dataDokter
             })
         }
 
     } catch (error) {
         return res.status(500).json({
-            message: error.message,
-            kode: 500,
+            response_code: 500,
+            message: error.message
         })
     }
 }
@@ -92,16 +92,16 @@ const getDataDokter = async (req, res) => {
 
     try {
         return res.status(200).json({
+            response_code: 200,
             message: "Data Dokter berhasil diambil",
-            kode: 200,
             data: dataDokter[0]
         })
 
         
     } catch (error) {
         return res.status(500).json({
-            message: error.message,
-            kode: 500,
+            response_code: 500,
+            message: error.message
         })
     }
 }

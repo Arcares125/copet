@@ -25,14 +25,14 @@ const getHewanPeliharaan = async (req, res) =>{
 
         if(getHewan.length > 0){
             return res.status(200).json({
+                response_code: 200,
                 message: "Hewan ditemukan",
-                kode: 200,
                 data: getHewan
             })
         } else {
             return res.status(404).json({
+                response_code: 404,
                 message: "Data Hewan tidak ditemukan",
-                kode: 404,
                 data: getHewan
             })
         }
@@ -44,8 +44,8 @@ const getHewanPeliharaan = async (req, res) =>{
         
     } catch (error) {
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
@@ -55,14 +55,14 @@ const createHewanPeliharaan = async (req, res) => {
     try {
         const dataHewan = await HewanPeliharaan.create(data)
         return res.status(201).json({
+            response_code: 201,
             message: "Data Hewan Berhasil Disimpan",
-            kode: 201,
             data: dataHewan
         })
     } catch (error) {
         return res.status(500).json({
+            response_code: 500,
             message: error.message,
-            kode: 500,
         })
     }
 }
