@@ -53,6 +53,11 @@ module.exports = (sequelize, DataTypes) =>{
             as: 'pemilik_hewan',
             foreignKey: 'user_id'
         })
+
+        HewanPeliharaan.hasMany(models.PetActivity, {
+          as: 'aktivitas_hewan',
+          foreignKey: 'hewan_id'
+        })
     }
 
     return HewanPeliharaan

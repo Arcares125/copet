@@ -56,5 +56,14 @@ module.exports = (sequelize, DataTypes) =>{
         timestamps: true,
         paranoid: true
     })
+
+    PetActivity.associate = (models) => {
+      PetActivity.belongsTo(models.HewanPeliharaan, {
+        as: 'pet_activity',
+        foreignKey: 'hewan_id'
+      })
+  }
+
+
     return PetActivity
 }
