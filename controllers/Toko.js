@@ -68,6 +68,16 @@ const registerToko = async (req, res) => {
                 }
             })
 
+            if (req.files && req.files.foto) {
+                let foto = req.files.foto;
+                // Read the file into memory
+                let fotoData = fs.readFileSync(foto.path);
+                // Convert the file data to a base64 string
+                let base64Foto = Buffer.from(fotoData).toString('base64');
+                // Now you can store the base64 string in your database
+                data.foto = base64Foto;
+            }
+
             const dataToko = await Toko.create(data)
             return res.status(201).json({
                 message: "Data Toko Berhasil Disimpan",
