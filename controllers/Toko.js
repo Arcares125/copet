@@ -6,6 +6,7 @@ const { QueryTypes, BelongsTo } = require("sequelize");
 const {TOKEN_LOGIN,
         TOKEN_REFRESH } = process.env
 const fs = require('fs')
+const path = require('path');
 const moment = require('moment')
 
 const registerToko = async (req, res) => {
@@ -68,8 +69,8 @@ const registerToko = async (req, res) => {
                 }
             })
 
-            let base64Image = data.foto.split(';base64,').pop();
-            data.foto = Buffer.from(base64Image, 'base64');
+            // let base64Image = data.foto.split(';base64,').pop();
+            // data.foto = Buffer.from(base64Image, 'base64');
             // if (req.files && req.files.foto) {
             //     let foto = req.files.foto;
             //     // Read the file into memory
@@ -79,6 +80,17 @@ const registerToko = async (req, res) => {
             //     // Now you can store the base64 string in your database
             //     data.foto = base64Foto;
             // }
+
+            //path
+            if (req.files && req.files.foto) {
+                let foto = req.files.foto;
+                // Define the path where the image will be saved
+                let imagePath = path.join(__dirname, '/../public/images/', foto.name);
+                // Write the file to the defined path
+                fs.writeFileSync(imagePath, foto.data);
+                // Store the path to the image file in the 'foto' field
+                data.foto = imagePath;
+            }
 
             const dataToko = await Toko.create(data)
             return res.status(201).json({
