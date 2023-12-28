@@ -1,5 +1,5 @@
 var express = require('express');
-const { createActivity, 
+const { createActivity, updateActivity, getListActivity, deleteActivity
 
 } = require('../controllers/PetActivityController');
 var router = express.Router();
@@ -7,15 +7,8 @@ var router = express.Router();
 /* GET users listing. */
 // router.get('/:id?', getHewanPeliharaan)
 router.post('/createActivity', createActivity)
-// router.post('/get-payment', getPaymentData)
-// router.post('/check-payment', checkPaymentStatus)
-// router.get('/getOrderStatusWaitingPayment', getOrderStatusWaitingPayment)
-// router.get('/getOrderStatusCompleteExpireCancel', getOrderStatusCompleteExpireCancel)
-// router.get('/getOrderStatusOnProgress', getOrderStatusOnProgress)
-// router.post('setOrderToCompleted/:orderId?', setOrderToCompleted)
-// router.post('/set-order-to-expired/:orderId?', setPaymentToExpired)
-// router.get('/:orderId?', getDetailOrder)
-
-
+router.put('/updateActivity/:activityId?', updateActivity)
+router.get('/getListActivity', getListActivity),
+router.delete('/deleteActivity/:activityId?', deleteActivity)
 
 module.exports = router;

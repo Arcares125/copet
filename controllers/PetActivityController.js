@@ -44,29 +44,45 @@ const createActivity = async (req, res) => {
 
 const updateActivity = async (req, res) => {
 
-    const data = req.body
+    const activityToUpdate = req.params
+    const dataToUpdate = req.body
     const currentDate = new Date();
 
     try {
 
-        const isHewanValid = await HewanPeliharaan.findOne({
+        const isActivityExist = await PetActivity.findOne({
             where : {
-                id: data.hewan_id
+                id: activityToUpdate.activityId
             }
         })
 
-        if(!isHewanValid){
+        if(!isActivityExist){
             return res.status(404).json({
                 response_code: 404,
-                message: "Hewan peliharaan tidak ditemukan"
+                message: "Jadwal Hewan peliharaan tidak ditemukan"
             })
         }
 
-        const dataActivity = await PetActivity.create(data)    
+        await PetActivity.update(
+            { 
+                nama: dataToUpdate.nama,
+                tanggal_aktivitas: dataToUpdate.tanggal_aktivitas,
+                mulai_aktivitas: dataToUpdate.mulai_aktivitas,
+                akhir_aktivitas: dataToUpdate.akhir_aktivitas,
+                isAllDay: dataToUpdate?.isAllDay ? dataToUpdate.isAllDay : false,
+                background: dataToUpdate.background ? dataToUpdate.background : null,
+                description: dataToUpdate.description ? dataToUpdate.description : null
+            },
+            { 
+                where: { 
+                    id: activityToUpdate.activityId 
+                } 
+            }
+        )
+
         return res.status(201).json({
             response_code: 201,
-            message: "Schedule Pet Activity successfully created.",
-            data: dataActivity
+            message: "Schedule Pet Activity successfully Updated.",
         })
 
     } catch (error) {
@@ -85,32 +101,33 @@ const getListActivity = async (req, res) => {
 
     try {
 
-        if(!hewan){
-            const allDataActivity = await PetActivity.findAll({
-                where:{
-                    hewan_id: hewan
-                }
-            })
-        }
+        // if(!hewan){
+        //     const allDataActivity = await PetActivity.findAll({
+        //         where:{
+        //             hewan_id: hewan
+        //         }
+        //     })
+        // }
 
-        const isHewanValid = await HewanPeliharaan.findOne({
-            where : {
-                id: data.hewan_id
-            }
-        })
+        // const isHewanValid = await HewanPeliharaan.findOne({
+        //     where : {
+        //         id: data.hewan_id
+        //     }
+        // })
 
-        if(!isHewanValid){
-            return res.status(404).json({
-                response_code: 404,
-                message: "Hewan peliharaan tidak ditemukan"
-            })
-        }
+        const listActivity = await PetActivity.findAll()
 
-        const dataActivity = await PetActivity.create(data)    
-        return res.status(201).json({
-            response_code: 201,
-            message: "Schedule Pet Activity successfully created.",
-            data: dataActivity
+        // if(!isHewanValid){
+        //     return res.status(404).json({
+        //         response_code: 404,
+        //         message: "Hewan peliharaan tidak ditemukan"
+        //     })
+        // }
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Schedule Pet Activity successfully retrieved.",
+            data: listActivity
         })
 
     } catch (error) {
@@ -141,7 +158,7 @@ const deleteActivity = async (req, res) => {
             })
         }
 
-        PetActivity.destroy({
+        await PetActivity.destroy({
             where: {
                 id: value.activityId
             }
@@ -162,5 +179,8 @@ const deleteActivity = async (req, res) => {
 
 module.exports = {
     createActivity,
+    updateActivity,
+    getListActivity,
+    deleteActivity
 
 }
