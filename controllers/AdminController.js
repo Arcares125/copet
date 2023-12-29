@@ -219,14 +219,19 @@ const getAllDataPenyediaJasa = async (req, res) =>{
                 message: "Data Penyedia Jasa Kosong!"
             })
         } else {
-            const penyediaJasaList = {
-                id: dataPenyediaJasa[0].dataValues.id,
-                email: dataPenyediaJasa[0].dataValues.email,
-                no_telp: dataPenyediaJasa[0].dataValues.no_telp,
-                username: dataPenyediaJasa[0].dataValues.nama,
-                jenis_jasa: dataPenyediaJasa[0].dataValues.jenis_jasa,
-                is_acc: dataPenyediaJasa[0].dataValues.is_acc
+            let penyediaJasaList = []
+            for(let dataPenyedia of dataPenyediaJasa){
+                const penyediaJasaTemp = {
+                    id: dataPenyedia.dataValues.id,
+                    email: dataPenyedia.dataValues.email,
+                    no_telp: dataPenyedia.dataValues.no_telp,
+                    username: dataPenyedia.dataValues.nama,
+                    jenis_jasa: dataPenyedia.dataValues.jenis_jasa,
+                    is_acc: dataPenyedia.dataValues.is_acc
+                }
+                penyediaJasaList.push(penyediaJasaTemp)
             }
+
             return res.status(200).json({
                 response_code: 200,
                 message: "Data Penyedia Jasa ditemukan.",
@@ -255,17 +260,24 @@ const getAllDataUser = async (req, res) =>{
             })
         } else {
 
-            const userList = {
-                id: dataUser[0].dataValues.id,
-                email: dataUser[0].dataValues.email,
-                no_telp: dataUser[0].dataValues.no_telp,
-                username: dataUser[0].dataValues.nama
+            let allUser = []
+
+            for(let dataUserTemp of dataUser){
+                const userList = {
+                    id: dataUserTemp.dataValues.id,
+                    email: dataUserTemp.dataValues.email,
+                    no_telp: dataUserTemp.dataValues.no_telp,
+                    username: dataUserTemp.dataValues.nama
+                }
+
+                allUser.push(userList)
             }
+            
 
             return res.status(200).json({
                 response_code: 200,
                 message: "Data User ditemukan.",
-                data: userList
+                data: allUser
             })
         }
     } catch (error) {
