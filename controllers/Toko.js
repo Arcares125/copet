@@ -5,7 +5,9 @@ const jwt = require('jsonwebtoken');
 const { QueryTypes, BelongsTo } = require("sequelize");
 const {TOKEN_LOGIN,
         TOKEN_REFRESH } = process.env
-const fs = require('fs')
+// const fs = require('fs')
+const fs = require('fs/promises'); // For file system operations
+
 const path = require('path');
 const moment = require('moment')
 
@@ -69,44 +71,9 @@ const registerToko = async (req, res) => {
                 }
             })
 
-            // let base64Image = data.foto.split(';base64,').pop();
-            // data.foto = Buffer.from(base64Image, 'base64');
-            // if (req.files && req.files.foto) {
-            //     let foto = req.files.foto;
-            //     // Read the file into memory
-            //     let fotoData = fs.readFileSync(foto.path);
-            //     // Convert the file data to a base64 string
-            //     let base64Foto = Buffer.from(fotoData).toString('base64');
-            //     // Now you can store the base64 string in your database
-            //     data.foto = base64Foto;
-            // }
-
-            //path
-            // if (req.files && req.files.foto) {
-            //     let foto = req.files.foto;
-            //     // Define the path where the image will be saved
-            //     let imagePath = path.join(__dirname, '/../public/images/', foto.name);
-            //     // Write the file to the defined path
-            //     fs.writeFileSync(imagePath, foto.data);
-            //     // Store the path to the image file in the 'foto' field
-            //     data.foto = imagePath;
-            // }
-            // Handle image upload if present
-            if (req.files && req.files.foto) {
-                const foto = req.files.foto;
-
-                // Extract filename from the uploaded file information
-                const filename = foto.originalname;
-
-                // Construct the desired path to save the image
-                const imagePath = path.join(__dirname, '/../public/images', filename);
-
-                // Move the uploaded file to the desired path
-                await foto.mv(imagePath); // Use mv for efficient moving
-
-                // Store the relative path to the image in the database
-                data.foto = '/images/' + filename; // Assuming images are served from /images
-            }
+            let base64Image = data.foto;
+            let decodedImage = Buffer.from(base64Image, 'base64');
+            data.foto = decodedImage
 
             const dataToko = await Toko.create(data)
             return res.status(201).json({
@@ -122,6 +89,11 @@ const registerToko = async (req, res) => {
                 data: ''
             })
         } else {
+         
+            let base64Image = data.foto;
+            let decodedImage = Buffer.from(base64Image, 'base64');
+            data.foto = decodedImage
+            
             const dataToko = await Toko.create(data)
             return res.status(201).json({
                 message: "Data Toko Berhasil Disimpan",
