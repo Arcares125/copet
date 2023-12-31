@@ -71,9 +71,11 @@ const registerToko = async (req, res) => {
                 }
             })
 
-            let base64Image = data.foto;
-            let decodedImage = Buffer.from(base64Image, 'base64');
-            data.foto = decodedImage
+            // let base64Image = data.foto;
+            // let decodedImage = Buffer.from(base64Image, 'base64');
+            // let base64String = decodedImage.toString('base64');
+
+            // data.foto = base64String;
 
             const dataToko = await Toko.create(data)
             return res.status(201).json({
@@ -90,10 +92,11 @@ const registerToko = async (req, res) => {
             })
         } else {
          
-            let base64Image = data.foto;
-            let decodedImage = Buffer.from(base64Image, 'base64');
-            data.foto = decodedImage
-            
+            // let base64Image = data.foto;
+            // let decodedImage = Buffer.from(base64Image, 'base64');
+            // let base64String = decodedImage.toString('base64');
+
+            // data.foto = base64String;
             const dataToko = await Toko.create(data)
             return res.status(201).json({
                 message: "Data Toko Berhasil Disimpan",
@@ -533,11 +536,26 @@ const getPackageListStore = async (req, res) => {
     }
 }
 
+const cekTokoData = async(req, res) =>{
+
+    try {
+        const data = await Toko.findAll()
+        return res.json({
+            data: data
+        })
+    } catch (error) {
+        return res.json({
+            message: "lmao"
+        })
+    }
+}
+
 module.exports = {
     registerToko,
     getDataToko,
     getDetailCardToko,
     getDetailCardTokoFull,
     getPackageListStore,
-    getDetailTokoPenyedia
+    getDetailTokoPenyedia,
+    cekTokoData
 }

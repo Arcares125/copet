@@ -1,9 +1,10 @@
 var express = require('express');
-const { registerToko, getDataToko, getDetailCardToko, getDetailCardTokoFull, getPackageListStore, getDetailTokoPenyedia } = require('../controllers/Toko');
+const { registerToko, getDataToko, getDetailCardToko, getDetailCardTokoFull, getPackageListStore, getDetailTokoPenyedia, cekTokoData } = require('../controllers/Toko');
 var router = express.Router();
 
 /* GET users listing. */
 router.post('/register', registerToko)
+router.get('/cektokodata', cekTokoData)
 router.post('/data-toko', getDataToko)
 router.get('/toko-card/:search?', getDetailCardToko)
 router.get('/toko-card-detail/:id', getDetailCardTokoFull)
