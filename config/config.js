@@ -7,7 +7,8 @@ module.exports = {
     "database": process.env.PGDATABASE,
     "host": process.env.PGHOST,
     "dialect": process.env.DB_DIALECT,
-    "port": process.env.PGPORT
+    "port": process.env.PGPORT,
+    "logging": false
   },
   "test": {
     "username": process.env.DB_USERNAME,
@@ -15,7 +16,8 @@ module.exports = {
     "database": process.env.PGDATABASE,
     "host": process.env.PGHOST,
     "dialect": process.env.DB_DIALECT,
-    "port": process.env.PGPORT
+    "port": process.env.PGPORT,
+    "logging": false
   },
   "production": {
     "username": process.env.DB_USERNAME,
@@ -23,7 +25,8 @@ module.exports = {
     "database": process.env.PGDATABASE,
     "host": process.env.PGHOST,
     "dialect": process.env.DB_DIALECT,
-    "port": process.env.PGPORT
+    "port": process.env.PGPORT,
+    "logging": false
   }
 
   // "development": {
