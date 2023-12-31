@@ -128,7 +128,7 @@ const createOrder = async (req, res) => {
         let parameter = {
             "payment_type": "bank_transfer",
             "transaction_details": {
-                "order_id": "GGG-"+dataOrder.dataValues.id,
+                "order_id": "HHH-"+dataOrder.dataValues.id,
                 "gross_amount": totalPrice
             },
             "custom_expiry":
@@ -367,50 +367,48 @@ const setPaymentToExpired = async (req, res) => {
                 "message": "Order not found"
             })
         }
-        // console.log("GGG-"+orderId)
+        // console.log("HHH-"+orderId)
         let transactionStatus;
-                try {
-                    transactionStatus = await coreApi.transaction.status("GGG-"+orderId);
-                    // console.log(transactionStatus)
-                } catch (error) {
-                    if (error.ApiResponse && error.ApiResponse.status_code === 500) {
-                        console.error('Midtrans Server error, status code: 500');
-                    
-                    } else if(transactionStatus === undefined){
-                        console.error(`Error getting transaction status: ${error}`);
-
-                        // return res.json({
-                        //     "response_code": 200,
-                        //     "message": "No Data Available"
-                        // })
-                    } else {
-                        console.error(`Error getting transaction status: ${error}`);
-                        
-                    }
-                }
-
-                if (transactionStatus.transaction_status === 'expire') {
-                    return res.status(200).json({
-                        "response_code": 200,
-                        "message": "Transaction is already expired"
-                    })
+        let retries = 3;
+                
+        while(retries > 0){
+            // console.log(retries)
+            try {
+                transactionStatus = await coreApi.transaction.status(`HHH-${value.orderId}`);
+                break;
+                // console.log(transactionStatus)
+            } catch (error) {
+                retries--;
+                if(retries === 0){
+                    throw error;
                 } else {
-                    const updateStatusPayment = await Order.update(
-                        { 
-                            status_pembayaran: "Expired",
-                            status_order: "Cancel"
-                        },
-                        { where: {id: orderId} }
-                    )
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                } 
+            }
+        }
+
+        if (transactionStatus.transaction_status === 'expire') {
+            return res.status(200).json({
+                "response_code": 200,
+                "message": "Transaction is already expired"
+            })
+        } else {
+            const updateStatusPayment = await Order.update(
+                { 
+                    status_pembayaran: "Expired",
+                    status_order: "Cancel"
+                },
+                { where: {id: orderId} }
+            )
+
+            return res.status(200).json({
+                "response_code": 200,
+                "Transaction Status": "Expired"
+            })
+        }
+        // transactionStatus = await coreApi.transaction.status("HHH-"+value.orderId);
         
-                    return res.status(200).json({
-                        "response_code": 200,
-                        "Transaction Status": "Expired"
-                    })
-                }
-        // transactionStatus = await coreApi.transaction.status("GGG-"+value.orderId);
-        
-        // coreApi.transaction.status("GGG-"+orderId).then(async (response) => {
+        // coreApi.transaction.status("HHH-"+orderId).then(async (response) => {
         //     console.log('Transaction status:', response.transaction_status);
         
         //     if(response.transaction_status === 'expire') {
@@ -671,27 +669,38 @@ const getDetailOrder = async (req, res) => {
                     clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
                 });
                 let transactionStatus;
-                try {
-                    transactionStatus = await coreApi.transaction.status("GGG-"+value.orderId);
-                    // console.log(transactionStatus)
-                } catch (error) {
-                    if (error.ApiResponse && error.ApiResponse.status_code === 500) {
-                        console.error('Midtrans Server error, status code: 500');
-                    
-                    } else if(transactionStatus === undefined){
-                        console.error(`Error getting transaction status: ${error}`);
-
-                        // return res.json({
-                        //     "response_code": 200,
-                        //     "message": "No Data Available"
-                        // })
-                    } else {
-                        console.error(`Error getting transaction status: ${error}`);
+                let retries = 3;
+                
+                while(retries > 0){
+                    // console.log(retries)
+                    try {
+                        transactionStatus = await coreApi.transaction.status(`HHH-${value.orderId}`);
+                        break;
+                        // console.log(transactionStatus)
+                    } catch (error) {
+                        retries--;
+                        if(retries === 0){
+                            throw error;
+                        } else {
+                            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                        } 
+                       
+                        // if (error.ApiResponse && error.ApiResponse.status_code === 500) {
+                        //     console.error('Midtrans Server error, status code: 500');
                         
+                        // } else if(transactionStatus === undefined){
+                        //     console.error(`Error getting transaction status: ${error}`);
+    
+                        //     // return res.json({
+                        //     //     "response_code": 200,
+                        //     //     "message": "No Data Available"
+                        //     // })
+                        // } else {
+                        //     console.error(`Error getting transaction status: ${error}`);       
+                        // }
                     }
                 }
-                // console.log(transactionStatus)
-
+                
                 // Check if transaction is expired
                 if (transactionStatus.transaction_status === 'expire' && orderData.status_order === 'Waiting Payment') {
                     // Update order_status in database
@@ -1038,19 +1047,22 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                             clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
                         });
                         let transactionStatus;
-                        try {
-                            transactionStatus = await coreApi.transaction.status("GGG-"+order.orders.dataValues.order_id);
-                        } catch (error) {
-                            if(error.ApiResponse.status_code === '404'){
-                                console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
-                                return res.status(404).json({
-                                    response_code: 404,
-                                    message: `Error: ${error.ApiResponse.status_message}`
-                                })
-                            } else {
-                                console.error(`Error getting transaction status: ${error}`);
+                        let retries = 3;
+                
+                        while(retries > 0){
+                            // console.log(retries)
+                            try {
+                                transactionStatus = await coreApi.transaction.status(`HHH-${value.orderId}`);
+                                break;
+                                // console.log(transactionStatus)
+                            } catch (error) {
+                                retries--;
+                                if(retries === 0){
+                                    throw error;
+                                } else {
+                                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                                } 
                             }
-                            
                         }
 
                         if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
@@ -1133,22 +1145,39 @@ const getOrderStatusOnProgress = async (req, res) => {
         });
         let transactionStatusOrder;
         for(let order of getAllOrder){
-            try {
-                transactionStatusOrder = await coreApiOrder.transaction.status("GGG-"+order.dataValues.id);
-            } catch (error) {
-                if(error.ApiResponse.status_code === '404'){
-                    // console.log('tester masuk')
-                    console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
-                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
-                    // return res.status(404).json({
-                    //     response_code: 404,
-                    //     message: `Error: ${error.ApiResponse.status_message}`
-                    // })
-                } else {
-                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
-                    // console.error(`Error getting transaction status: ${error}`);
+            let retries = 3;
+    
+            while(retries > 0){
+                // console.log(retries)
+                try {
+                    transactionStatusOrder = await coreApi.transaction.status(`HHH-${value.orderId}`);
+                    break;
+                    // console.log(transactionStatus)
+                } catch (error) {
+                    retries--;
+                    if(retries === 0){
+                        throw error;
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                    } 
                 }
             }
+            // try {
+            //     transactionStatusOrder = await coreApiOrder.transaction.status("HHH-"+order.dataValues.id);
+            // } catch (error) {
+            //     if(error.ApiResponse.status_code === '404'){
+            //         // console.log('tester masuk')
+            //         console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
+            //         throw new Error(`Error: ${error.ApiResponse.status_message}`);
+            //         // return res.status(404).json({
+            //         //     response_code: 404,
+            //         //     message: `Error: ${error.ApiResponse.status_message}`
+            //         // })
+            //     } else {
+            //         throw new Error(`Error: ${error.ApiResponse.status_message}`);
+            //         // console.error(`Error getting transaction status: ${error}`);
+            //     }
+            // }
 
             if(transactionStatusOrder.transaction_status === 'settlement' && order.dataValues.status_order === 'Waiting Payment'){
                 await Order.update({
@@ -1334,21 +1363,38 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
         });
         let transactionStatusOrder;
         for(let order of getAllOrder){
-            try {
-                transactionStatusOrder = await coreApiOrder.transaction.status("GGG-"+order.dataValues.id);
-            } catch (error) {
-                if(error.ApiResponse.status_code === '404'){
-                    console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
-                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
-                    // return res.status(404).json({
-                    //     response_code: 404,
-                    //     message: `Error: ${error.ApiResponse.status_message}`
-                    // })
-                } else {
-                    console.error(`Error getting transaction status: ${error}`);
-                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
+            let retries = 3;
+    
+            while(retries > 0){
+                // console.log(retries)
+                try {
+                    transactionStatusOrder = await coreApi.transaction.status(`HHH-${value.orderId}`);
+                    break;
+                    // console.log(transactionStatus)
+                } catch (error) {
+                    retries--;
+                    if(retries === 0){
+                        throw error;
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                    } 
                 }
             }
+            // try {
+            //     transactionStatusOrder = await coreApiOrder.transaction.status("HHH-"+order.dataValues.id);
+            // } catch (error) {
+            //     if(error.ApiResponse.status_code === '404'){
+            //         console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
+            //         throw new Error(`Error: ${error.ApiResponse.status_message}`);
+            //         // return res.status(404).json({
+            //         //     response_code: 404,
+            //         //     message: `Error: ${error.ApiResponse.status_message}`
+            //         // })
+            //     } else {
+            //         console.error(`Error getting transaction status: ${error}`);
+            //         throw new Error(`Error: ${error.ApiResponse.status_message}`);
+            //     }
+            // }
 
             if(transactionStatusOrder.transaction_status === 'expire' && order.dataValues.status_order === 'Waiting Payment'){
                 await Order.update({
@@ -1654,19 +1700,22 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                             clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
                         });
                         let transactionStatus;
-                        try {
-                            transactionStatus = await coreApi.transaction.status("GGG-"+order.orders.dataValues.order_id);
-                        } catch (error) {
-                            if(error.ApiResponse.status_code === '404'){
-                                console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
-                                return res.status(404).json({
-                                    response_code: 404,
-                                    message: `Error: ${error.ApiResponse.status_message}`
-                                })
-                            } else {
-                                console.error(`Error getting transaction status: ${error}`);
+                        let retries = 3;
+                
+                        while(retries > 0){
+                            // console.log(retries)
+                            try {
+                                transactionStatus = await coreApi.transaction.status(`HHH-${value.orderId}`);
+                                break;
+                                // console.log(transactionStatus)
+                            } catch (error) {
+                                retries--;
+                                if(retries === 0){
+                                    throw error;
+                                } else {
+                                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                                } 
                             }
-                            
                         }
 
                         if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
@@ -1750,20 +1799,21 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
         });
         let transactionStatusOrder;
         for(let order of getAllOrder){
-            try {
-                transactionStatusOrder = await coreApiOrder.transaction.status("GGG-"+order.dataValues.id);
-            } catch (error) {
-                if(error.ApiResponse.status_code === '404'){
-                    // console.log('tester masuk')
-                    console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
-                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
-                    // return res.status(404).json({
-                    //     response_code: 404,
-                    //     message: `Error: ${error.ApiResponse.status_message}`
-                    // })
-                } else {
-                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
-                    // console.error(`Error getting transaction status: ${error}`);
+            let retries = 3;
+    
+            while(retries > 0){
+                // console.log(retries)
+                try {
+                    transactionStatusOrder = await coreApi.transaction.status(`HHH-${value.orderId}`);
+                    break;
+                    // console.log(transactionStatus)
+                } catch (error) {
+                    retries--;
+                    if(retries === 0){
+                        throw error;
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                    } 
                 }
             }
 
@@ -1974,19 +2024,21 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
         });
         let transactionStatusOrder;
         for(let order of getAllOrder){
-            try {
-                transactionStatusOrder = await coreApiOrder.transaction.status("GGG-"+order.dataValues.id);
-            } catch (error) {
-                if(error.ApiResponse.status_code === '404'){
-                    console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
-                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
-                    // return res.status(404).json({
-                    //     response_code: 404,
-                    //     message: `Error: ${error.ApiResponse.status_message}`
-                    // })
-                } else {
-                    console.error(`Error getting transaction status: ${error}`);
-                    throw new Error(`Error: ${error.ApiResponse.status_message}`);
+            let retries = 3;
+    
+            while(retries > 0){
+                // console.log(retries)
+                try {
+                    transactionStatusOrder = await coreApi.transaction.status(`HHH-${value.orderId}`);
+                    break;
+                    // console.log(transactionStatus)
+                } catch (error) {
+                    retries--;
+                    if(retries === 0){
+                        throw error;
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                    } 
                 }
             }
 
@@ -2334,23 +2386,21 @@ const getDetailOrderPenyedia = async (req, res) => {
                     clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
                 });
                 let transactionStatus;
-                try {
-                    transactionStatus = await coreApi.transaction.status("GGG-"+value.orderId);
-                    // console.log(transactionStatus)
-                } catch (error) {
-                    if (error.ApiResponse && error.ApiResponse.status_code === 500) {
-                        console.error('Midtrans Server error, status code: 500');
-                    
-                    } else if(transactionStatus === undefined){
-                        console.error(`Error getting transaction status: ${error}`);
-
-                        // return res.json({
-                        //     "response_code": 200,
-                        //     "message": "No Data Available"
-                        // })
-                    } else {
-                        console.error(`Error getting transaction status: ${error}`);
-                        
+                let retries = 3;
+        
+                while(retries > 0){
+                    // console.log(retries)
+                    try {
+                        transactionStatus = await coreApi.transaction.status(`HHH-${value.orderId}`);
+                        break;
+                        // console.log(transactionStatus)
+                    } catch (error) {
+                        retries--;
+                        if(retries === 0){
+                            throw error;
+                        } else {
+                            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                        } 
                     }
                 }
                 // console.log(transactionStatus)
