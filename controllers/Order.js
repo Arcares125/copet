@@ -143,12 +143,12 @@ const createOrder = async (req, res) => {
             "name_payment": "BCA Virtual Account"
         };
         
-        let retry = 3;
-        let isSuccess = false
-        console.log(retry)
+        // let retry = 3;
+        // let isSuccess = false
+        // console.log(retry)
 
-        if(retry > 0 && !isSuccess){
-            console.log(`${retry} + ${isSuccess}`)
+        // if(retry > 0 && !isSuccess){
+        //     console.log(`${retry} + ${isSuccess}`)
             coreApi.charge(parameter).then(async (chargeResponse) => {
                 // console.log('Charge transaction response:', chargeResponse);
     
@@ -162,8 +162,8 @@ const createOrder = async (req, res) => {
                     },
                     { where: {id: dataOrder.dataValues.id} }
                 )
-                isSuccess = true;
-                console.log(isSuccess)
+                // isSuccess = true;
+                // console.log(isSuccess)
                 return res.status(200).json({
                     response_code: 200,
                     message: "Data Order Berhasil Disimpan",
@@ -184,18 +184,18 @@ const createOrder = async (req, res) => {
                         message: "Order ID has been used, try another order ID"
                     })
                 } else if (e.message.includes('HTTP status code: 505')){
-                    retry--;
-                    // return res.status(200).json({
-                    //     message: "Unable to create va_number for this transaction"
-                    // })
+                    // retry--;
+                    return res.status(200).json({
+                        message: "Unable to create va_number for this transaction"
+                    })
                 }
             });
-        } else {
-            return res.status(500).json({
-                response_code: 500,
-                message: "Internal Server Error"
-            })
-        }
+        // } else {
+        //     return res.status(500).json({
+        //         response_code: 500,
+        //         message: "Internal Server Error"
+        //     })
+        // }
         
     } catch (error) {
         return res.status(500).json({
