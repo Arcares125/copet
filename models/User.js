@@ -39,6 +39,10 @@ module.exports = (sequelize, DataTypes) =>{
           //   type: DataTypes.ENUM,
           //   values: ['Pelanggan', 'Dokter', 'Trainer', 'Grooming']
           // }
+          status: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+          },
           createdAt: {
             type: DataTypes.DATE,
             allowNull:false,

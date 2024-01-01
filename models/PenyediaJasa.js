@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) =>{
             values: ['Dokter', 'Trainer', 'Toko'],
             allowNull: true
           },
+          status: {
+            type: DataTypes.STRING(50),
+            allowNull: true
+          },
           is_acc: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
