@@ -115,7 +115,11 @@ const getListActivity = async (req, res) => {
         //     }
         // })
 
-        const listActivity = await PetActivity.findAll()
+        const listActivity = await PetActivity.findAll({
+            where: {
+                user_id: pemilik
+            }
+        })
 
         // if(!isHewanValid){
         //     return res.status(404).json({
