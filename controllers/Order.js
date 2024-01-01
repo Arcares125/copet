@@ -142,28 +142,21 @@ const createOrder = async (req, res) => {
             },
             "name_payment": "BCA Virtual Account"
         };
-        
-        // let retry = 3;
-        // let isSuccess = false
-        // console.log(retry)
 
-        // if(retry > 0 && !isSuccess){
-        //     console.log(`${retry} + ${isSuccess}`)
-            coreApi.charge(parameter).then(async (chargeResponse) => {
-                // console.log('Charge transaction response:', chargeResponse);
-    
-                const nama = parameter.name_payment
-                let kode = chargeResponse.va_numbers[0].va_number
-    
+        const chargeAndHandleError = async (retryCount = 3) => {
+            try {
+                // console.log(retryCount)
+                const chargeResponse = await coreApi.charge(parameter);
+                const nama = parameter.name_payment;
+                let kode = chargeResponse.va_numbers[0].va_number;
+
                 const updateVaOrder = await Order.update(
                     { 
                         virtual_number: kode,
-                        // updatedAt: currentDate
                     },
                     { where: {id: dataOrder.dataValues.id} }
-                )
-                // isSuccess = true;
-                // console.log(isSuccess)
+                );
+
                 return res.status(200).json({
                     response_code: 200,
                     message: "Data Order Berhasil Disimpan",
@@ -176,26 +169,27 @@ const createOrder = async (req, res) => {
                         'transactionStatus': chargeResponse.transaction_status, 
                         'fraudStatus': chargeResponse.fraud_status
                     }
-                })
-            }).catch((e) => {
+                });
+            } catch (e) {
                 console.log('Error occured:', e.message);
-                if(e.message.includes('HTTP status code: 406')){
+                if (e.message.includes('HTTP status code: 406')) {
                     return res.status(200).json({
                         message: "Order ID has been used, try another order ID"
-                    })
-                } else if (e.message.includes('HTTP status code: 505')){
-                    // retry--;
-                    return res.status(200).json({
-                        message: "Unable to create va_number for this transaction"
-                    })
+                    });
+                } else if (e.message.includes('HTTP status code: 505')) {
+                    if (retryCount > 0) {
+                        console.log(`Retry attempt number: ${4 - retryCount}`);
+                        return chargeAndHandleError(retryCount - 1);
+                    } else {
+                        return res.status(200).json({
+                            message: "Unable to create va_number for this transaction"
+                        });
+                    }
                 }
-            });
-        // } else {
-        //     return res.status(500).json({
-        //         response_code: 500,
-        //         message: "Internal Server Error"
-        //     })
-        // }
+            }
+        };
+
+        chargeAndHandleError();
         
     } catch (error) {
         return res.status(500).json({
