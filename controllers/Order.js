@@ -37,7 +37,8 @@ const createOrder = async (req, res) => {
             status_pembayaran: "Pending",
             tanggal_order: currentDate
         })
-
+        let getDayStay;
+        let totalDayStay;
         if(data.service_type === 'Grooming' || data.service_type === 'grooming'){
 
             for(let i = 0; i < data.order_detail.length; i++) {
@@ -82,6 +83,11 @@ const createOrder = async (req, res) => {
                     message: "Tanggal Check in tidak bisa lebih besar dari Tanggal Check out"
                 })
             }
+
+            getDayStay = (new Date(data.tanggal_keluar).getTime()) - (new Date(data.tanggal_masuk).getTime())
+  
+            //calculate days difference by dividing total milliseconds in a day  
+            totalDayStay = getDayStay / (1000 * 60 * 60 * 24);
 
             for(let i = 0; i < data.order_detail.length; i++) {
 
@@ -129,7 +135,7 @@ const createOrder = async (req, res) => {
             "payment_type": "bank_transfer",
             "transaction_details": {
                 "order_id": "III-"+dataOrder.dataValues.id,
-                "gross_amount": totalPrice
+                "gross_amount": totalPrice * totalDayStay
             },
             "custom_expiry":
             {   
@@ -163,7 +169,7 @@ const createOrder = async (req, res) => {
                     data: {
                         order: {...dataOrder.dataValues, virtual_number: kode},
                         detail: details,
-                        total_price: totalPrice,
+                        total_price: totalPrice*totalDayStay,
                         nama,
                         kode,
                         'transactionStatus': chargeResponse.transaction_status, 
