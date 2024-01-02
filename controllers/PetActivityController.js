@@ -116,13 +116,18 @@ const getListActivity = async (req, res) => {
 
     try {
 
-        // if(!hewan){
-        //     const allDataActivity = await PetActivity.findAll({
-        //         where:{
-        //             hewan_id: hewan
-        //         }
-        //     })
-        // }
+        const isUserValid = await User.findOne({
+            where:{
+                id: pemilik
+            }
+        })
+
+        if(!isUserValid){
+            return res.status(404).json({
+                response_code: 404,
+                message: "User tidak ditemukan"
+            })
+        }
 
         // const isHewanValid = await HewanPeliharaan.findOne({
         //     where : {
@@ -130,11 +135,6 @@ const getListActivity = async (req, res) => {
         //     }
         // })
 
-        // const listActivity = await PetActivity.findAll({
-        //     where: {
-        //         user_id: pemilik
-        //     }
-        // })
         const listActivity = await sequelize.query(`
             SELECT * FROM pet_activity a LEFT JOIN hewan_peliharaan b 
             ON a.hewan_id = b.id JOIN users c 
@@ -146,16 +146,8 @@ const getListActivity = async (req, res) => {
                 userId: pemilik
             },
             type: QueryTypes.SELECT,
-            logging:console.log
+            // logging:console.log
         })
-
-        console.log(listActivity)
-        // if(!isHewanValid){
-        //     return res.status(404).json({
-        //         response_code: 404,
-        //         message: "Hewan peliharaan tidak ditemukan"
-        //     })
-        // }
 
         return res.status(200).json({
             response_code: 200,
