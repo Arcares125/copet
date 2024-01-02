@@ -130,12 +130,26 @@ const getListActivity = async (req, res) => {
         //     }
         // })
 
-        const listActivity = await PetActivity.findAll({
-            where: {
-                user_id: pemilik
-            }
+        // const listActivity = await PetActivity.findAll({
+        //     where: {
+        //         user_id: pemilik
+        //     }
+        // })
+        const listActivity = await sequelize.query(`
+            SELECT * FROM pet_activity a LEFT JOIN hewan_peliharaan b 
+            ON a.hewan_id = b.id JOIN users c 
+            ON b.user_id = c.id
+            WHERE c.id = :userId
+        `,
+        {
+            replacements:{
+                userId: pemilik
+            },
+            type: QueryTypes.SELECT,
+            logging:console.log
         })
 
+        console.log(listActivity)
         // if(!isHewanValid){
         //     return res.status(404).json({
         //         response_code: 404,
