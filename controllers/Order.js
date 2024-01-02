@@ -163,6 +163,17 @@ const createOrder = async (req, res) => {
                     { where: {id: dataOrder.dataValues.id} }
                 );
 
+                setTimeout(async () => {
+                    const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
+                    if (currOrder && chargeResponse.transaction_status === 'pending') {
+                        await Order.update(
+                            { status_order: 'Expired' },
+                            { where: { id: dataOrder.dataValues.id } }
+                        );
+                        console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
+                    }
+                }, 3 * 60 * 1000);  // 3 minutes
+
                 return res.status(200).json({
                     response_code: 200,
                     message: "Data Order Berhasil Disimpan",
