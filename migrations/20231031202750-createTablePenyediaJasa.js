@@ -42,7 +42,7 @@ module.exports = {
       is_acc: {
         type: Sequelize.BOOLEAN,
         allowNull: true,
-        defaultValue: 'false'
+        defaultValue: false
       },
       refreshToken: {
         type: Sequelize.TEXT,

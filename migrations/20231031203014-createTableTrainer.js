@@ -37,7 +37,7 @@ module.exports = {
       is_acc: {
         type: Sequelize.BOOLEAN,
         allowNull: true,
-        defaultValue: 'false'
+        defaultValue: false
       },
       createdAt: {
         type: Sequelize.DATE,

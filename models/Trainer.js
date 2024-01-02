@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) =>{
           is_acc: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
-            defaultValue: 'false'
+            defaultValue: false
           },
           createdAt: {
             type: DataTypes.DATE,
