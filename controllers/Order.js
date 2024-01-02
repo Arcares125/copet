@@ -165,7 +165,9 @@ const createOrder = async (req, res) => {
 
                 setTimeout(async () => {
                     const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
-                    if (currOrder && chargeResponse.transaction_status === 'pending') {
+                    const transactionStatusResponse = await coreApi.transaction.status(dataOrder.dataValues.id);
+                    const latestTransaction = transactionStatusResponse.transaction_status
+                    if (currOrder && latestTransaction === 'pending') {
                         await Order.update(
                             { status_order: 'Expired' },
                             { where: { id: dataOrder.dataValues.id } }
