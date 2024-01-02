@@ -24,7 +24,7 @@ const confirmRegisterToko = async (req, res) =>{
             })
         } else {
             await Toko.update({
-                is_acc: "true"
+                is_acc: true
             }, 
             { 
                 where: {
