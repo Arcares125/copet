@@ -303,6 +303,8 @@ const getDetailCardTokoFull = async (req, res) => {
                 ['deskripsi', 'description'],
                 ['lokasi', 'location'],
                 ['foto', 'pet_shop_picture'],
+                ['jam_buka', 'open_time'],
+                ['jam_tutup', 'close_time'],
                 [sequelize.literal('(SELECT CAST(AVG(a.rating) AS DECIMAL(10,2)) FROM review a JOIN "order" b ON a.order_id = b.id)'), 'rating'],
                 [sequelize.literal('(SELECT COUNT(a.id) as total_rating FROM review a JOIN "order" b ON a.order_id = b.id)'), 'total_rating'],
                 [sequelize.literal(`(SELECT json_agg(json_build_object('nama_user', u.nama, 'rate', r.rating, 'review_description', r.ulasan)) FROM review r JOIN users u ON r.customer_id = u.id)`), 'review']            
@@ -345,6 +347,7 @@ const getDetailCardTokoFull = async (req, res) => {
             const tokoPlain = toko.get({ plain: true });
             let {hotels, groomings, ...otherData} = tokoPlain;
             let services = [];
+            let is_open;
             if (hotels && hotels.length > 0) {
                 services.push('Hotel');
             } else {
@@ -360,11 +363,22 @@ const getDetailCardTokoFull = async (req, res) => {
                 otherData.rating = 0;
             }
 
+            const currTime = new Date()
+            const jamBuka = new Date(otherData.open_time)
+            const jamTutup = new Date(otherData.close_time)
+
+                if(currTime.getHours() > jamBuka.getHours() && currTime.getHours() < jamTutup.getHours()){
+                    is_open = true
+                } else {
+                    is_open = false
+                }
+
             return {
                 ...otherData,
                 services,
                 hotels,
                 groomings,
+                is_open
             };
         });
 
