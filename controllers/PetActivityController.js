@@ -10,13 +10,28 @@ const {TOKEN_LOGIN,
 const createActivity = async (req, res) => {
 
     const data = req.body
+    const pemilik = req.params
     const currentDate = new Date();
 
     try {
 
+        const isUserValid = await User.findOne({
+            where: {
+                id: pemilik.userId
+            }
+        })
+
+        if(!isUserValid){
+            return res.status(404).json({
+                response_code: 404,
+                message: "User tidak ditemukan"
+            })
+        }
+
         const isHewanValid = await HewanPeliharaan.findOne({
             where : {
-                id: data.hewan_id
+                id: data.hewan_id,
+                user_id: pemilik.userId
             }
         })
 
