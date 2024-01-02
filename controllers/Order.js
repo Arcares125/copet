@@ -2260,7 +2260,7 @@ const getDetailOrderPenyedia = async (req, res) => {
 
     try {
 
-        const userIsValid = await User.findOne({
+        const userIsValid = await PenyediaJasa.findOne({
             where: {
                 id: value.penyediaId
             }
