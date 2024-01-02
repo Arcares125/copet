@@ -381,7 +381,7 @@ const setPaymentToExpired = async (req, res) => {
         while(retries > 0){
             // console.log(retries)
             try {
-                transactionStatus = await coreApi.transaction.status(`III-${value.orderId}`);
+                transactionStatus = await coreApi.transaction.status(`III-${orderId}`);
                 break;
                 // console.log(transactionStatus)
             } catch (error) {
