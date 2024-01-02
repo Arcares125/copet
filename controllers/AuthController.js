@@ -179,7 +179,7 @@ const loginPenyediaJasa = async (req, res) =>{
 
             if(getDataToko.dataValues.is_acc === true){
                 await PenyediaJasa.update({
-                    is_acc: 'true'
+                    is_acc: true
                 },
                 {
                     where: {
@@ -194,7 +194,7 @@ const loginPenyediaJasa = async (req, res) =>{
                 res.status(200).json({
                     response_code: 200,
                     message: "Login Success",
-                    data: {...penyediaJasa, is_acc: 'true'},
+                    data: {...penyediaJasa, is_acc: true},
                     token: tokenLogin,
                     refreshToken: refreshToken
                 })

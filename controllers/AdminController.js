@@ -64,7 +64,7 @@ const confirmRegisterDokter = async (req, res) =>{
             })
         } else {
             await Dokter.update({
-                is_acc: "true"
+                is_acc: true
             }, 
             { 
                 where: {
@@ -104,7 +104,7 @@ const confirmRegisterTrainer = async (req, res) =>{
             })
         } else {
             await Trainer.update({
-                is_acc: "true"
+                is_acc: true
             }, 
             { 
                 where: {
