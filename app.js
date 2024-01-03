@@ -21,6 +21,7 @@ const reviewRouter = require('./routes/review');
 const groomingRouter = require('./routes/grooming')
 const activityRouter = require('./routes/pet_activity')
 const adminRouter = require('./routes/admin')
+const chatRouter = require('./routes/chat')
 
 
 // const virtualAccountRouter = require('./routes/virtual_account')
@@ -54,6 +55,7 @@ app.use('/detail-order-grooming', detailOrderGroomingRouter)
 app.use('/review', reviewRouter)
 app.use('/schedule', activityRouter)
 app.use('/admin', adminRouter)
+app.use('/chat', chatRouter)
 
 
 // app.listen(port, () => {

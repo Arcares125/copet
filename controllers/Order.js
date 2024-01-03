@@ -39,6 +39,13 @@ const createOrder = async (req, res) => {
             tanggal_order: currentDate
         })
 
+        const getUserUid = await User.findOne({
+            attributes: ['uid'],
+            where:{
+                id: data.user_id
+            }
+        })
+
         await dataOrder.update({
             status: "Waiting Payment"
         }, {
@@ -172,6 +179,12 @@ const createOrder = async (req, res) => {
                     },
                     { where: {id: dataOrder.dataValues.id} }
                 );
+                
+                const createChat = await Chat.create({
+                    uid: getUserUid.dataValues.uid,
+                    order_id: dataOrder.dataValues.id,
+                    status: "Waiting Payment"
+                })
 
                 setTimeout(async () => {
                     const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
