@@ -245,6 +245,8 @@ const getDetailCardToko = async (req, res) => {
                 const jamBuka = moment.utc(service.jam_buka).format('HH:mm')
                 const jamTutup = moment.utc(service.jam_tutup).format('HH:mm')
                 const currMoment = moment(currTime).format('HH:mm')
+                console.log(currTime)
+                console.log(currMoment)
 
                 if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
                     isOpen = {is_open: true}
