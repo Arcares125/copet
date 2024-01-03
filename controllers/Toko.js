@@ -10,6 +10,7 @@ const fs = require('fs/promises'); // For file system operations
 
 const path = require('path');
 const moment = require('moment-timezone')
+const timeZone = 'Asia/Jakarta';
 
 const registerToko = async (req, res) => {
 
@@ -71,12 +72,6 @@ const registerToko = async (req, res) => {
                 }
             })
 
-            // let base64Image = data.foto;
-            // let decodedImage = Buffer.from(base64Image, 'base64');
-            // let base64String = decodedImage.toString('base64');
-
-            // data.foto = base64String;
-
             const dataToko = await Toko.create(data)
             return res.status(201).json({
                 message: "Data Toko Berhasil Disimpan",
@@ -92,11 +87,6 @@ const registerToko = async (req, res) => {
             })
         } else {
          
-            // let base64Image = data.foto;
-            // let decodedImage = Buffer.from(base64Image, 'base64');
-            // let base64String = decodedImage.toString('base64');
-
-            // data.foto = base64String;
             const dataToko = await Toko.create(data)
             return res.status(201).json({
                 message: "Data Toko Berhasil Disimpan",
@@ -241,31 +231,16 @@ const getDetailCardToko = async (req, res) => {
                 //do nothing
             } else {
 
-                const timeZone = 'Asia/Jakarta'; // replace with your time zone
-
                 const currTime = moment().tz(timeZone);
                 const jamBuka = moment.utc(service.jam_buka).format('HH:mm');
                 const jamTutup = moment.utc(service.jam_tutup).format('HH:mm');
                 const currMoment = currTime.format('HH:mm');
-                console.log(currTime)
+
                 if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
                     isOpen = {is_open: true}
                 } else {
                     isOpen = {is_open: false}
                 }
-
-                // const currTime = new Date()
-                // const jamBuka = moment.utc(service.jam_buka).format('HH:mm')
-                // const jamTutup = moment.utc(service.jam_tutup).format('HH:mm')
-                // const currMoment = moment(currTime).format('HH:mm')
-                // console.log(currTime)
-                // console.log(currMoment)
-
-                // if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
-                //     isOpen = {is_open: true}
-                // } else {
-                //     isOpen = {is_open: false}
-                // }
 
                 if(service.rating === null){
                     service.rating = 0.00.toFixed(2);
@@ -381,13 +356,6 @@ const getDetailCardTokoFull = async (req, res) => {
                 otherData.rating = 0;
             }
 
-            // const currTime = new Date()
-            // const jamBuka = moment.utc(otherData.open_time).format('HH:mm')
-            // const jamTutup = moment.utc(otherData.close_time).format('HH:mm')
-            // const currMoment = moment(currTime).format('HH:mm')
-            // 
-            const timeZone = 'Asia/Jakarta'; // replace with your time zone
-
             const currTime = moment().tz(timeZone);
             const jamBuka = moment.utc(otherData.open_time).format('HH:mm');
             const jamTutup = moment.utc(otherData.close_time).format('HH:mm');
@@ -398,13 +366,6 @@ const getDetailCardTokoFull = async (req, res) => {
             } else {
                 is_open = false;
             }
-            // 
-
-            // if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
-            //     is_open = true;
-            // } else {
-            //     is_open = false;
-            // }
 
             return {
                 ...otherData,
@@ -442,6 +403,8 @@ const getDetailTokoPenyedia = async (req, res) => {
                 ['deskripsi', 'description'],
                 ['lokasi', 'location'],
                 ['foto', 'pet_shop_picture'],
+                ['jam_buka', 'open_time'],
+                ['jam_tutup', 'close_time'],
                 [sequelize.literal('(SELECT CAST(AVG(a.rating) AS DECIMAL(10,2)) FROM review a JOIN "order" b ON a.order_id = b.id)'), 'rating'],
                 [sequelize.literal('(SELECT COUNT(a.id) as total_rating FROM review a JOIN "order" b ON a.order_id = b.id)'), 'total_rating'],
                 [sequelize.literal(`(SELECT json_agg(json_build_object('nama_user', u.nama, 'rate', r.rating, 'review_description', r.ulasan)) FROM review r JOIN users u ON r.customer_id = u.id)`), 'review']            
@@ -486,6 +449,7 @@ const getDetailTokoPenyedia = async (req, res) => {
             const tokoPlain = toko.get({ plain: true });
             let {hotels, groomings, ...otherData} = tokoPlain;
             let services = [];
+            let is_open;
             if (hotels && hotels.length > 0) {
                 services.push('Hotel');
             } else {
@@ -501,11 +465,23 @@ const getDetailTokoPenyedia = async (req, res) => {
                 otherData.rating = 0;
             }
 
+            const currTime = moment().tz(timeZone);
+            const jamBuka = moment.utc(otherData.open_time).format('HH:mm');
+            const jamTutup = moment.utc(otherData.close_time).format('HH:mm');
+            const currMoment = currTime.format('HH:mm');
+            
+            if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
+                is_open = true;
+            } else {
+                is_open = false;
+            }
+
             return {
                 ...otherData,
                 services,
                 hotels,
                 groomings,
+                is_open
             };
         });
 
