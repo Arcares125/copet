@@ -135,7 +135,7 @@ const createOrder = async (req, res) => {
             "payment_type": "bank_transfer",
             "transaction_details": {
                 "order_id": "JJJ-"+dataOrder.dataValues.id,
-                "gross_amount": totalPrice * totalDayStay
+                "gross_amount": data.service_type === 'Hotel' || data.service_type === 'hotel' ? totalPrice * totalDayStay : totalPrice
             },
             "custom_expiry":
             {   
