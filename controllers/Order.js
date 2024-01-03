@@ -585,7 +585,7 @@ const getDetailOrder = async (req, res) => {
                                     {
                                         model: User,
                                         as: 'users',
-                                        attributes: [['id', 'user_id']]
+                                        attributes: [['id', 'user_id'], 'uid']
                                     },
                                     {
                                         model: Review,
@@ -628,7 +628,7 @@ const getDetailOrder = async (req, res) => {
                                     {
                                         model: User,
                                         as: 'users',
-                                        attributes: [['id', 'user_id']]
+                                        attributes: [['id', 'user_id'], 'uid']
                                     },
                                     {
                                         model: Review,
@@ -798,6 +798,7 @@ const getDetailOrder = async (req, res) => {
                             id_toko: tokoData.id_toko,
                             nama_toko: tokoData.pet_shop_name,
                             user_id: userData.user_id,
+                            uid: userData.uid,
                             order_id: orderData.order_id,
                             // status_order: orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
@@ -836,6 +837,7 @@ const getDetailOrder = async (req, res) => {
                         return {
                             id_toko: tokoData.id_toko,
                             nama_toko: tokoData.pet_shop_name,
+                            uid: userData.uid,
                             user_id: userData.user_id,
                             order_id: orderData.order_id,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
@@ -875,6 +877,7 @@ const getDetailOrder = async (req, res) => {
                             id_toko: tokoData.id_toko,
                             nama_toko: tokoData.pet_shop_name,
                             user_id: userData.user_id,
+                            uid: userData.uid,
                             order_id: orderData.order_id,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
@@ -912,6 +915,7 @@ const getDetailOrder = async (req, res) => {
                             id_toko: tokoData.id_toko,
                             nama_toko: tokoData.pet_shop_name,
                             user_id: userData.user_id,
+                            uid: userData.uid,
                             order_id: orderData.order_id,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
@@ -2333,7 +2337,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                                     {
                                         model: User,
                                         as: 'users',
-                                        attributes: [['id', 'user_id'], 'nama']
+                                        attributes: [['id', 'user_id'], 'nama', 'uid']
                                     },
                                     {
                                         model: Review,
@@ -2376,7 +2380,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                                     {
                                         model: User,
                                         as: 'users',
-                                        attributes: [['id', 'user_id'], 'nama']
+                                        attributes: [['id', 'user_id'], 'nama', 'uid']
                                     },
                                     {
                                         model: Review,
@@ -2534,6 +2538,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                             // nama_toko: tokoData.pet_shop_name,
                             username: userData.nama,
                             user_id: userData.user_id,
+                            uid: userData.uid,
                             order_id: orderData.order_id,
                             // status_order: orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
@@ -2574,6 +2579,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                             // nama_toko: tokoData.pet_shop_name,
                             username: userData.nama,
                             user_id: userData.user_id,
+                            uid: userData.uid,
                             order_id: orderData.order_id,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
@@ -2613,6 +2619,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                             // nama_toko: tokoData.pet_shop_name,
                             username: userData.nama,
                             user_id: userData.user_id,
+                            uid: userData.uid,
                             order_id: orderData.order_id,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
@@ -2651,6 +2658,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                             // nama_toko: tokoData.pet_shop_name,
                             username: userData.nama,
                             user_id: userData.user_id,
+                            uid: userData.uid,
                             order_id: orderData.order_id,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
