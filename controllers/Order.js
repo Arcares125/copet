@@ -808,6 +808,8 @@ const getDetailOrder = async (req, res) => {
                             },
                             // total_price: orderData.total_price,
                             virtual_number: orderData.virtual_number,
+                            check_in: hotelData.detail_order_hotel[0].dataValues.tanggal_masuk,
+                            check_out: hotelData.detail_order_hotel[0].dataValues.tanggal_keluar,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                             tanggal_order: orderData.tanggal_order,
                             updatedAt: orderData.updatedAt,
@@ -819,7 +821,8 @@ const getDetailOrder = async (req, res) => {
                                 return {
                                     hotel_id: hotelData.id,
                                     hotel_title: hotelData.title_hotel,
-                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity
+                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity,
+                                    price: hotelData.harga
                                 };
                             }),
                             total_price: totalPrice, 
@@ -844,6 +847,8 @@ const getDetailOrder = async (req, res) => {
                             },
                             // total_price: orderData.total_price,
                             virtual_number: orderData.virtual_number,
+                            check_in: hotelData.detail_order_hotel[0].dataValues.tanggal_masuk,
+                            check_out: hotelData.detail_order_hotel[0].dataValues.tanggal_keluar,
                             // status_order: orderData.status_order,
                             tanggal_order: orderData.tanggal_order,
                             updatedAt: orderData.updatedAt,
@@ -855,7 +860,8 @@ const getDetailOrder = async (req, res) => {
                                 return {
                                     hotel_id: hotelData.id,
                                     hotel_title: hotelData.title_hotel,
-                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity
+                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity,
+                                    price: hotelData.harga
                                 };
                             }),
                             total_price: totalPrice, 
@@ -890,7 +896,8 @@ const getDetailOrder = async (req, res) => {
                                 return {
                                     grooming_id: groomingData.id,
                                     grooming_title: groomingData.title_grooming,
-                                    quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity
+                                    quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity,
+                                    price: groomingData.harga
                                 };
                             }),
                             total_price: totalPrice, 
@@ -927,6 +934,7 @@ const getDetailOrder = async (req, res) => {
                                     grooming_id: groomingData.id,
                                     grooming_title: groomingData.title_grooming,
                                     quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity,
+                                    price: groomingData.harga
                                 };
                             }),
                             total_price: totalPrice, 
@@ -2513,6 +2521,8 @@ const getDetailOrderPenyedia = async (req, res) => {
                             },
                             // total_price: orderData.total_price,
                             virtual_number: orderData.virtual_number,
+                            check_in: hotelData.detail_order_hotel[0].dataValues.tanggal_masuk,
+                            check_out: hotelData.detail_order_hotel[0].dataValues.tanggal_keluar,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                             tanggal_order: orderData.tanggal_order,
                             updatedAt: orderData.updatedAt,
@@ -2524,7 +2534,8 @@ const getDetailOrderPenyedia = async (req, res) => {
                                 return {
                                     hotel_id: hotelData.id,
                                     hotel_title: hotelData.title_hotel,
-                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity
+                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity,
+                                    price: hotelData.harga
                                 };
                             }),
                             total_price: totalPrice, 
@@ -2550,6 +2561,8 @@ const getDetailOrderPenyedia = async (req, res) => {
                             },
                             // total_price: orderData.total_price,
                             virtual_number: orderData.virtual_number,
+                            check_in: hotelData.detail_order_hotel[0].dataValues.tanggal_masuk,
+                            check_out: hotelData.detail_order_hotel[0].dataValues.tanggal_keluar,
                             // status_order: orderData.status_order,
                             tanggal_order: orderData.tanggal_order,
                             updatedAt: orderData.updatedAt,
@@ -2561,7 +2574,8 @@ const getDetailOrderPenyedia = async (req, res) => {
                                 return {
                                     hotel_id: hotelData.id,
                                     hotel_title: hotelData.title_hotel,
-                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity
+                                    quantity: hotelData.detail_order_hotel[0]?.dataValues.quantity,
+                                    price: hotelData.harga
                                 };
                             }),
                             total_price: totalPrice, 
@@ -2597,7 +2611,8 @@ const getDetailOrderPenyedia = async (req, res) => {
                                 return {
                                     grooming_id: groomingData.id,
                                     grooming_title: groomingData.title_grooming,
-                                    quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity
+                                    quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity,
+                                    price: groomingData.harga
                                 };
                             }),
                             total_price: totalPrice, 
@@ -2635,6 +2650,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                                     grooming_id: groomingData.id,
                                     grooming_title: groomingData.title_grooming,
                                     quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity,
+                                    price: groomingData.harga
                                 };
                             }),
                             total_price: totalPrice, 
