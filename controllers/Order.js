@@ -78,7 +78,7 @@ const createOrder = async (req, res) => {
                 const dataDetailGrooming = await DetailOrderGrooming.create({
                     order_id: dataOrder.dataValues.id,
                     grooming_id: data.order_detail[i].grooming_id,
-                    tanggal_grooming: data.tanggal_grooming,
+                    tanggal_grooming: data.tanggal_masuk,
                     alamat_pelanggan_grooming: "0",
                     metode_penjemputan_grooming: "0",
                     discount: 0,
