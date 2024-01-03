@@ -241,17 +241,20 @@ const getDetailCardToko = async (req, res) => {
                 //do nothing
             } else {
 
-                const currTime = moment.utc()
-                const jamBuka = moment.utc(service.jam_buka).format('HH:mm')
-                const jamTutup = moment.utc(service.jam_tutup).format('HH:mm')
-                const currMoment = moment.utc(currTime).format('HH:mm')
-                console.log(currTime)
-                console.log(currMoment)
+                const currTime = moment.utc();
+                const jamBuka = moment.utc(service.jam_buka, 'HH:mm');
+                const jamTutup = moment.utc(service.jam_tutup, 'HH:mm');
 
-                if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
-                    isOpen = {is_open: true}
+                // format the moment objects to strings in 24-hour format
+                const currMoment = currTime.format('HH:mm');
+                const jamBukaStr = jamBuka.format('HH:mm');
+                const jamTutupStr = jamTutup.format('HH:mm');
+
+                // compare the current time with the opening and closing times
+                if (moment.utc(currMoment, 'HH:mm').isAfter(moment.utc(jamBukaStr, 'HH:mm')) && moment.utc(currMoment, 'HH:mm').isBefore(moment.utc(jamTutupStr, 'HH:mm'))) {
+                isOpen = {is_open: true};
                 } else {
-                    isOpen = {is_open: false}
+                isOpen = {is_open: false};
                 }
 
                 if(service.rating === null){
@@ -368,15 +371,20 @@ const getDetailCardTokoFull = async (req, res) => {
                 otherData.rating = 0;
             }
 
-            const currTime = moment.utc()
-            const jamBuka = moment.utc(otherData.open_time).format('HH:mm')
-            const jamTutup = moment.utc(otherData.close_time).format('HH:mm')
-            const currMoment = moment.utc(currTime).format('HH:mm')
+            const currTime = moment.utc();
+            const jamBuka = moment.utc(otherData.open_time, 'HH:mm');
+            const jamTutup = moment.utc(otherData.close_time, 'HH:mm');
 
-            if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
-                is_open = true;
+            // format the moment objects to strings in 24-hour format
+            const currMoment = currTime.format('HH:mm');
+            const jamBukaStr = jamBuka.format('HH:mm');
+            const jamTutupStr = jamTutup.format('HH:mm');
+
+            // compare the current time with the opening and closing times
+            if (moment.utc(currMoment, 'HH:mm').isAfter(moment.utc(jamBukaStr, 'HH:mm')) && moment.utc(currMoment, 'HH:mm').isBefore(moment.utc(jamTutupStr, 'HH:mm'))) {
+            is_open = true
             } else {
-                is_open = false;
+            is_open = false
             }
 
             return {
