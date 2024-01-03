@@ -241,10 +241,10 @@ const getDetailCardToko = async (req, res) => {
                 //do nothing
             } else {
 
-                const currTime = moment.utc()
+                const currTime = moment()
                 const jamBuka = moment.utc(service.jam_buka).format('HH:mm')
                 const jamTutup = moment.utc(service.jam_tutup).format('HH:mm')
-                const currMoment = moment(currTime).format('HH:mm')
+                const currMoment = moment.utc(currTime).format('HH:mm')
                 console.log(currTime)
                 console.log(currMoment)
 
@@ -368,10 +368,10 @@ const getDetailCardTokoFull = async (req, res) => {
                 otherData.rating = 0;
             }
 
-            const currTime = moment.utc()
+            const currTime = moment()
             const jamBuka = moment.utc(otherData.open_time).format('HH:mm')
             const jamTutup = moment.utc(otherData.close_time).format('HH:mm')
-            const currMoment = moment(currTime).format('HH:mm')
+            const currMoment = moment.utc(currTime).format('HH:mm')
 
             if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
                 is_open = true;
