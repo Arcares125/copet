@@ -29,5 +29,13 @@ module.exports = (sequelize, DataTypes) =>{
         timestamps: true,
         paranoid: true
     })
+
+    Chat.associate = (models) =>{
+      Chat.belongsTo(models.Order, {
+        as: 'chat',
+        foreignKey: 'order_id'
+      })
+    }
+
     return Chat
 }

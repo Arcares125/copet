@@ -9,7 +9,8 @@ const {Dokter,
     Hotel,
     Toko,
     User,
-    Review} = require("../models")
+    Review, 
+    Chat} = require("../models")
     const { Op } = require('sequelize');
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
@@ -37,6 +38,15 @@ const createOrder = async (req, res) => {
             status_pembayaran: "Pending",
             tanggal_order: currentDate
         })
+
+        await dataOrder.update({
+            status: "Waiting Payment"
+        }, {
+            where: {
+                order_id: dataOrder.dataValues.id
+            }
+        })
+
         let getDayStay;
         let totalDayStay;
         if(data.service_type === 'Grooming' || data.service_type === 'grooming'){
@@ -172,6 +182,14 @@ const createOrder = async (req, res) => {
                             { status_order: 'Expired' },
                             { where: { id: dataOrder.dataValues.id } }
                         );
+
+                        await Chat.update({
+                            status: 'Expired'
+                        }, {
+                            where: {
+                                order_id: dataOrder.dataValues.id
+                            }
+                        })
                         console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
                     }
                 }, 3 * 60 * 1000);  // 3 minutes
@@ -323,6 +341,14 @@ const checkPaymentStatus = async (req, res) => {
                     { where: {id: orderId} }
                 )
 
+                await Chat.update({
+                    status: 'On Progress'
+                }, {
+                    where: {
+                        order_id: orderId
+                    }
+                })
+
                 return res.status(200).json({
                     "response_code": 200,
                     "Transaction Status": "Paid"
@@ -338,6 +364,14 @@ const checkPaymentStatus = async (req, res) => {
                     },
                     { where: {id: orderId} }
                 )
+
+                await Chat.update({
+                    status: 'Expired'
+                }, {
+                    where: {
+                        order_id: orderId
+                    }
+                })
 
                 return res.status(200).json({
                     "response_code": 200,
@@ -426,6 +460,14 @@ const setPaymentToExpired = async (req, res) => {
                 },
                 { where: {id: orderId} }
             )
+
+            await Chat.update({
+                status: 'Cancel'
+            }, {
+                where: {
+                    order_id: orderId
+                }
+            })
 
             return res.status(200).json({
                 "response_code": 200,
@@ -522,6 +564,14 @@ const setOrderToCompleted = async (req, res) => {
             },
             { where: {id: orderId} }
         )
+
+        await Chat.update({
+            status: 'Completed'
+        }, {
+            where: {
+                order_id: orderId
+            }
+        })
 
         return res.status(200).json({
             "response_code": 200,
@@ -739,6 +789,14 @@ const getDetailOrder = async (req, res) => {
                             id: value.orderId
                         }
                     });
+
+                    await Chat.update({
+                        status: 'Expired'
+                    }, {
+                        where: {
+                            order_id: value.orderId
+                        }
+                    })
                 } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment'){
                     await Order.update({
                         status_pembayaran: "Berhasil",
@@ -749,6 +807,15 @@ const getDetailOrder = async (req, res) => {
                             id: value.orderId
                         }
                     });
+
+                    await Chat.update({
+                        status: 'On Progress'
+                    }, {
+                        where: {
+                            order_id: value.orderId
+                        }
+                    })
+
                 } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Completed'){
                     await Order.update({
                         status_pembayaran: "Berhasil",
@@ -785,6 +852,14 @@ const getDetailOrder = async (req, res) => {
                     {
                         where:{
                             id: value.orderId
+                        }
+                    })
+
+                    await Chat.update({
+                        status: 'Expired'
+                    }, {
+                        where: {
+                            order_id: value.orderId
                         }
                     })
                 }
@@ -1123,6 +1198,14 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                                         id: order.orders.dataValues.order_id
                                     }
                                 });
+
+                                await Chat.update({
+                                    status: 'Expired'
+                                }, {
+                                    where: {
+                                        order_id: order.orders.dataValues.order_id
+                                    }
+                                })
                             } else if(transactionStatus.transaction_status === 'settlement'){
                                 await Order.update({
                                     status_pembayaran: "Berhasil",
@@ -1133,6 +1216,14 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                                         id: order.orders.dataValues.order_id
                                     }
                                 });
+
+                                await Chat.update({
+                                    status: 'On Progress'
+                                }, {
+                                    where: {
+                                        order_id: order.orders.dataValues.order_id
+                                    }
+                                })
                             }
 
                             let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
@@ -1226,6 +1317,14 @@ const getOrderStatusOnProgress = async (req, res) => {
                         id: order.dataValues.id
                     }
                 });
+
+                await Chat.update({
+                    status: 'On Progress'
+                }, {
+                    where: {
+                        order_id: order.dataValues.id
+                    }
+                })
             }
 
         }
@@ -1437,6 +1536,14 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                         id: order.dataValues.id
                     }
                 });
+
+                await Chat.update({
+                    status: 'Expired'
+                }, {
+                    where: {
+                        order_id: order.dataValues.id
+                    }
+                })
             }
 
         }
@@ -1772,6 +1879,14 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                                         id: order.orders.dataValues.order_id
                                     }
                                 });
+
+                                await Chat.update({
+                                    status: 'Expired'
+                                }, {
+                                    where: {
+                                        order_id: order.orders.dataValues.order_id
+                                    }
+                                })
                             } else if(transactionStatus.transaction_status === 'settlement'){
                                 await Order.update({
                                     status_pembayaran: "Berhasil",
@@ -1782,6 +1897,14 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                                         id: order.orders.dataValues.order_id
                                     }
                                 });
+
+                                await Chat.update({
+                                    status: 'On Progress'
+                                }, {
+                                    where: {
+                                        order_id: order.orders.dataValues.order_id
+                                    }
+                                })
                             }
     
                             let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
@@ -1876,6 +1999,14 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
                         id: order.dataValues.id
                     }
                 });
+
+                await Chat.update({
+                    status: 'On Progress'
+                }, {
+                    where: {
+                        order_id: order.dataValues.id
+                    }
+                })
             }
 
         }
@@ -2111,6 +2242,14 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
                         id: order.dataValues.id
                     }
                 });
+
+                await Chat.update({
+                    status: 'Expired'
+                }, {
+                    where: {
+                        order_id: order.dataValues.id
+                    }
+                })
             }
 
         }
@@ -2478,6 +2617,14 @@ const getDetailOrderPenyedia = async (req, res) => {
                             id: value.orderId
                         }
                     });
+
+                    await Chat.update({
+                        status: 'Expired'
+                    }, {
+                        where: {
+                            order_id: value.orderId
+                        }
+                    })
                 } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment'){
                     await Order.update({
                         status_pembayaran: "Berhasil",
@@ -2488,6 +2635,14 @@ const getDetailOrderPenyedia = async (req, res) => {
                             id: value.orderId
                         }
                     });
+
+                    await Chat.update({
+                        status: 'On Progress'
+                    }, {
+                        where: {
+                            order_id: value.orderId
+                        }
+                    })
                 } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Completed'){
                     await Order.update({
                         status_pembayaran: "Berhasil",
@@ -2524,6 +2679,14 @@ const getDetailOrderPenyedia = async (req, res) => {
                     {
                         where:{
                             id: value.orderId
+                        }
+                    })
+
+                    await Chat.update({
+                        status: 'Expired'
+                    }, {
+                        where: {
+                            order_id: value.orderId
                         }
                     })
                 }
