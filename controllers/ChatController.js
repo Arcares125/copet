@@ -12,6 +12,7 @@ const {TOKEN_LOGIN,
 
 const checkStatus = async () =>{
     const getAllListChatToUpdateOrderStatus = await Chat.findAll()
+    let orderIdValid = true;
 
     let coreApiOrder = new midtransClient.CoreApi({
         isProduction: false,
@@ -20,15 +21,14 @@ const checkStatus = async () =>{
     });
     let transactionStatusOrder;
     for(let order of getAllListChatToUpdateOrderStatus){
-        // console.log(order)
+
         let retries = 3;
 
         while(retries > 0){
-            // console.log(retries)
+
             try {
-                transactionStatusOrder = await coreApiOrder.transaction.status(`JJJ-${order.dataValues.order_id}`);
+                transactionStatusOrder = await coreApiOrder.transaction.status(`KKK-${order.dataValues.order_id}`);
                 break;
-                // console.log(transactionStatus)
             } catch (error) {
                 if(error.httpStatusCode === '404'){
                     orderIdValid = false
@@ -84,7 +84,6 @@ const checkStatus = async () =>{
 }
 
 const getOnProgressChat = async (req, res) => {
-    let orderIdValid = true;
     try {
 
         await checkStatus().then(async () =>{
