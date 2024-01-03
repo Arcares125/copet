@@ -1050,6 +1050,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
         }
 
         const formattedData = [];
+        let orderIdValid = true;
 
             for (const toko of data) {
                 const services = [...toko.hotels, ...toko.groomings];
@@ -1090,6 +1091,10 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                                 break;
                                 // console.log(transactionStatus)
                             } catch (error) {
+                                if(error.httpStatusCode === '404'){
+                                    orderIdValid = false
+                                    break;
+                                }
                                 retries--;
                                 if(retries === 0){
                                     throw error;
@@ -1099,43 +1104,48 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                             }
                         }
 
-                        if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
-                            await Order.update({
-                                status_pembayaran: "Expired",
-                                status_order: 'Expired'
-                            }, 
-                            {
-                                where:{
-                                    id: order.orders.dataValues.order_id
-                                }
-                            });
-                        } else if(transactionStatus.transaction_status === 'settlement'){
-                            await Order.update({
-                                status_pembayaran: "Berhasil",
-                                status_order: "On Progress"
-                            }, 
-                            {
-                                where:{
-                                    id: order.orders.dataValues.order_id
-                                }
-                            });
-                        }
-
-                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
-
-                        if (existingOrder) {
-                            // sum total_payment from same order_id
-                            existingOrder.total_payment += service.harga * order.quantity;
+                        if(orderIdValid === false){
+                            orderIdValid = true; //set valid to default value
+                            continue;
                         } else {
-                            formattedData.push({
-                                order_id: order.orders.dataValues.order_id,
-                                title: toko.dataValues.title,
-                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
-                                status: order.orders.status_order,
-                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
-                            });
+                            
+                            if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
+                                await Order.update({
+                                    status_pembayaran: "Expired",
+                                    status_order: 'Expired'
+                                }, 
+                                {
+                                    where:{
+                                        id: order.orders.dataValues.order_id
+                                    }
+                                });
+                            } else if(transactionStatus.transaction_status === 'settlement'){
+                                await Order.update({
+                                    status_pembayaran: "Berhasil",
+                                    status_order: "On Progress"
+                                }, 
+                                {
+                                    where:{
+                                        id: order.orders.dataValues.order_id
+                                    }
+                                });
+                            }
+
+                            let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                            if (existingOrder) {
+                                // sum total_payment from same order_id
+                                existingOrder.total_payment += service.harga * order.quantity;
+                            } else {
+                                formattedData.push({
+                                    order_id: order.orders.dataValues.order_id,
+                                    title: toko.dataValues.title,
+                                    service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                    status: order.orders.status_order,
+                                    total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                                });
+                            }
                         }
-                        
                     }
                 }
             }
@@ -1143,7 +1153,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
         return res.status(200).json({
             response_code: 200,
             message: "Data Ditemukan",
-            data: formattedData
+            data: formattedData.sort((a, b) => b.order_id - a.order_id)
 
         })
     
@@ -1160,6 +1170,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
 const getOrderStatusOnProgress = async (req, res) => {
 
     const value = req.params
+    let orderIdValid = true;
 
     const getAllOrder = await Order.findAll({
         attributes: ['id', 'status_order'],
@@ -1188,6 +1199,10 @@ const getOrderStatusOnProgress = async (req, res) => {
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
+                    if(error.httpStatusCode === '404'){
+                        orderIdValid = false
+                        break;
+                    }
                     retries--;
                     if(retries === 0){
                         throw error;
@@ -1196,22 +1211,6 @@ const getOrderStatusOnProgress = async (req, res) => {
                     } 
                 }
             }
-            // try {
-            //     transactionStatusOrder = await coreApiOrder.transaction.status("JJJ-"+order.dataValues.id);
-            // } catch (error) {
-            //     if(error.ApiResponse.status_code === '404'){
-            //         // console.log('tester masuk')
-            //         console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
-            //         throw new Error(`Error: ${error.ApiResponse.status_message}`);
-            //         // return res.status(404).json({
-            //         //     response_code: 404,
-            //         //     message: `Error: ${error.ApiResponse.status_message}`
-            //         // })
-            //     } else {
-            //         throw new Error(`Error: ${error.ApiResponse.status_message}`);
-            //         // console.error(`Error getting transaction status: ${error}`);
-            //     }
-            // }
 
             if(transactionStatusOrder.transaction_status === 'settlement' && order.dataValues.status_order === 'Waiting Payment'){
                 await Order.update({
@@ -1340,31 +1339,35 @@ const getOrderStatusOnProgress = async (req, res) => {
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                         }
 
-                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
-
-                        if (existingOrder) {
-                            // sum total_payment from same order_id
-                            existingOrder.total_payment += service.harga * order.quantity;
+                        if(orderIdValid === false){
+                            orderIdValid = true; //set valid to default value
+                            continue;
                         } else {
-                            formattedData.push({
-                                order_id: order.orders.dataValues.order_id,
-                                title: toko.dataValues.title,
-                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
-                                status: order.orders.status_order,
-                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
-                            });
-                        }
-                        
+                            let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                            if (existingOrder) {
+                                // sum total_payment from same order_id
+                                existingOrder.total_payment += service.harga * order.quantity;
+                            } else {
+                                formattedData.push({
+                                    order_id: order.orders.dataValues.order_id,
+                                    title: toko.dataValues.title,
+                                    service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                    status: order.orders.status_order,
+                                    total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                                });
+                            }
+                        }  
                     }
                 }
             }
             formattedData.sort((a, b) => b.order_id - a.order_id);
-        return res.status(200).json({
-            response_code: 200,
-            message: "Data Ditemukan",
-            data: formattedData
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Ditemukan",
+                data: formattedData
 
-        })
+            })
         })
 
     } catch (error) {
@@ -1379,6 +1382,7 @@ const getOrderStatusOnProgress = async (req, res) => {
 const getOrderStatusCompleteExpireCancel = async (req, res) =>{
 
     const value = req.params
+    let orderIdValid = true;
 
     const getAllOrder = await Order.findAll({
         attributes: ['id', 'status_order'],
@@ -1406,6 +1410,10 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
+                    if(error.httpStatusCode === '404'){
+                        orderIdValid = false
+                        break;
+                    }
                     retries--;
                     if(retries === 0){
                         throw error;
@@ -1414,21 +1422,6 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                     } 
                 }
             }
-            // try {
-            //     transactionStatusOrder = await coreApiOrder.transaction.status("JJJ-"+order.dataValues.id);
-            // } catch (error) {
-            //     if(error.ApiResponse.status_code === '404'){
-            //         console.error(`Error getting transaction status: ${error.ApiResponse.status_message}`);
-            //         throw new Error(`Error: ${error.ApiResponse.status_message}`);
-            //         // return res.status(404).json({
-            //         //     response_code: 404,
-            //         //     message: `Error: ${error.ApiResponse.status_message}`
-            //         // })
-            //     } else {
-            //         console.error(`Error getting transaction status: ${error}`);
-            //         throw new Error(`Error: ${error.ApiResponse.status_message}`);
-            //     }
-            // }
 
             if(transactionStatusOrder.transaction_status === 'expire' && order.dataValues.status_order === 'Waiting Payment'){
                 await Order.update({
@@ -1555,31 +1548,34 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                         }
 
-                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
-
-                        if (existingOrder) {
-                            // sum total_payment from same order_id
-                            existingOrder.total_payment += service.harga * order.quantity;
+                        if(orderIdValid === false){
+                            orderIdValid = true; //set valid to default value
+                            continue;
                         } else {
-                            formattedData.push({
-                                order_id: order.orders.dataValues.order_id,
-                                title: toko.dataValues.title,
-                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
-                                status: order.orders.status_order,
-                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
-                            });
-                        }
-                        
+                            let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                            if (existingOrder) {
+                                // sum total_payment from same order_id
+                                existingOrder.total_payment += service.harga * order.quantity;
+                            } else {
+                                formattedData.push({
+                                    order_id: order.orders.dataValues.order_id,
+                                    title: toko.dataValues.title,
+                                    service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                    status: order.orders.status_order,
+                                    total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                                });
+                            }
+                        }  
                     }
                 }
             }
 
-        return res.status(200).json({
-            message: "Data Ditemukan",
-            response_code: 200,
-            data: formattedData
-
-        })
+            return res.status(200).json({
+                message: "Data Ditemukan",
+                response_code: 200,
+                data: formattedData.sort((a, b) => b.order_id - a.order_id)
+            })
         })
 
     } catch (error) {
@@ -1595,6 +1591,8 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
 const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
 
     const value = req.params
+    let orderIdValid = true;
+
     try {
 
         const userIsValid = await PenyediaJasa.findOne({
@@ -1743,6 +1741,10 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                                 break;
                                 // console.log(transactionStatus)
                             } catch (error) {
+                                if(error.httpStatusCode === '404'){
+                                    orderIdValid = false
+                                    break;
+                                }
                                 retries--;
                                 if(retries === 0){
                                     throw error;
@@ -1752,44 +1754,48 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                             }
                         }
 
-                        if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
-                            await Order.update({
-                                status_pembayaran: "Expired",
-                                status_order: 'Expired'
-                            }, 
-                            {
-                                where:{
-                                    id: order.orders.dataValues.order_id
-                                }
-                            });
-                        } else if(transactionStatus.transaction_status === 'settlement'){
-                            await Order.update({
-                                status_pembayaran: "Berhasil",
-                                status_order: "On Progress"
-                            }, 
-                            {
-                                where:{
-                                    id: order.orders.dataValues.order_id
-                                }
-                            });
-                        }
-
-                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
-
-                        if (existingOrder) {
-                            // sum total_payment from same order_id
-                            existingOrder.total_payment += service.harga * order.quantity;
+                        if(orderIdValid === false){
+                            orderIdValid = true; //set valid to default value
+                            continue;
                         } else {
-                            formattedData.push({
-                                order_id: order.orders.dataValues.order_id,
-                                // title: toko.dataValues.title,
-                                username: username,
-                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
-                                status: order.orders.status_order,
-                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
-                            });
+                            if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
+                                await Order.update({
+                                    status_pembayaran: "Expired",
+                                    status_order: 'Expired'
+                                }, 
+                                {
+                                    where:{
+                                        id: order.orders.dataValues.order_id
+                                    }
+                                });
+                            } else if(transactionStatus.transaction_status === 'settlement'){
+                                await Order.update({
+                                    status_pembayaran: "Berhasil",
+                                    status_order: "On Progress"
+                                }, 
+                                {
+                                    where:{
+                                        id: order.orders.dataValues.order_id
+                                    }
+                                });
+                            }
+    
+                            let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+    
+                            if (existingOrder) {
+                                // sum total_payment from same order_id
+                                existingOrder.total_payment += service.harga * order.quantity;
+                            } else {
+                                formattedData.push({
+                                    order_id: order.orders.dataValues.order_id,
+                                    // title: toko.dataValues.title,
+                                    username: username,
+                                    service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                    status: order.orders.status_order,
+                                    total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                                });
+                            }
                         }
-                        
                     }
                 }
             }
@@ -1797,7 +1803,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
         return res.status(200).json({
             message: "Data Ditemukan",
             response_code: 200,
-            data: formattedData
+            data: formattedData.sort((a, b) => b.order_id - a.order_id)
 
         })
     
@@ -1814,6 +1820,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
 const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
 
     const value = req.params
+    let orderIdValid = true;
 
     const getAllOrder = await Order.findAll({
         attributes: ['id', 'status_order'],
@@ -1843,6 +1850,10 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
                     // console.log(transactionStatus)
                 } catch (error) {
                     retries--;
+                    if(error.httpStatusCode === '404'){
+                        orderIdValid = false
+                        break;
+                    }
                     if(retries === 0){
                         throw error;
                     } else {
@@ -2002,30 +2013,35 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
 
                         let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
 
-                        if (existingOrder) {
-                            // sum total_payment from same order_id
-                            existingOrder.total_payment += service.harga * order.quantity;
+                        if(orderIdValid === false){
+                            orderIdValid = true; //set valid to default value
+                            continue;
                         } else {
-                            formattedData.push({
-                                order_id: order.orders.dataValues.order_id,
-                                // title: toko.dataValues.title,
-                                username: username,
-                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
-                                status: order.orders.status_order,
-                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
-                            });
-                        }
-                        
+                            let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                            if (existingOrder) {
+                                // sum total_payment from same order_id
+                                existingOrder.total_payment += service.harga * order.quantity;
+                            } else {
+                                formattedData.push({
+                                    order_id: order.orders.dataValues.order_id,
+                                    title: toko.dataValues.title,
+                                    service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                    status: order.orders.status_order,
+                                    total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                                });
+                            }
+                        }  
                     }
                 }
             }
             formattedData.sort((a, b) => b.order_id - a.order_id);
-        return res.status(200).json({
-            message: "Data Ditemukan",
-            response_code: 200,
-            data: formattedData
+            return res.status(200).json({
+                message: "Data Ditemukan",
+                response_code: 200,
+                data: formattedData
 
-        })
+            })
         })
 
     } catch (error) {
@@ -2040,6 +2056,7 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
 const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
 
     const value = req.params
+    let orderIdValid = true;
 
     const getAllOrder = await Order.findAll({
         attributes: ['id', 'status_order'],
@@ -2067,6 +2084,10 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
+                    if(error.httpStatusCode === '404'){
+                        orderIdValid = false
+                        break;
+                    }
                     retries--;
                     if(retries === 0){
                         throw error;
@@ -2225,32 +2246,34 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                         }
 
-                        let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
-
-                        if (existingOrder) {
-                            // sum total_payment from same order_id
-                            existingOrder.total_payment += service.harga * order.quantity;
+                        if(orderIdValid === false){
+                            orderIdValid = true; //set valid to default value
+                            continue;
                         } else {
-                            formattedData.push({
-                                order_id: order.orders.dataValues.order_id,
-                                // title: toko.dataValues.title,
-                                username: username,
-                                service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
-                                status: order.orders.status_order,
-                                total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
-                            });
-                        }
-                        
+                            let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                            if (existingOrder) {
+                                // sum total_payment from same order_id
+                                existingOrder.total_payment += service.harga * order.quantity;
+                            } else {
+                                formattedData.push({
+                                    order_id: order.orders.dataValues.order_id,
+                                    title: toko.dataValues.title,
+                                    service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                    status: order.orders.status_order,
+                                    total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                                });
+                            }
+                        }  
                     }
                 }
             }
 
-        return res.status(200).json({
-            message: "Data Ditemukan",
-            response_code: 200,
-            data: formattedData
-
-        })
+            return res.status(200).json({
+                message: "Data Ditemukan",
+                response_code: 200,
+                data: formattedData.sort((a, b) => b.order_id - a.order_id)
+            })
         })
 
     } catch (error) {
