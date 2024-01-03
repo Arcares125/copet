@@ -1,31 +1,114 @@
-const {User, PenyediaJasa, Chat, sequelize, Sequelize, Toko} = require("../models")
+const {User, PenyediaJasa, Order, Chat, sequelize, Sequelize, Toko} = require("../models")
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const { QueryTypes, Op } = require("sequelize");
 const {TOKEN_LOGIN,
         TOKEN_REFRESH } = process.env
+        const midtransClient = require('midtrans-client');
 
+
+        
+
+const checkStatus = async () =>{
+    const getAllListChatToUpdateOrderStatus = await Chat.findAll()
+
+    let coreApiOrder = new midtransClient.CoreApi({
+        isProduction: false,
+        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+    });
+    let transactionStatusOrder;
+    for(let order of getAllListChatToUpdateOrderStatus){
+        // console.log(order)
+        let retries = 3;
+
+        while(retries > 0){
+            // console.log(retries)
+            try {
+                transactionStatusOrder = await coreApiOrder.transaction.status(`JJJ-${order.dataValues.order_id}`);
+                break;
+                // console.log(transactionStatus)
+            } catch (error) {
+                if(error.httpStatusCode === '404'){
+                    orderIdValid = false
+                    break;
+                }
+                retries--;
+                if(retries === 0){
+                    throw error;
+                } else {
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                } 
+            }
+        }
+
+        if(transactionStatusOrder.transaction_status === 'settlement' && order.dataValues.status === 'Waiting Payment'){
+            await Order.update({
+                status_pembayaran: "Berhasil",
+                status_order: "On Progress"
+            }, 
+            {
+                where:{
+                    id: order.dataValues.order_id
+                }
+            });
+
+            await Chat.update({
+                status: 'On Progress'
+            }, {
+                where: {
+                    order_id: order.dataValues.order_id
+                }
+            })
+        } else if(transactionStatusOrder.transaction_status === 'expire' && order.dataValues.status === 'Waiting Payment'){
+            await Order.update({
+                status_pembayaran: "Expired",
+                status_order: "Expired"
+            }, 
+            {
+                where:{
+                    id: order.dataValues.order_id
+                }
+            });
+
+            await Chat.update({
+                status: 'Expired'
+            }, {
+                where: {
+                    order_id: order.dataValues.order_id
+                }
+            })
+        }
+    }
+}
 
 const getOnProgressChat = async (req, res) => {
-    // const {nama, email, phone, gender, password} = req.body
+    let orderIdValid = true;
     try {
 
-        const getChatOnProgress = await Chat.findAll({
-            where: {
-                status: {
-                    [Op.iLike]: '%On Progress%'
+        await checkStatus().then(async () =>{
+            const getChatOnProgress = await Chat.findAll({
+                where: {
+                    status: {
+                        [Op.iLike]: '%On Progress%'
+                    }
                 }
+            })
+            if(getChatOnProgress.length === 0){
+                res.status(200).json({
+                    response_code: 200,
+                    message: "No Transaction with status On Progress"
+                })
+            } else {
+                res.status(200).json({
+                    response_code: 200,
+                    message: "List On Progress Chat retrieved.",
+                    data: getChatOnProgress.sort((a, b) => b.order_id - a.order_id)
+                })    
             }
         })
-
-        if(getChatOnProgress)
-
-        res.status(200).json({
-            response_code: 200,
-            message: "Register Success",
-            data: getChatOnProgress
-        })    
+        
     } catch (error) {
         res.status(500).json({
             response_code: 500,
@@ -34,23 +117,27 @@ const getOnProgressChat = async (req, res) => {
     }
 }
 
-const logout = async (req, res) => {
+const getAllChat = async (req, res) => {
 
-    const { email } = req.body
+    try {
 
-    const getData = User.findOne({
-        where: {
-            email:email
-        }
-    })
+        const getAllChat = await Chat.findAll()
 
-    await User.update({ refreshToken: null },
-        { where: 
-            { email: email }
-        }
-    )
+        res.status(200).json({
+            response_code: 200,
+            message: "All list chat retrieved",
+            data: getAllChat.sort((a, b) => b.order_id - a.order_id)
+        })    
+        
+    } catch (error) {
+        res.status(500).json({
+            response_code: 500,
+            message: error.message
+        })
+    }
 }
 
 module.exports = {
-    getOnProgressChat
+    getOnProgressChat,
+    getAllChat
 }
