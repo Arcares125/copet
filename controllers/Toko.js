@@ -240,10 +240,17 @@ const getDetailCardToko = async (req, res) => {
             if(service.services === null){
                 //do nothing
             } else {
-                const jamBuka = new Date(service.jam_buka)
-                const jamTutup = new Date(service.jam_tutup)
 
-                if(currTime.getHours() > jamBuka.getHours() && currTime.getHours() < jamTutup.getHours()){
+                const currTime = new Date()
+                const jamBuka = moment.utc(service.jam_buka).format('HH:mm')
+                const jamTutup = moment.utc(service.jam_tutup).format('HH:mm')
+                const currMoment = moment(currTime).format('HH:mm')
+
+                console.log(jamBuka)
+                console.log(jamTutup)
+                console.log(currMoment)
+
+                if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
                     isOpen = {is_open: true}
                 } else {
                     isOpen = {is_open: false}
