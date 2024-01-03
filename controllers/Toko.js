@@ -241,7 +241,7 @@ const getDetailCardToko = async (req, res) => {
                 //do nothing
             } else {
 
-                const currTime = moment()
+                const currTime = moment.utc()
                 const jamBuka = moment.utc(service.jam_buka).format('HH:mm')
                 const jamTutup = moment.utc(service.jam_tutup).format('HH:mm')
                 const currMoment = moment.utc(currTime).format('HH:mm')
@@ -368,7 +368,7 @@ const getDetailCardTokoFull = async (req, res) => {
                 otherData.rating = 0;
             }
 
-            const currTime = moment()
+            const currTime = moment.utc()
             const jamBuka = moment.utc(otherData.open_time).format('HH:mm')
             const jamTutup = moment.utc(otherData.close_time).format('HH:mm')
             const currMoment = moment.utc(currTime).format('HH:mm')
