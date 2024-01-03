@@ -9,7 +9,7 @@ const {TOKEN_LOGIN,
 const fs = require('fs/promises'); // For file system operations
 
 const path = require('path');
-const moment = require('moment')
+const moment = require('moment-timezone')
 
 const registerToko = async (req, res) => {
 
@@ -241,21 +241,31 @@ const getDetailCardToko = async (req, res) => {
                 //do nothing
             } else {
 
-                const currTime = moment.utc();
-                const jamBuka = moment.utc(service.jam_buka, 'HH:mm');
-                const jamTutup = moment.utc(service.jam_tutup, 'HH:mm');
+                const timeZone = 'Asia/Jakarta'; // replace with your time zone
 
-                // format the moment objects to strings in 24-hour format
+                const currTime = moment().tz(timeZone);
+                const jamBuka = moment.utc(service.jam_buka).format('HH:mm');
+                const jamTutup = moment.utc(service.jam_tutup).format('HH:mm');
                 const currMoment = currTime.format('HH:mm');
-                const jamBukaStr = jamBuka.format('HH:mm');
-                const jamTutupStr = jamTutup.format('HH:mm');
-
-                // compare the current time with the opening and closing times
-                if (moment.utc(currMoment, 'HH:mm').isAfter(moment.utc(jamBukaStr, 'HH:mm')) && moment.utc(currMoment, 'HH:mm').isBefore(moment.utc(jamTutupStr, 'HH:mm'))) {
-                isOpen = {is_open: true};
+                console.log(currTime)
+                if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
+                    isOpen = {is_open: true}
                 } else {
-                isOpen = {is_open: false};
+                    isOpen = {is_open: false}
                 }
+
+                // const currTime = new Date()
+                // const jamBuka = moment.utc(service.jam_buka).format('HH:mm')
+                // const jamTutup = moment.utc(service.jam_tutup).format('HH:mm')
+                // const currMoment = moment(currTime).format('HH:mm')
+                // console.log(currTime)
+                // console.log(currMoment)
+
+                // if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
+                //     isOpen = {is_open: true}
+                // } else {
+                //     isOpen = {is_open: false}
+                // }
 
                 if(service.rating === null){
                     service.rating = 0.00.toFixed(2);
@@ -371,21 +381,30 @@ const getDetailCardTokoFull = async (req, res) => {
                 otherData.rating = 0;
             }
 
-            const currTime = moment.utc();
-            const jamBuka = moment.utc(otherData.open_time, 'HH:mm');
-            const jamTutup = moment.utc(otherData.close_time, 'HH:mm');
+            // const currTime = new Date()
+            // const jamBuka = moment.utc(otherData.open_time).format('HH:mm')
+            // const jamTutup = moment.utc(otherData.close_time).format('HH:mm')
+            // const currMoment = moment(currTime).format('HH:mm')
+            // 
+            const timeZone = 'Asia/Jakarta'; // replace with your time zone
 
-            // format the moment objects to strings in 24-hour format
+            const currTime = moment().tz(timeZone);
+            const jamBuka = moment.utc(otherData.open_time).format('HH:mm');
+            const jamTutup = moment.utc(otherData.close_time).format('HH:mm');
             const currMoment = currTime.format('HH:mm');
-            const jamBukaStr = jamBuka.format('HH:mm');
-            const jamTutupStr = jamTutup.format('HH:mm');
-
-            // compare the current time with the opening and closing times
-            if (moment.utc(currMoment, 'HH:mm').isAfter(moment.utc(jamBukaStr, 'HH:mm')) && moment.utc(currMoment, 'HH:mm').isBefore(moment.utc(jamTutupStr, 'HH:mm'))) {
-            is_open = true
+            
+            if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
+                is_open = true;
             } else {
-            is_open = false
+                is_open = false;
             }
+            // 
+
+            // if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
+            //     is_open = true;
+            // } else {
+            //     is_open = false;
+            // }
 
             return {
                 ...otherData,
