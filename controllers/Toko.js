@@ -364,14 +364,15 @@ const getDetailCardTokoFull = async (req, res) => {
             }
 
             const currTime = new Date()
-            const jamBuka = new Date(otherData.open_time)
-            const jamTutup = new Date(otherData.close_time)
+            const jamBuka = moment.utc(otherData.open_time).format('HH:mm')
+            const jamTutup = moment.utc(otherData.close_time).format('HH:mm')
+            const currMoment = moment(currTime).format('HH:mm')
 
-                if(currTime.getHours() > jamBuka.getHours() && currTime.getHours() < jamTutup.getHours()){
-                    is_open = true
-                } else {
-                    is_open = false
-                }
+            if (moment(currMoment, 'HH:mm').isAfter(moment(jamBuka, 'HH:mm')) && moment(currMoment, 'HH:mm').isBefore(moment(jamTutup, 'HH:mm'))) {
+                is_open = true;
+            } else {
+                is_open = false;
+            }
 
             return {
                 ...otherData,
