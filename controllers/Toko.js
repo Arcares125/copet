@@ -207,11 +207,9 @@ const getDetailCardToko = async (req, res) => {
             LEFT JOIN grooming c ON a.id = c.toko_id
             LEFT JOIN penyedia_jasa u ON u.id = a.penyedia_id
             LEFT JOIN (
-                SELECT a.id, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating, toko_id,
-                COUNT(a.id) as total_rating
-                FROM review a 
-                JOIN "order" b ON a.order_id = b.id 
-                GROUP BY a.id
+                SELECT toko_id, CAST(SUM(rating) AS DECIMAL(10,2)) / COUNT(id) AS rating, COUNT(id) as total_rating
+                FROM review 
+                GROUP BY toko_id
             ) z ON a.id = z.toko_id
             GROUP BY a.id, a.nama, u.nama, u.no_telp, z.rating, z.total_rating
         `
@@ -298,9 +296,9 @@ const getDetailCardTokoFull = async (req, res) => {
                 ['foto', 'pet_shop_picture'],
                 ['jam_buka', 'open_time'],
                 ['jam_tutup', 'close_time'],
-                [sequelize.literal('(SELECT CAST(AVG(a.rating) AS DECIMAL(10,2)) FROM review a JOIN "order" b ON a.order_id = b.id)'), 'rating'],
-                [sequelize.literal('(SELECT COUNT(a.id) as total_rating FROM review a JOIN "order" b ON a.order_id = b.id)'), 'total_rating'],
-                [sequelize.literal(`(SELECT json_agg(json_build_object('nama_user', u.nama, 'rate', r.rating, 'review_description', r.ulasan)) FROM review r JOIN users u ON r.customer_id = u.id)`), 'review']            
+                [sequelize.literal(`(SELECT CAST(AVG(a.rating) AS DECIMAL(10,2)) FROM review a JOIN "order" b ON a.order_id = b.id WHERE a.toko_id = ${value.id})`), 'rating'],
+                [sequelize.literal(`(SELECT COUNT(a.id) as total_rating FROM review a JOIN "order" b ON a.order_id = b.id WHERE a.toko_id = ${value.id})`), 'total_rating'],
+                [sequelize.literal(`(SELECT json_agg(json_build_object('nama_user', u.nama, 'rate', r.rating, 'review_description', r.ulasan)) FROM review r JOIN users u ON r.customer_id = u.id WHERE r.toko_id = ${value.id})`), 'review']            
             ],
             include: [
                 {
