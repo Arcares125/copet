@@ -219,7 +219,7 @@ const getDetailCardToko = async (req, res) => {
                 }
             )
         }
-        //update
+        //redeploy flag
         let serviceDetail = []
 
         let isOpen = true;
