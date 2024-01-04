@@ -18,6 +18,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      toko_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       rating: {
         type: Sequelize.INTEGER,
         allowNull: true

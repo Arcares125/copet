@@ -167,12 +167,12 @@ const getDetailCardToko = async (req, res) => {
             LEFT JOIN grooming c ON a.id = c.toko_id
             LEFT JOIN penyedia_jasa u ON u.id = a.penyedia_id
             LEFT JOIN (
-                SELECT a.id, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
+                SELECT a.id, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating, toko_id,
                 COUNT(a.id) as total_rating
                 FROM review a 
                 JOIN "order" b ON a.order_id = b.id 
                 GROUP BY a.id
-            ) z ON a.id = z.id
+            ) z ON a.id = z.toko_id
             WHERE a.nama ilike :search
             GROUP BY a.id, a.nama, u.nama, u.no_telp, z.rating, z.total_rating
             `
@@ -207,12 +207,12 @@ const getDetailCardToko = async (req, res) => {
             LEFT JOIN grooming c ON a.id = c.toko_id
             LEFT JOIN penyedia_jasa u ON u.id = a.penyedia_id
             LEFT JOIN (
-                SELECT a.id, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating,
+                SELECT a.id, CAST(AVG(a.rating) AS DECIMAL(10,2)) AS rating, toko_id,
                 COUNT(a.id) as total_rating
                 FROM review a 
                 JOIN "order" b ON a.order_id = b.id 
                 GROUP BY a.id
-            ) z ON a.id = z.id
+            ) z ON a.id = z.toko_id
             GROUP BY a.id, a.nama, u.nama, u.no_telp, z.rating, z.total_rating
         `
             detail = await sequelize.query(query, 

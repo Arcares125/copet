@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.INTEGER,
             allowNull: false
           },
+          toko_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+          },
           rating: {
             type: DataTypes.INTEGER,
             allowNull: true
