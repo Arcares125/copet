@@ -573,6 +573,17 @@ const cekTokoData = async(req, res) =>{
     }
 }
 
+const updateToko = async (req, res)=>{
+
+    const data = req.body
+
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+
 module.exports = {
     registerToko,
     getDataToko,
