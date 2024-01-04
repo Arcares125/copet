@@ -92,20 +92,11 @@ const getOnProgressChat = async (req, res) => {
 
         await checkStatus().then(async () =>{
 
-            const getUser = await User.findOne({
-                where: {
-                    id: data.userId
-                }
-            })
-
             const getUserByOrder = await Order.findAll({
                 where:{
                     user_id: data.userId
                 }
             })
-
-
-            console.log(getUserByOrder)
 
             for(let allOrder of getUserByOrder){
                 const getChatOnProgress = await Chat.findOne({
@@ -121,9 +112,7 @@ const getOnProgressChat = async (req, res) => {
                 } else {
                     continue;
                 }
-                
             }
-
             
             if(dataOrder.length === 0){
                 res.status(200).json({
