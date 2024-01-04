@@ -709,6 +709,12 @@ const getDetailOrder = async (req, res) => {
                         },
                     ]
                 },
+                // 
+                {
+                    model: PenyediaJasa,
+                    as: 'role_toko',
+                    attributes: ['uid']
+                }
             ],
             where: {
                 id: {
@@ -886,7 +892,7 @@ const getDetailOrder = async (req, res) => {
                             id_toko: tokoData.id_toko,
                             nama_toko: tokoData.pet_shop_name,
                             user_id: userData.user_id,
-                            uid: userData.uid,
+                            uid: tokoData.role_toko.dataValues.uid,
                             order_id: orderData.order_id,
                             // status_order: orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
@@ -925,7 +931,7 @@ const getDetailOrder = async (req, res) => {
                         return {
                             id_toko: tokoData.id_toko,
                             nama_toko: tokoData.pet_shop_name,
-                            uid: userData.uid,
+                            uid: tokoData.role_toko.dataValues.uid,
                             user_id: userData.user_id,
                             order_id: orderData.order_id,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
@@ -965,7 +971,7 @@ const getDetailOrder = async (req, res) => {
                             id_toko: tokoData.id_toko,
                             nama_toko: tokoData.pet_shop_name,
                             user_id: userData.user_id,
-                            uid: userData.uid,
+                            uid: tokoData.role_toko.dataValues.uid,
                             order_id: orderData.order_id,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
@@ -1003,7 +1009,7 @@ const getDetailOrder = async (req, res) => {
                             id_toko: tokoData.id_toko,
                             nama_toko: tokoData.pet_shop_name,
                             user_id: userData.user_id,
-                            uid: userData.uid,
+                            uid: tokoData.role_toko.dataValues.uid,
                             order_id: orderData.order_id,
                             order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
