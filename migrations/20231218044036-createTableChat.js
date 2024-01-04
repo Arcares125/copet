@@ -11,7 +11,7 @@ module.exports = {
         allowNull: false
       },
       uid: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(255),
         allowNull: true
       },
       order_id: {

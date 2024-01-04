@@ -6,30 +6,30 @@ module.exports = (sequelize, DataTypes) =>{
         primaryKey: true,
         allowNull: false
       },
-        uid: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-          },
-          order_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-          },
-          status: {
-            type: DataTypes.STRING(50),
-            allowNull: true
-          },
-          createdAt: {
-            type: DataTypes.DATE,
-            allowNull:false,
-          },
-          updatedAt: {
-            type: DataTypes.DATE,
-            allowNull:true,
-          },
-          deletedAt: {
-            type: DataTypes.DATE,
-            allowNull:true,
-          }
+      uid: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      order_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      status: {
+        type: DataTypes.STRING(50),
+        allowNull: true
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull:false,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull:true,
+      },
+      deletedAt: {
+        type: DataTypes.DATE,
+        allowNull:true,
+      }
     }, {
         tableName: 'chat',
         timestamps: true,
