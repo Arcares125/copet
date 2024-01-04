@@ -84,17 +84,48 @@ const checkStatus = async () =>{
 }
 
 const getOnProgressChat = async (req, res) => {
+
+    const data = req.params
+    let dataOrder = []
+
     try {
 
         await checkStatus().then(async () =>{
-            const getChatOnProgress = await Chat.findAll({
+
+            const getUser = await User.findOne({
                 where: {
-                    status: {
-                        [Op.iLike]: '%On Progress%'
-                    }
+                    id: data.userId
                 }
             })
-            if(getChatOnProgress.length === 0){
+
+            const getUserByOrder = await Order.findAll({
+                where:{
+                    user_id: data.userId
+                }
+            })
+
+
+            console.log(getUserByOrder)
+
+            for(let allOrder of getUserByOrder){
+                const getChatOnProgress = await Chat.findOne({
+                    where: {
+                        status: {
+                            [Op.iLike]: '%On Progress%'
+                        },
+                        order_id: allOrder.dataValues.id
+                    }
+                })
+                if(getChatOnProgress){
+                    dataOrder.push(getChatOnProgress)
+                } else {
+                    continue;
+                }
+                
+            }
+
+            
+            if(dataOrder.length === 0){
                 res.status(200).json({
                     response_code: 200,
                     message: "No Transaction with status On Progress"
@@ -103,7 +134,7 @@ const getOnProgressChat = async (req, res) => {
                 res.status(200).json({
                     response_code: 200,
                     message: "List On Progress Chat retrieved.",
-                    data: getChatOnProgress.sort((a, b) => b.order_id - a.order_id)
+                    data: dataOrder.sort((a, b) => b.order_id - a.order_id)
                 })    
             }
         })
