@@ -354,7 +354,7 @@ const getDetailCardTokoFull = async (req, res) => {
                 otherData.rating = 0.00.toFixed(2);
             } else {
                 otherData.rating = parseFloat(otherData.rating).toFixed(2);
-            }
+            }//redeploy
 
             const currTime = moment().tz(timeZone);
             const jamBuka = moment.utc(otherData.open_time).format('HH:mm');
