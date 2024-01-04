@@ -221,7 +221,7 @@ const getDetailCardToko = async (req, res) => {
                 }
             )
         }
-
+        //update
         let serviceDetail = []
 
         let isOpen = true;
