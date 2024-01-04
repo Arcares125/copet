@@ -56,7 +56,6 @@ const loginUser = async (req, res) =>{
         res.status(500).json({
             response_code: 500,
             error: error.message,
-            message: "Invalid Email/Password"
         })
     }
 
