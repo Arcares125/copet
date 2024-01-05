@@ -6,6 +6,11 @@ module.exports = (sequelize, DataTypes) =>{
         primaryKey: true,
         allowNull: false
       },
+      room_id: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        defaultValue: null
+      },
       uid: {
         type: DataTypes.STRING(255),
         allowNull: true

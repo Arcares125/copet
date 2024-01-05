@@ -156,7 +156,36 @@ const getAllChat = async (req, res) => {
     }
 }
 
+const startChat = async (req, res) => {
+
+    const value = req.body
+
+    try {
+        
+        await Chat.update({
+            room_id: value.room_id
+        },{
+            where: {
+                order_id: value.order_id
+            }
+        })
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Room Chat Started"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error",
+            error: error.message
+        })
+    }
+
+}
+
 module.exports = {
     getOnProgressChat,
-    getAllChat
+    getAllChat,
+    startChat
 }

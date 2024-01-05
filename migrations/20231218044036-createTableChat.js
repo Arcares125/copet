@@ -10,6 +10,11 @@ module.exports = {
         primaryKey: true,
         allowNull: false
       },
+      room_id: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+        defaultValue: null
+      },
       uid: {
         type: Sequelize.STRING(255),
         allowNull: true
