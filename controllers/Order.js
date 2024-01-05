@@ -2179,7 +2179,8 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
                             } else {
                                 formattedData.push({
                                     order_id: order.orders.dataValues.order_id,
-                                    title: toko.dataValues.title,
+                                    // title: toko.dataValues.title,
+                                    username: username,
                                     service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
                                     status: order.orders.status_order,
                                     total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
@@ -2420,7 +2421,8 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
                             } else {
                                 formattedData.push({
                                     order_id: order.orders.dataValues.order_id,
-                                    title: toko.dataValues.title,
+                                    // title: toko.dataValues.title,
+                                    username: username,
                                     service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
                                     status: order.orders.status_order,
                                     total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
