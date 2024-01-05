@@ -1290,7 +1290,7 @@ const getOrderStatusOnProgress = async (req, res) => {
         attributes: ['id', 'status_order'],
         where:{
             status_order: {
-                [Op.in]: ['Waiting Payment']
+                [Op.in]: ['On Progress']
             }
         }
     })
@@ -1972,7 +1972,7 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
         attributes: ['id', 'status_order'],
         where:{
             status_order: {
-                [Op.in]: ['Waiting Payment']
+                [Op.in]: ['On Progress']
             }
         }
     })
