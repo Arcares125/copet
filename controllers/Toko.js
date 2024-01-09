@@ -147,7 +147,7 @@ const getDetailCardToko = async (req, res) => {
         if(param){
             query = `
             SELECT a.id, a.nama as pet_shop_name, COALESCE(z.rating, 0) as rating, COALESCE(z.total_rating, 0) as total_rating,
-            u.nama, u.no_telp, a.jam_buka, a.jam_tutup,
+            u.nama, u.no_telp, a.jam_buka, a.jam_tutup, a.foto,
             CASE
                 WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) < MIN(c.harga) THEN MIN(b.harga)
                 WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) > MIN(c.harga) THEN MIN(c.harga)
@@ -187,7 +187,7 @@ const getDetailCardToko = async (req, res) => {
         } else {
             query = `
             SELECT a.id, a.nama as pet_shop_name, COALESCE(z.rating, 0) as rating, COALESCE(z.total_rating, 0) as total_rating,
-            u.nama, u.no_telp, a.jam_buka, a.jam_tutup,
+            u.nama, u.no_telp, a.jam_buka, a.jam_tutup, a.foto,
             CASE
                 WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) < MIN(c.harga) THEN MIN(b.harga)
                 WHEN count(b.id) > 0 AND count(c.id) > 0 AND MIN(b.harga) > MIN(c.harga) THEN MIN(c.harga)
