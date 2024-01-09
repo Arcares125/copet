@@ -462,7 +462,9 @@ const getDetailTokoPenyedia = async (req, res) => {
             }
 
             if (otherData.rating === null) {
-                otherData.rating = 0;
+                otherData.rating = 0.00.toFixed(2);
+            } else {
+                otherData.rating = parseFloat(otherData.rating).toFixed(2);
             }
 
             const currTime = moment().tz(timeZone);
