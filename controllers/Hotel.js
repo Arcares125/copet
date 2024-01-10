@@ -63,7 +63,40 @@ const getDataHotel = async (req, res) => {
     }
 }
 
+const updateHotel = async (req, res) =>{
+
+    const value = req.params
+    const data = req.body
+
+    try {
+
+        await Hotel.update({
+            tipe_hotel: data.tipe_hotel,
+            fasilitas: data.fasilitas,
+            harga: data.harga,
+        }, {
+            where:{
+                id: value.hotelId
+            }
+        })
+
+        return res.status(200).message({
+            response_code: 200,
+            message: "Data has been updated!",
+            data: data
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).message({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerHotel,
-    getDataHotel
+    getDataHotel,
+    updateHotel
 }

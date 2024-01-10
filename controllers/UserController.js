@@ -38,10 +38,73 @@ const getProfile = async (req, res) =>{
 
 }
 
-//change pass - update profile
+//update profile
+
+const updateUser = async (req, res) =>{
+
+    const value = req.params
+    const data = req.body
+
+    try {
+        const passHash = await bcrypt.hash(data.password, saltRounds);
+        await User.update({
+            nama: data.nama,
+            email: data.email,
+            no_telp: data.no_telp,
+            gender: data.gender,
+            password: passHash
+        }, {
+            where:{
+                id: value.userId
+            }
+        })
+
+        return res.status(200).message({
+            response_code: 200,
+            message: "Data has been updated!",
+            data: {...data, password: passHash}
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).message({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
+const deleteUser = async (req, res) =>{
+
+    const value = req.params
+    const data = req.body
+
+    try {
+
+        await User.destroy({
+            where:{
+                id: value.userId
+            }
+        })
+
+        return res.status(200).message({
+            response_code: 200,
+            message: "User Data has been deleted!",
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).message({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
 
 //need tabel tipejasa
 
 module.exports = {
-    getProfile
+    getProfile,
+    updateUser,
+    deleteUser
 }

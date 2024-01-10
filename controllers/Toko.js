@@ -575,14 +575,38 @@ const cekTokoData = async(req, res) =>{
     }
 }
 
-const updateToko = async (req, res)=>{
+const updateToko = async (req, res) =>{
 
+    const value = req.params
     const data = req.body
 
     try {
-        
+
+        await Toko.update({
+            nama: data.nama,
+            deskripsi: data.deskripsi,
+            jam_tutup: data.jam_tutup,
+            jam_buka: data.jam_buka,
+            lokasi: data.lokasi,
+            foto: data.foto
+        }, {
+            where:{
+                id: value.tokoId
+            }
+        })
+
+        return res.status(200).message({
+            response_code: 200,
+            message: "Data has been updated!",
+            data: data
+        })
     } catch (error) {
-        
+        console.error(error.message)
+        return res.status(500).message({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
     }
 }
 
@@ -593,5 +617,6 @@ module.exports = {
     getDetailCardTokoFull,
     getPackageListStore,
     getDetailTokoPenyedia,
-    cekTokoData
+    cekTokoData,
+    updateToko
 }

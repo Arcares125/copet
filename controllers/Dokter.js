@@ -106,7 +106,44 @@ const getDataDokter = async (req, res) => {
     }
 }
 
+const updateDokter = async (req, res) =>{
+
+    const value = req.params
+    const data = req.body
+
+    try {
+
+        await Dokter.update({
+            nama: data.nama,
+            spesialis: data.spesialis,
+            pengalaman: data.pengalaman,
+            harga: data.harga,
+            alumni: data.alumni,
+            lokasi_praktek: data.lokasi_praktek,
+            no_str: data.no_str
+        }, {
+            where:{
+                id: value.dokterId
+            }
+        })
+
+        return res.status(200).message({
+            response_code: 200,
+            message: "Data has been updated!",
+            data: data
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).message({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerDokter,
-    getDataDokter
+    getDataDokter,
+    updateDokter
 }

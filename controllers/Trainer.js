@@ -103,7 +103,42 @@ const getDataTrainer = async (req, res) => {
     }
 }
 
+const updateTrainer = async (req, res) =>{
+
+    const value = req.params
+    const data = req.body
+
+    try {
+
+        await Trainer.update({
+            nama: data.nama,
+            spesialis: data.spesialis,
+            pengalaman: data.pengalaman,
+            harga: data.harga,
+            lokasi: data.lokasi
+        }, {
+            where:{
+                id: value.trainerId
+            }
+        })
+
+        return res.status(200).message({
+            response_code: 200,
+            message: "Data has been updated!",
+            data: data
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).message({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerTrainer,
-    getDataTrainer
+    getDataTrainer,
+    updateTrainer
 }

@@ -70,6 +70,39 @@ const getDataGrooming = async (req, res) => {
     }
 }
 
+const updateGrooming = async (req, res) =>{
+
+    const value = req.params
+    const data = req.body
+
+    try {
+
+        await Grooming.update({
+            tipe: data.tipe,
+            fasilitas: data.fasilitas,
+            harga: data.harga,
+        }, {
+            where:{
+                id: value.groomingId
+            }
+        })
+
+        return res.status(200).message({
+            response_code: 200,
+            message: "Data has been updated!",
+            data: data
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).message({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerGrooming,
+    updateGrooming
 }
