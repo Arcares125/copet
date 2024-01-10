@@ -5,7 +5,7 @@ var router = express.Router();
 /* GET users listing. */
 router.post('/register', registerTrainer)
 router.get('/data-trainer', getDataTrainer)
-router.post('/update/:trainerId', updateTrainer)
+router.put('/update/:trainerId', updateTrainer)
 
 
 module.exports = router;

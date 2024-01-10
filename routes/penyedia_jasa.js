@@ -5,7 +5,7 @@ var router = express.Router();
 /* GET users listing. */
 // router.get('/:id?', getHewanPeliharaan)
 router.post('/register', registerPenyediaJasa)
-router.post('/update/:penyediaId', updatePenyediaJasa)
+router.put('/update/:penyediaId', updatePenyediaJasa)
 router.delete('/delete/:penyediaId', deletePenyediaJasa)
 
 

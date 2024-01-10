@@ -5,6 +5,6 @@ var router = express.Router();
 /* GET users listing. */
 // router.get('/:id?', getHewanPeliharaan)
 router.post('/register', registerHotel)
-router.post('/update/:hotelId', updateHotel)
+router.put('/update/:hotelId', updateHotel)
 
 module.exports = router;

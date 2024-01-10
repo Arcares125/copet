@@ -5,6 +5,6 @@ var router = express.Router();
 /* GET users listing. */
 router.post('/register', registerDokter)
 router.get('/data-dokter', getDataDokter)
-router.post('/update/:dokterId', updateDokter)
+router.put('/update/:dokterId', updateDokter)
 
 module.exports = router;
