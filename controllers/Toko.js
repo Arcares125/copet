@@ -617,9 +617,23 @@ const deleteToko = async (req, res) =>{
 
     try {
 
+        const getTokoData = await Toko.findOne({
+            where: {
+                id: value.tokoId
+            }
+        })
+
         await Toko.destroy({
             where:{
                 id: value.tokoId
+            }
+        })
+
+        await PenyediaJasa.update({
+            jenis_jasa: null
+        }, {
+            where: {
+                id: getTokoData.penyedia_id
             }
         })
 
