@@ -142,8 +142,50 @@ const updateDokter = async (req, res) =>{
     }
 }
 
+const deleteDokter = async (req, res) =>{
+
+    const value = req.params
+    const data = req.body
+
+    try {
+
+        const getDokterData = await Dokter.findOne({
+            where: {
+                id: value.DokterId
+            }
+        })
+
+        await Dokter.destroy({
+            where:{
+                id: value.dokterId
+            }
+        })
+
+        await PenyediaJasa.update({
+            jenis_jasa: null
+        }, {
+            where: {
+                id: getDokterData.penyedia_id
+            }
+        })
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Dokter has been deleted!",
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerDokter,
     getDataDokter,
-    updateDokter
+    updateDokter,
+    deleteDokter
 }

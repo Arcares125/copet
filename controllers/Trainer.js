@@ -137,8 +137,50 @@ const updateTrainer = async (req, res) =>{
     }
 }
 
+const deleteTrainer = async (req, res) =>{
+
+    const value = req.params
+    const data = req.body
+
+    try {
+
+        const getTrainerData = await Trainer.findOne({
+            where: {
+                id: value.TrainerId
+            }
+        })
+
+        await Trainer.destroy({
+            where:{
+                id: value.trainerId
+            }
+        })
+
+        await PenyediaJasa.update({
+            jenis_jasa: null
+        }, {
+            where: {
+                id: getTrainerData.penyedia_id
+            }
+        })
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Trainer has been deleted!",
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerTrainer,
     getDataTrainer,
-    updateTrainer
+    updateTrainer,
+    deleteTrainer
 }
