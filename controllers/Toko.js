@@ -610,6 +610,33 @@ const updateToko = async (req, res) =>{
     }
 }
 
+const deleteToko = async (req, res) =>{
+
+    const value = req.params
+    const data = req.body
+
+    try {
+
+        await Toko.destroy({
+            where:{
+                id: value.tokoId
+            }
+        })
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Toko has been deleted!",
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerToko,
     getDataToko,
@@ -618,5 +645,6 @@ module.exports = {
     getPackageListStore,
     getDetailTokoPenyedia,
     cekTokoData,
-    updateToko
+    updateToko,
+    deleteToko
 }
