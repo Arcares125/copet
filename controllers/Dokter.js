@@ -127,14 +127,14 @@ const updateDokter = async (req, res) =>{
             }
         })
 
-        return res.status(200).message({
+        return res.status(200).json({
             response_code: 200,
             message: "Data has been updated!",
             data: data
         })
     } catch (error) {
         console.error(error.message)
-        return res.status(500).message({
+        return res.status(500).json({
             response_code: 500,
             message: "Internal server error",
             error: error.message
