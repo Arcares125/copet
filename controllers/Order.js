@@ -151,7 +151,7 @@ const createOrder = async (req, res) => {
         let parameter = {
             "payment_type": "bank_transfer",
             "transaction_details": {
-                "order_id": "NNN-"+dataOrder.dataValues.id,
+                "order_id": "OOO-"+dataOrder.dataValues.id,
                 "gross_amount": data.service_type === 'Hotel' || data.service_type === 'hotel' ? totalPrice * totalDayStay : totalPrice
             },
             "custom_expiry":
@@ -440,14 +440,14 @@ const setPaymentToExpired = async (req, res) => {
                 "message": "Order not found"
             })
         }
-        // console.log("NNN-"+orderId)
+        // console.log("OOO-"+orderId)
         let transactionStatus;
         let retries = 3;
                 
         while(retries > 0){
             // console.log(retries)
             try {
-                transactionStatus = await coreApi.transaction.status(`NNN-${orderId}`);
+                transactionStatus = await coreApi.transaction.status(`OOO-${orderId}`);
                 break;
                 // console.log(transactionStatus)
             } catch (error) {
@@ -487,9 +487,9 @@ const setPaymentToExpired = async (req, res) => {
                 "Transaction Status": "Expired"
             })
         }
-        // transactionStatus = await coreApi.transaction.status("NNN-"+value.orderId);
+        // transactionStatus = await coreApi.transaction.status("OOO-"+value.orderId);
         
-        // coreApi.transaction.status("NNN-"+orderId).then(async (response) => {
+        // coreApi.transaction.status("OOO-"+orderId).then(async (response) => {
         //     console.log('Transaction status:', response.transaction_status);
         
         //     if(response.transaction_status === 'expire') {
@@ -769,7 +769,7 @@ const getDetailOrder = async (req, res) => {
                 while(retries > 0){
                     // console.log(retries)
                     try {
-                        transactionStatus = await coreApi.transaction.status(`NNN-${value.orderId}`);
+                        transactionStatus = await coreApi.transaction.status(`OOO-${value.orderId}`);
                         break;
                         // console.log(transactionStatus)
                     } catch (error) {
@@ -1185,7 +1185,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                         while(retries > 0){
                             // console.log(retries)
                             try {
-                                transactionStatus = await coreApi.transaction.status(`NNN-${order.orders.dataValues.order_id}`);
+                                transactionStatus = await coreApi.transaction.status(`OOO-${order.orders.dataValues.order_id}`);
                                 break;
                                 // console.log(transactionStatus)
                             } catch (error) {
@@ -1309,7 +1309,7 @@ const getOrderStatusOnProgress = async (req, res) => {
             while(retries > 0){
                 // console.log(retries)
                 try {
-                    transactionStatusOrder = await coreApiOrder.transaction.status(`NNN-${order.dataValues.id}`);
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`OOO-${order.dataValues.id}`);
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
@@ -1528,7 +1528,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
             while(retries > 0){
                 // console.log(retries)
                 try {
-                    transactionStatusOrder = await coreApiOrder.transaction.status(`NNN-${order.dataValues.id}`);
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`OOO-${order.dataValues.id}`);
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
@@ -1867,7 +1867,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                         while(retries > 0){
                             // console.log(retries)
                             try {
-                                transactionStatus = await coreApi.transaction.status(`NNN-${order.orders.dataValues.order_id}`);
+                                transactionStatus = await coreApi.transaction.status(`OOO-${order.orders.dataValues.order_id}`);
                                 break;
                                 // console.log(transactionStatus)
                             } catch (error) {
@@ -1991,7 +1991,7 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
             while(retries > 0){
                 // console.log(retries)
                 try {
-                    transactionStatusOrder = await coreApiOrder.transaction.status(`NNN-${order.dataValues.id}`);
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`OOO-${order.dataValues.id}`);
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
@@ -2235,7 +2235,7 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
             while(retries > 0){
                 // console.log(retries)
                 try {
-                    transactionStatusOrder = await coreApiOrder.transaction.status(`NNN-${order.dataValues.id}`);
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`OOO-${order.dataValues.id}`);
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
@@ -2612,7 +2612,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                 while(retries > 0){
                     // console.log(retries)
                     try {
-                        transactionStatus = await coreApi.transaction.status(`NNN-${value.orderId}`);
+                        transactionStatus = await coreApi.transaction.status(`OOO-${value.orderId}`);
                         break;
                         // console.log(transactionStatus)
                     } catch (error) {
