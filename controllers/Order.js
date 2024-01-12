@@ -104,7 +104,7 @@ const createOrder = async (req, res) => {
             getDayStay = (new Date(data.tanggal_keluar).getTime()) - (new Date(data.tanggal_masuk).getTime())
   
             //calculate days difference by dividing total milliseconds in a day  
-            totalDayStay = getDayStay / (1000 * 60 * 60 * 24);
+            totalDayStay = getDayStay / (1000 * 60 * 60 * 24) === 0 ? 1 : getDayStay / (1000 * 60 * 60 * 24);
 
             for(let i = 0; i < data.order_detail.length; i++) {
 
