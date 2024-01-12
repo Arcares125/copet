@@ -621,7 +621,7 @@ const getDetailOrder = async (req, res) => {
 
         const data = await Toko.findAll({
             attributes: [
-                ['id', 'id_toko'], ['nama', 'pet_shop_name'],
+                ['id', 'id_toko'], ['nama', 'pet_shop_name'], 'foto'
             ],
             include: [
                 {
@@ -925,7 +925,8 @@ const getDetailOrder = async (req, res) => {
                                 rate: reviewData.review,
                                 review_description: reviewData.review_description
                             },
-                            service_type: "Hotel"
+                            service_type: "Hotel",
+                            foto: tokoData.foto
                         };
                     } else {
                         return {
@@ -962,7 +963,8 @@ const getDetailOrder = async (req, res) => {
                             }),
                             total_price: totalPrice, 
                             review: null,
-                            service_type: "Hotel"
+                            service_type: "Hotel",
+                            foto: tokoData.foto
                         };
                     }
                 } else if (groomingData !== null){
@@ -1002,7 +1004,8 @@ const getDetailOrder = async (req, res) => {
                                 rate: reviewData.review,
                                 review_description: reviewData.ulasan
                             },
-                            service_type: "Grooming"
+                            service_type: "Grooming",
+                            foto: tokoData.foto
                         };
                     } else {
                         return {
@@ -1037,7 +1040,8 @@ const getDetailOrder = async (req, res) => {
                             }),
                             total_price: totalPrice, 
                             review: null,
-                            service_type: "Grooming"
+                            service_type: "Grooming",
+                            foto: tokoData.foto
                         };
                     }
                 // }
