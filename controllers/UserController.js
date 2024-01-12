@@ -1,5 +1,5 @@
 // const { Sequelize } = require('sequelize');
-const {User} = require("../models")
+const {User, Order} = require("../models")
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken')
@@ -84,6 +84,12 @@ const deleteUser = async (req, res) =>{
         await User.destroy({
             where:{
                 id: value.userId
+            }
+        })
+
+        await Order.destroy({
+            where: {
+                user_id: value.userId
             }
         })
 
