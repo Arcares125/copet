@@ -58,7 +58,24 @@ const registerDokter = async (req, res) => {
             }
         )
         
-        if(currJenisJasa !== checkRoleTokoPenyediaJasa[0].jenis_jasa ||
+        if(checkRoleTokoPenyediaJasa[0].jenis_jasa === null){
+
+            await PenyediaJasa.update({
+                jenis_jasa: 'Dokter'
+            }, 
+            {
+                where:{
+                    id: data.penyedia_id
+                }
+            })
+
+            const dataDokter = await Dokter.create(data)
+            return res.status(201).json({
+                message: "Data Dokter Berhasil Disimpan",
+                response_code: 201,
+                data: dataDokter
+            })
+        } else if(currJenisJasa !== checkRoleTokoPenyediaJasa[0].jenis_jasa ||
             getDokterTaken.length > 0 || getTrainerTaken.length > 0 || getTokoTaken.length > 0){
             return res.status(404).json({
                 response_code: 404,

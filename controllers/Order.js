@@ -205,6 +205,12 @@ const createOrder = async (req, res) => {
                             }
                         })
                         console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
+                    } else if(currOrder && latestTransaction === 'settlement'){
+                        await Order.update(
+                            { status_order: 'Waiting Confirmation' },
+                            { where: { id: dataOrder.dataValues.id } }
+                        );
+                        console.log(`Order ${dataOrder.dataValues.id} is Settlement.`);
                     }
                 }, 3 * 60 * 1000);  // 3 minutes
 
@@ -369,6 +375,12 @@ const createOrderDokter = async (req, res) => {
                             }
                         })
                         console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
+                    } else if(currOrder && latestTransaction === 'settlement'){
+                        await Order.update(
+                            { status_order: 'Waiting Confirmation' },
+                            { where: { id: dataOrder.dataValues.id } }
+                        );
+                        console.log(`Order ${dataOrder.dataValues.id} is Settlement.`);
                     }
                 }, 3 * 60 * 1000);  // 3 minutes
 
@@ -377,8 +389,7 @@ const createOrderDokter = async (req, res) => {
                     message: "Data Order Berhasil Disimpan",
                     data: {
                         order: {...dataOrder.dataValues, virtual_number: kode},
-                        detail: details,
-                        total_price: totalPrice*totalDayStay,
+                        total_price: totalPrice,
                         nama,
                         kode,
                         'transactionStatus': chargeResponse.transaction_status, 
