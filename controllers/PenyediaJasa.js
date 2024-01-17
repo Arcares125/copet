@@ -43,14 +43,14 @@ const updatePenyediaJasa = async (req, res) =>{
     const data = req.body
 
     try {
-        const passHash = await bcrypt.hash(data.password, saltRounds);
+        // const passHash = await bcrypt.hash(data.password, saltRounds);
         await PenyediaJasa.update({
             nama: data.nama,
             email: data.email,
             no_telp: data.no_telp,
             gender: data.gender,
             // jenis_jasa: data.jenis_jasa,
-            password: passHash
+            // password: passHash
         }, {
             where:{
                 id: value.penyediaId
@@ -60,7 +60,7 @@ const updatePenyediaJasa = async (req, res) =>{
         return res.status(200).json({
             response_code: 200,
             message: "Data has been updated!",
-            data: {...data, password: passHash}
+            data: data
         })
     } catch (error) {
         console.error(error.message)

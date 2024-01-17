@@ -5,6 +5,7 @@ const {Dokter,
     VirtualAccount, 
     DetailOrderGrooming, 
     DetailOrderHotel, 
+    DetailOrderDokter,
     Grooming, 
     Hotel,
     Toko,
@@ -248,6 +249,171 @@ const createOrder = async (req, res) => {
         })
     }
 }
+const createOrderDokter = async (req, res) => {
+
+    const data = req.body
+    const currentDate = new Date();
+    let details = [];
+    let totalPrice = 0;
+
+    try {
+
+        const dataOrder = await Order.create({
+            // dokter_id: data.toko_id,
+            user_id: data.user_id,
+            status_order: "Waiting Payment",
+            metode_pembayaran: data.metode_pembayaran,
+            status_pembayaran: "Pending",
+            tanggal_order: currentDate
+        })
+
+        const getUserUid = await User.findOne({
+            attributes: ['uid'],
+            where:{
+                id: data.user_id
+            }
+        })
+
+        await dataOrder.update({
+            status: "Waiting Payment"
+        }, {
+            where: {
+                order_id: dataOrder.dataValues.id
+            }
+        })
+
+        const getPrice = await Dokter.findOne({
+            where:{
+                id: data.dokter_id
+            }
+        })
+
+        if(!getPrice){
+            return res.status(404).json({
+                message: "Data Dokter tidak ditemukan / tidak terdaftar"
+            })
+        }
+
+        const price = getPrice.dataValues.harga
+        totalPrice = price;
+
+        const dataDetailDokter = await DetailOrderDokter.create({
+            order_id: dataOrder.dataValues.id,
+            dokter_id: data.dokter_id,
+            tanggal_konsultasi: data.tanggal_konsultasi,
+            durasi_konsultasi: 30,
+            discount: "0",
+            jam_konsultasi: (new Date(data.jam_konsultasi).getTime()),
+        })
+
+        //MIDTRANS PAYMENT
+        let coreApi = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+        
+        let parameter = {
+            "payment_type": "bank_transfer",
+            "transaction_details": {
+                "order_id": "PPP-"+dataOrder.dataValues.id,
+                "gross_amount": totalPrice
+            },
+            "custom_expiry":
+            {   
+                // "order_time":  dataOrder.dataValues.tanggal_order,
+                "expiry_duration": 3,
+                "unit": "minute"
+            },
+            "bank_transfer": {
+                "bank": "bca"
+            },
+            "name_payment": "BCA Virtual Account"
+        };
+
+        const chargeAndHandleError = async (retryCount = 3) => {
+            try {
+                // console.log(retryCount)
+                const chargeResponse = await coreApi.charge(parameter);
+                const nama = parameter.name_payment;
+                let kode = chargeResponse.va_numbers[0].va_number;
+
+                const updateVaOrder = await Order.update(
+                    { 
+                        virtual_number: kode,
+                    },
+                    { where: {id: dataOrder.dataValues.id} }
+                );
+                
+                const createChat = await Chat.create({
+                    uid: getUserUid.dataValues.uid,
+                    order_id: dataOrder.dataValues.id,
+                    status: "Waiting Payment"
+                })
+
+                setTimeout(async () => {
+                    const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
+                    const transactionStatusResponse = await coreApi.transaction.status(dataOrder.dataValues.id);
+                    const latestTransaction = transactionStatusResponse.transaction_status
+                    if (currOrder && latestTransaction === 'pending') {
+                        await Order.update(
+                            { status_order: 'Expired' },
+                            { where: { id: dataOrder.dataValues.id } }
+                        );
+
+                        await Chat.update({
+                            status: 'Expired'
+                        }, {
+                            where: {
+                                order_id: dataOrder.dataValues.id
+                            }
+                        })
+                        console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
+                    }
+                }, 3 * 60 * 1000);  // 3 minutes
+
+                return res.status(200).json({
+                    response_code: 200,
+                    message: "Data Order Berhasil Disimpan",
+                    data: {
+                        order: {...dataOrder.dataValues, virtual_number: kode},
+                        detail: details,
+                        total_price: totalPrice*totalDayStay,
+                        nama,
+                        kode,
+                        'transactionStatus': chargeResponse.transaction_status, 
+                        'fraudStatus': chargeResponse.fraud_status
+                    }
+                });
+            } catch (e) {
+                console.log('Error occured:', e.message);
+                if (e.message.includes('HTTP status code: 406')) {
+                    return res.status(200).json({
+                        message: "Order ID has been used, try another order ID"
+                    });
+                } else if (e.message.includes('HTTP status code: 505')) {
+                    if (retryCount > 0) {
+                        console.log(`Retry attempt number: ${4 - retryCount}`);
+                        return chargeAndHandleError(retryCount - 1);
+                    } else {
+                        return res.status(200).json({
+                            message: "Unable to create va_number for this transaction"
+                        });
+                    }
+                }
+            }
+        };
+
+        chargeAndHandleError();
+        
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: error.message,
+        })
+    }
+}
+
 const getPaymentData = async (req, res) => {
 
     try {
@@ -349,7 +515,8 @@ const checkPaymentStatus = async (req, res) => {
                 const updateStatusPayment = await Order.update(
                     { 
                         status_pembayaran: "Berhasil",
-                        status_order: "On Progress"
+                        // status_order: "On Progress"
+                        status_order: "Waiting Confirmation"
                     },
                     { where: {id: orderId} }
                 )
@@ -819,7 +986,8 @@ const getDetailOrder = async (req, res) => {
                 } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment'){
                     await Order.update({
                         status_pembayaran: "Berhasil",
-                        status_order: "On Progress"
+                        // status_order: "On Progress"
+                        status_order: "Waiting Confirmation"
                     }, 
                     {
                         where:{
@@ -864,7 +1032,7 @@ const getDetailOrder = async (req, res) => {
                     seconds = 0;
                 }
 
-                if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress' && orderData.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire'){
+                if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress' && orderData.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && orderData.status_order !== 'Waiting Confirmation'){
                     await Order.update({
                         status_order: 'Expired'
                     }, 
@@ -905,7 +1073,7 @@ const getDetailOrder = async (req, res) => {
                             virtual_number: orderData.virtual_number,
                             check_in: hotelData.detail_order_hotel[0].dataValues.tanggal_masuk,
                             check_out: hotelData.detail_order_hotel[0].dataValues.tanggal_keluar,
-                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'Waiting Confirmation' : orderData.status_order,
                             tanggal_order: orderData.tanggal_order,
                             updatedAt: orderData.updatedAt,
                             createdAt: orderData.createdAt,
@@ -935,7 +1103,7 @@ const getDetailOrder = async (req, res) => {
                             uid: tokoData.role_toko.dataValues.uid,
                             user_id: userData.user_id,
                             order_id: orderData.order_id,
-                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'Waiting Confirmation' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
                             // remaining_time: remainingTime,
                             time:{
@@ -975,7 +1143,7 @@ const getDetailOrder = async (req, res) => {
                             user_id: userData.user_id,
                             uid: tokoData.role_toko.dataValues.uid,
                             order_id: orderData.order_id,
-                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'Waiting Confirmation' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
                             // remaining_time: remainingTime,
                             time:{
@@ -1014,7 +1182,7 @@ const getDetailOrder = async (req, res) => {
                             user_id: userData.user_id,
                             uid: tokoData.role_toko.dataValues.uid,
                             order_id: orderData.order_id,
-                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'Waiting Confirmation' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
                             // remaining_time: remainingTime,
                             time:{
@@ -1211,7 +1379,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                             continue;
                         } else {
                             
-                            if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
+                            if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress' && order.dataValues.orders.dataValues.status_order !== 'Waiting Confirmation') {
                                 await Order.update({
                                     status_pembayaran: "Expired",
                                     status_order: 'Expired'
@@ -1232,7 +1400,8 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                             } else if(transactionStatus.transaction_status === 'settlement'){
                                 await Order.update({
                                     status_pembayaran: "Berhasil",
-                                    status_order: "On Progress"
+                                    // status_order: "On Progress"
+                                    status_order: "Waiting Confirmation"
                                 }, 
                                 {
                                     where:{
@@ -1333,7 +1502,8 @@ const getOrderStatusOnProgress = async (req, res) => {
             if(transactionStatusOrder.transaction_status === 'settlement' && order.dataValues.status_order === 'Waiting Payment'){
                 await Order.update({
                     status_pembayaran: "Berhasil",
-                    status_order: "On Progress"
+                    // status_order: "On Progress"
+                    status_order: "Waiting Confirmation"
                 }, 
                 {
                     where:{
@@ -1421,6 +1591,227 @@ const getOrderStatusOnProgress = async (req, res) => {
                                     where: {
                                         [Op.and]: [
                                             { status_order: {[Op.iLike] : '%On Progress%'} },
+                                            { user_id: value.userId }
+                                          ]
+                                        // status_order:{
+                                        //     [Op.iLike] : '%Waiting Payment%'
+                                        // },
+                                    },
+                                }]
+                            },
+                        ]
+                    }
+                ], logging:false
+            },)
+    
+            if(data.length < 1){
+                return res.status(404).json({
+                    "response_code": 404,
+                    "message": "Data not found"
+                })
+            }
+
+            for (const toko of data) {
+                const services = [...toko.hotels, ...toko.groomings];
+                // console.log(services)
+
+                for (const service of services) {
+                    const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
+                    const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
+                    const orders = [...hotelOrders, ...groomingOrders];
+
+                    for (const order of orders) {
+                        // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
+                        // console.log(order.dataValues.orders.dataValues.order_id)
+                        let differenceInMilliseconds = 0;
+                        let differenceInDays = 0;
+                        if(hotelOrders.length > 0){
+                            // Calculate the difference in milliseconds
+                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+
+                            // Convert the difference to days
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+                            console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                        }
+
+                        if(orderIdValid === false){
+                            orderIdValid = true; //set valid to default value
+                            continue;
+                        } else {
+                            let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+
+                            if (existingOrder) {
+                                // sum total_payment from same order_id
+                                existingOrder.total_payment += service.harga * order.quantity;
+                            } else {
+                                formattedData.push({
+                                    order_id: order.orders.dataValues.order_id,
+                                    title: toko.dataValues.title,
+                                    service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                    status: order.orders.status_order,
+                                    total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                                });
+                            }
+                        }  
+                    }
+                }
+            }
+            formattedData.sort((a, b) => b.order_id - a.order_id);
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Ditemukan",
+                data: formattedData
+
+            })
+        })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            response_code: 500,
+            message: error.message,
+        })
+    }
+}
+
+const getOrderStatusWaitingConfirmation = async (req, res) => {
+
+    const value = req.params
+    let orderIdValid = true;
+
+    const getAllOrder = await Order.findAll({
+        attributes: ['id', 'status_order'],
+        where:{
+            status_order: {
+                [Op.in]: ['On Progress']
+            }
+        }
+    })
+    // console.log(getAllOrder)
+
+    const checkStatus = async () =>{
+        let coreApiOrder = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+        let transactionStatusOrder;
+        for(let order of getAllOrder){
+            let retries = 3;
+    
+            while(retries > 0){
+                // console.log(retries)
+                try {
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`PPP-${order.dataValues.id}`);
+                    break;
+                    // console.log(transactionStatus)
+                } catch (error) {
+                    if(error.httpStatusCode === '404'){
+                        orderIdValid = false
+                        break;
+                    }
+                    retries--;
+                    if(retries === 0){
+                        throw error;
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                    } 
+                }
+            }
+
+            if(transactionStatusOrder.transaction_status === 'settlement' && order.dataValues.status_order === 'Waiting Payment'){
+                await Order.update({
+                    status_pembayaran: "Berhasil",
+                    // status_order: "On Progress"
+                    status_order: "Waiting Confirmation"
+                }, 
+                {
+                    where:{
+                        id: order.dataValues.id
+                    }
+                });
+
+                await Chat.update({
+                    status: 'On Progress'
+                }, {
+                    where: {
+                        order_id: order.dataValues.id
+                    }
+                })
+            }
+
+        }
+        
+    }
+
+    try {
+        const userIsValid = await User.findOne({
+            where: {
+                id: value.userId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '404',
+                message: 'User not found'
+            })
+        }
+
+        await checkStatus().then(async () =>{
+            const formattedData = [];
+            const data = await Toko.findAll({
+                attributes: [
+                    ['nama', 'title'],
+                ],
+                include: [
+                    {
+                        model: Hotel,
+                        as: 'hotels',
+                        attributes: ['harga'],                    
+                        required: false,
+                        include: [
+                            {
+                                model: DetailOrderHotel,
+                                as: 'detail_order_hotel',
+                                attributes: ['quantity', 'tanggal_masuk', 'tanggal_keluar'],
+                                required: true,
+                                include: [{
+                                    model: Order,
+                                    as: 'orders',
+                                    attributes: [['id', 'order_id'], 'status_order'],
+                                    where: {
+                                        [Op.and]: [
+                                            { status_order: {[Op.iLike] : '%Waiting Confirmation%'} },
+                                            { user_id: value.userId }
+                                          ]
+                                        // status_order:{
+                                        //     [Op.iLike] : '%Waiting Payment%'
+                                        // },
+                                    },
+                                }]
+                            },
+                        ]
+                    },
+                    {
+                        model: Grooming,
+                        as: 'groomings',
+                        attributes: ['harga'],                    
+                        required: false,
+                        include: [
+                            {
+                                model: DetailOrderGrooming,
+                                as: 'detail_order_grooming',
+                                attributes: ['quantity'],
+                                required: true,
+                                include: [{
+                                    model: Order,
+                                    as: 'orders',
+                                    attributes: [['id', 'order_id'], 'status_order'],
+                                    where: {
+                                        [Op.and]: [
+                                            { status_order: {[Op.iLike] : '%Waiting Confirmation%'} },
                                             { user_id: value.userId }
                                           ]
                                         // status_order:{
@@ -1892,7 +2283,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                             orderIdValid = true; //set valid to default value
                             continue;
                         } else {
-                            if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress') {
+                            if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress' && order.dataValues.orders.dataValues.status_order !== 'Waiting Confirmation') {
                                 await Order.update({
                                     status_pembayaran: "Expired",
                                     status_order: 'Expired'
@@ -1913,7 +2304,254 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                             } else if(transactionStatus.transaction_status === 'settlement'){
                                 await Order.update({
                                     status_pembayaran: "Berhasil",
-                                    status_order: "On Progress"
+                                    // status_order: "On Progress"
+                                    status_order: "Waiting Confirmation"
+                                }, 
+                                {
+                                    where:{
+                                        id: order.orders.dataValues.order_id
+                                    }
+                                });
+
+                                await Chat.update({
+                                    status: 'On Progress'
+                                }, {
+                                    where: {
+                                        order_id: order.orders.dataValues.order_id
+                                    }
+                                })
+                            }
+    
+                            let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
+    
+                            if (existingOrder) {
+                                // sum total_payment from same order_id
+                                existingOrder.total_payment += service.harga * order.quantity;
+                            } else {
+                                formattedData.push({
+                                    order_id: order.orders.dataValues.order_id,
+                                    // title: toko.dataValues.title,
+                                    username: username,
+                                    service_type: hotelOrders.length > 0 ? 'Pet Hotel' : 'Pet Grooming',
+                                    status: order.orders.status_order,
+                                    total_payment: hotelOrders.length > 0 ? service.harga * order.quantity * differenceInDays : service.harga * order.quantity
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+        return res.status(200).json({
+            message: "Data Ditemukan",
+            response_code: 200,
+            data: formattedData.sort((a, b) => b.order_id - a.order_id)
+
+        })
+    
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: error.message,
+            response_code: 500,
+        })
+    }
+}
+
+const getOrderStatusWaitingConfirmationPenyediaJasa = async (req, res) => {
+
+    const value = req.params
+    let orderIdValid = true;
+
+    try {
+
+        const userIsValid = await PenyediaJasa.findOne({
+            where: {
+                id: value.penyediaId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '404',
+                message: 'Penyedia Jasa not found'
+            })
+        }
+
+        const data = await Toko.findAll({
+            attributes: [
+                ['nama', 'title'],
+            ],
+            include: [
+                {
+                    model: Hotel,
+                    as: 'hotels',
+                    attributes: ['harga'],                    
+                    required: false,
+                    include: [
+                        {
+                            model: DetailOrderHotel,
+                            as: 'detail_order_hotel',
+                            attributes: ['quantity', 'tanggal_masuk', 'tanggal_keluar'],
+                            required: true,
+                            include: [{
+                                model: Order,
+                                as: 'orders',
+                                attributes: [['id', 'order_id'], 'status_order'],
+                                include: [
+                                    {
+                                        model: User,
+                                        as: 'users',
+                                        attributes: [['id', 'user_id'], 'nama']
+                                    },
+                                    {
+                                        model: Review,
+                                        as: 'reviews',
+                                        attributes: [['rating', 'review'], ['ulasan', 'review_description']],
+                                        // where: {
+                                        //     id: value.orderId
+                                        // }
+                                    }
+                                ],
+                                where: {
+                                    status_order: {[Op.iLike] : '%Waiting Confirmation%'} 
+                                },
+                            }]
+                        },
+                    ]
+                },
+                {
+                    model: Grooming,
+                    as: 'groomings',
+                    attributes: ['harga'],                    
+                    required: false,
+                    include: [
+                        {
+                            model: DetailOrderGrooming,
+                            as: 'detail_order_grooming',
+                            attributes: ['quantity'],
+                            required: true,
+                            include: [{
+                                model: Order,
+                                as: 'orders',
+                                attributes: [['id', 'order_id'], 'status_order'],
+                                include: [
+                                    {
+                                        model: User,
+                                        as: 'users',
+                                        attributes: [['id', 'user_id'], 'nama']
+                                    },
+                                    {
+                                        model: Review,
+                                        as: 'reviews',
+                                        attributes: [['rating', 'review'], ['ulasan', 'review_description']],
+                                        // where: {
+                                        //     id: value.orderId
+                                        // }
+                                    }
+                                ],
+                                where: {
+                                    status_order: {[Op.iLike] : '%Waiting Confirmation%'} 
+                                },
+                            }]
+                        },
+                    ]
+                }
+            ],
+            where: {
+                penyedia_id: value.penyediaId
+            },
+            logging:false
+        },)
+
+        if(!data){
+            return res.status(404).json({
+                "response_code": 404,
+                "message": "Data not found"
+            })
+        }
+
+        const formattedData = [];
+
+            for (const toko of data) {
+                const services = [...toko.hotels, ...toko.groomings];
+
+                for (const service of services) {
+                    const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
+                    const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
+                    const orders = [...hotelOrders, ...groomingOrders];
+
+                    for (const order of orders) {
+                        const username = order.orders.dataValues.users.dataValues.nama
+
+                        let differenceInMilliseconds = 0;
+                        let differenceInDays = 0;
+                        if(hotelOrders.length > 0){
+                            // Calculate the difference in milliseconds
+                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+
+                            // Convert the difference to days
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+                            console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                        }
+
+                        let coreApi = new midtransClient.CoreApi({
+                            isProduction: false,
+                            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+                            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                        });
+                        let transactionStatus;
+                        let retries = 3;
+                
+                        while(retries > 0){
+                            // console.log(retries)
+                            try {
+                                transactionStatus = await coreApi.transaction.status(`PPP-${order.orders.dataValues.order_id}`);
+                                break;
+                                // console.log(transactionStatus)
+                            } catch (error) {
+                                if(error.httpStatusCode === '404'){
+                                    orderIdValid = false
+                                    break;
+                                }
+                                retries--;
+                                if(retries === 0){
+                                    throw error;
+                                } else {
+                                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                                } 
+                            }
+                        }
+
+                        if(orderIdValid === false){
+                            orderIdValid = true; //set valid to default value
+                            continue;
+                        } else {
+                            if (transactionStatus.transaction_status === 'expire' && order.dataValues.orders.dataValues.status_order !== 'Cancel' && order.dataValues.orders.dataValues.status_order !== 'On Progress' && order.dataValues.orders.dataValues.status_order !== 'Waiting Confirmation') {
+                                await Order.update({
+                                    status_pembayaran: "Expired",
+                                    status_order: 'Expired'
+                                }, 
+                                {
+                                    where:{
+                                        id: order.orders.dataValues.order_id
+                                    }
+                                });
+
+                                await Chat.update({
+                                    status: 'Expired'
+                                }, {
+                                    where: {
+                                        order_id: order.orders.dataValues.order_id
+                                    }
+                                })
+                            } else if(transactionStatus.transaction_status === 'settlement'){
+                                await Order.update({
+                                    status_pembayaran: "Berhasil",
+                                    // status_order: "On Progress"
+                                    status_order: "Waiting Confirmation"
                                 }, 
                                 {
                                     where:{
@@ -2015,7 +2653,8 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
             if(transactionStatusOrder.transaction_status === 'settlement' && order.dataValues.status_order === 'Waiting Payment'){
                 await Order.update({
                     status_pembayaran: "Berhasil",
-                    status_order: "On Progress"
+                    // status_order: "On Progress"
+                    status_order: "Waiting Confirmation"
                 }, 
                 {
                     where:{
@@ -2653,7 +3292,8 @@ const getDetailOrderPenyedia = async (req, res) => {
                 } else if(transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment'){
                     await Order.update({
                         status_pembayaran: "Berhasil",
-                        status_order: "On Progress"
+                        // status_order: "On Progress"
+                        status_order: "Waiting Confirmation"
                     }, 
                     {
                         where:{
@@ -2697,7 +3337,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                     seconds = 0;
                 }
 
-                if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress' && orderData.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire'){
+                if(minutes === 0 && seconds === 0 && orderData.status_order !== 'Cancel' && orderData.status_order !== 'On Progress' && orderData.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && orderData.status_order !== 'Waiting Confirmation'){
                     await Order.update({
                         status_order: 'Expired'
                     }, 
@@ -2739,7 +3379,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                             virtual_number: orderData.virtual_number,
                             check_in: hotelData.detail_order_hotel[0].dataValues.tanggal_masuk,
                             check_out: hotelData.detail_order_hotel[0].dataValues.tanggal_keluar,
-                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'Waiting Confirmation' : orderData.status_order,
                             tanggal_order: orderData.tanggal_order,
                             updatedAt: orderData.updatedAt,
                             createdAt: orderData.createdAt,
@@ -2769,7 +3409,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                             user_id: userData.user_id,
                             uid: userData.uid,
                             order_id: orderData.order_id,
-                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'Waiting Confirmation' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
                             // remaining_time: remainingTime,
                             time:{
@@ -2809,7 +3449,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                             user_id: userData.user_id,
                             uid: userData.uid,
                             order_id: orderData.order_id,
-                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'Waiting Confirmation' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
                             // remaining_time: remainingTime,
                             time:{
@@ -2848,7 +3488,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                             user_id: userData.user_id,
                             uid: userData.uid,
                             order_id: orderData.order_id,
-                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'On Progress' : orderData.status_order,
+                            order_status: transactionStatus.transaction_status === 'settlement' && orderData.status_order === 'Waiting Payment' ? 'Waiting Confirmation' : orderData.status_order,
                             metode_pembayaran: orderData.metode_pembayaran,
                             // remaining_time: remainingTime,
                             time:{
@@ -2908,6 +3548,7 @@ module.exports = {
     getOrderStatusWaitingPaymentPenyediaJasa,
     getOrderStatusOnProgressPenyediaJasa,
     getOrderStatusCompleteExpireCancelPenyediaJasa,
-    getDetailOrderPenyedia
+    getDetailOrderPenyedia,
+    createOrderDokter
 
 }

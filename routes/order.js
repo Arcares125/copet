@@ -11,11 +11,13 @@ const { createOrder,
     getOrderStatusWaitingPaymentPenyediaJasa, 
     getOrderStatusOnProgressPenyediaJasa, 
     getOrderStatusCompleteExpireCancelPenyediaJasa,
-    getDetailOrderPenyedia} = require('../controllers/Order');
+    getDetailOrderPenyedia,
+    createOrderDokter} = require('../controllers/Order');
 var router = express.Router();
 
 /* GET users listing. */
 router.post('/create', createOrder)
+router.post('/create-dokter', createOrderDokter)
 router.post('/get-payment', getPaymentData)
 router.post('/check-payment', checkPaymentStatus)
 //user

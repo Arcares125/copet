@@ -14,12 +14,16 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.INTEGER,
             allowNull: false
           },
+          tanggal_konsultasi: {
+            type: DataTypes.DATE,
+            allowNull:true,
+          },
           discount: {
             type: DataTypes.INTEGER,
             allowNull: true
           },
           durasi_konsultasi: {
-            type: DataTypes.DATE,
+            type: DataTypes.INTEGER,
             allowNull:false,
           },
           jam_konsultasi: {

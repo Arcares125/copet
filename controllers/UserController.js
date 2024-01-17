@@ -46,13 +46,13 @@ const updateUser = async (req, res) =>{
     const data = req.body
 
     try {
-        const passHash = await bcrypt.hash(data.password, saltRounds);
+        // const passHash = await bcrypt.hash(data.password, saltRounds);
         await User.update({
             nama: data.nama,
             email: data.email,
             no_telp: data.no_telp,
             gender: data.gender,
-            password: passHash
+            // password: passHash
         }, {
             where:{
                 id: value.userId
@@ -62,7 +62,7 @@ const updateUser = async (req, res) =>{
         return res.status(200).json({
             response_code: 200,
             message: "Data has been updated!",
-            data: {...data, password: passHash}
+            data: data
         })
     } catch (error) {
         console.error(error.message)

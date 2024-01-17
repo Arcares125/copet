@@ -18,12 +18,16 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      diskon: {
+      tanggal_konsultasi: {
+        type: Sequelize.DATE,
+        allowNull:true,
+      },
+      discount: {
         type: Sequelize.INTEGER,
         allowNull: true
       },
       durasi_konsultasi: {
-        type: Sequelize.DATE,
+        type: Sequelize.INTEGER,
         allowNull:false,
       },
       jam_konsultasi: {
