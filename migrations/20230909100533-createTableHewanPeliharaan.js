@@ -27,7 +27,7 @@ module.exports = {
         allowNull: false
       },
       umur_hewan: {
-        type: Sequelize.INTEGER(2),
+        type: Sequelize.STRING(10),
         allowNull: false
       },
       gender: {

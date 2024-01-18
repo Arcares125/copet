@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: false
           },
           umur_hewan: {
-            type: DataTypes.INTEGER(2),
+            type: DataTypes.STRING(10),
             allowNull: false
           },
           gender: {

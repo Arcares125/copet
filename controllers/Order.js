@@ -152,7 +152,7 @@ const createOrder = async (req, res) => {
         let parameter = {
             "payment_type": "bank_transfer",
             "transaction_details": {
-                "order_id": "PPP-"+dataOrder.dataValues.id,
+                "order_id": "QQQ-"+dataOrder.dataValues.id,
                 "gross_amount": data.service_type === 'Hotel' || data.service_type === 'hotel' ? totalPrice * totalDayStay : totalPrice
             },
             "custom_expiry":
@@ -322,7 +322,7 @@ const createOrderDokter = async (req, res) => {
         let parameter = {
             "payment_type": "bank_transfer",
             "transaction_details": {
-                "order_id": "PPP-"+dataOrder.dataValues.id,
+                "order_id": "QQQ-"+dataOrder.dataValues.id,
                 "gross_amount": totalPrice
             },
             "custom_expiry":
@@ -618,14 +618,14 @@ const setPaymentToExpired = async (req, res) => {
                 "message": "Order not found"
             })
         }
-        // console.log("PPP-"+orderId)
+        // console.log("QQQ-"+orderId)
         let transactionStatus;
         let retries = 3;
                 
         while(retries > 0){
             // console.log(retries)
             try {
-                transactionStatus = await coreApi.transaction.status(`PPP-${orderId}`);
+                transactionStatus = await coreApi.transaction.status(`QQQ-${orderId}`);
                 break;
                 // console.log(transactionStatus)
             } catch (error) {
@@ -665,9 +665,9 @@ const setPaymentToExpired = async (req, res) => {
                 "Transaction Status": "Expired"
             })
         }
-        // transactionStatus = await coreApi.transaction.status("PPP-"+value.orderId);
+        // transactionStatus = await coreApi.transaction.status("QQQ-"+value.orderId);
         
-        // coreApi.transaction.status("PPP-"+orderId).then(async (response) => {
+        // coreApi.transaction.status("QQQ-"+orderId).then(async (response) => {
         //     console.log('Transaction status:', response.transaction_status);
         
         //     if(response.transaction_status === 'expire') {
@@ -947,7 +947,7 @@ const getDetailOrder = async (req, res) => {
                 while(retries > 0){
                     // console.log(retries)
                     try {
-                        transactionStatus = await coreApi.transaction.status(`PPP-${value.orderId}`);
+                        transactionStatus = await coreApi.transaction.status(`QQQ-${value.orderId}`);
                         break;
                         // console.log(transactionStatus)
                     } catch (error) {
@@ -1368,7 +1368,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                         while(retries > 0){
                             // console.log(retries)
                             try {
-                                transactionStatus = await coreApi.transaction.status(`PPP-${order.orders.dataValues.order_id}`);
+                                transactionStatus = await coreApi.transaction.status(`QQQ-${order.orders.dataValues.order_id}`);
                                 break;
                                 // console.log(transactionStatus)
                             } catch (error) {
@@ -1493,7 +1493,7 @@ const getOrderStatusOnProgress = async (req, res) => {
             while(retries > 0){
                 // console.log(retries)
                 try {
-                    transactionStatusOrder = await coreApiOrder.transaction.status(`PPP-${order.dataValues.id}`);
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`QQQ-${order.dataValues.id}`);
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
@@ -1714,7 +1714,7 @@ const getOrderStatusWaitingConfirmation = async (req, res) => {
             while(retries > 0){
                 // console.log(retries)
                 try {
-                    transactionStatusOrder = await coreApiOrder.transaction.status(`PPP-${order.dataValues.id}`);
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`QQQ-${order.dataValues.id}`);
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
@@ -1934,7 +1934,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
             while(retries > 0){
                 // console.log(retries)
                 try {
-                    transactionStatusOrder = await coreApiOrder.transaction.status(`PPP-${order.dataValues.id}`);
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`QQQ-${order.dataValues.id}`);
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
@@ -2273,7 +2273,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                         while(retries > 0){
                             // console.log(retries)
                             try {
-                                transactionStatus = await coreApi.transaction.status(`PPP-${order.orders.dataValues.order_id}`);
+                                transactionStatus = await coreApi.transaction.status(`QQQ-${order.orders.dataValues.order_id}`);
                                 break;
                                 // console.log(transactionStatus)
                             } catch (error) {
@@ -2519,7 +2519,7 @@ const getOrderStatusWaitingConfirmationPenyediaJasa = async (req, res) => {
                         while(retries > 0){
                             // console.log(retries)
                             try {
-                                transactionStatus = await coreApi.transaction.status(`PPP-${order.orders.dataValues.order_id}`);
+                                transactionStatus = await coreApi.transaction.status(`QQQ-${order.orders.dataValues.order_id}`);
                                 break;
                                 // console.log(transactionStatus)
                             } catch (error) {
@@ -2644,7 +2644,7 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
             while(retries > 0){
                 // console.log(retries)
                 try {
-                    transactionStatusOrder = await coreApiOrder.transaction.status(`PPP-${order.dataValues.id}`);
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`QQQ-${order.dataValues.id}`);
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
@@ -2889,7 +2889,7 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
             while(retries > 0){
                 // console.log(retries)
                 try {
-                    transactionStatusOrder = await coreApiOrder.transaction.status(`PPP-${order.dataValues.id}`);
+                    transactionStatusOrder = await coreApiOrder.transaction.status(`QQQ-${order.dataValues.id}`);
                     break;
                     // console.log(transactionStatus)
                 } catch (error) {
@@ -3266,7 +3266,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                 while(retries > 0){
                     // console.log(retries)
                     try {
-                        transactionStatus = await coreApi.transaction.status(`PPP-${value.orderId}`);
+                        transactionStatus = await coreApi.transaction.status(`QQQ-${value.orderId}`);
                         break;
                         // console.log(transactionStatus)
                     } catch (error) {

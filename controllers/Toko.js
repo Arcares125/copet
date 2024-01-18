@@ -173,7 +173,7 @@ const getDetailCardToko = async (req, res) => {
                 JOIN "order" b ON a.order_id = b.id 
                 GROUP BY a.id
             ) z ON a.id = z.toko_id
-            WHERE a.nama ilike :search
+            WHERE a.nama ilike :search AND a."deletedAt" is NULL
             GROUP BY a.id, a.nama, u.nama, u.no_telp, z.rating, z.total_rating
             `
             detail = await sequelize.query(query, 
@@ -211,6 +211,7 @@ const getDetailCardToko = async (req, res) => {
                 FROM review 
                 GROUP BY toko_id
             ) z ON a.id = z.toko_id
+            WHERE a."deletedAt" is NULL
             GROUP BY a.id, a.nama, u.nama, u.no_telp, z.rating, z.total_rating
         `
             detail = await sequelize.query(query, 
