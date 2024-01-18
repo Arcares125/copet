@@ -200,9 +200,33 @@ const deleteDokter = async (req, res) =>{
     }
 }
 
+const confirmOrder = async (req, res) => {
+
+    const value = req.params
+    // tokoId/orderId
+    try {
+        
+        await Order.update({
+            status_order: 'On Progress',
+            where:{
+                order_id: value.orderId
+            },
+        })
+
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerDokter,
     getDataDokter,
     updateDokter,
-    deleteDokter
+    deleteDokter,
+    confirmOrder
 }

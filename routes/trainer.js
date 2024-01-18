@@ -1,9 +1,10 @@
 var express = require('express');
-const { registerTrainer, getDataTrainer, updateTrainer } = require('../controllers/Trainer');
+const { registerTrainer, getDataTrainer, updateTrainer, confirmOrder } = require('../controllers/Trainer');
 var router = express.Router();
 
 /* GET users listing. */
 router.post('/register', registerTrainer)
+router.post('/confirm-order', confirmOrder)
 router.get('/data-trainer', getDataTrainer)
 router.put('/update/:trainerId', updateTrainer)
 

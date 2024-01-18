@@ -81,7 +81,40 @@ const createHewanPeliharaan = async (req, res) => {
     }
 }
 
+const getAllHewanPeliharaan = async (req, res) =>{
+    const id = req.params.userId
+    try {
+
+        const dataHewan = await HewanPeliharaan.findAll({
+            where: {
+                user_id: id
+            }
+        })
+
+        if(dataHewan.length > 0){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Hewan ditemukan",
+                data: dataHewan
+            })
+        } else {
+            return res.status(404).json({
+                response_code: 404,
+                message: "Data Hewan tidak ditemukan",
+                data: dataHewan
+            })
+        }
+        
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: error.message,
+        })
+    }
+}
+
 module.exports = {
     createHewanPeliharaan,
-    getHewanPeliharaan
+    getHewanPeliharaan,
+    getAllHewanPeliharaan
 }
