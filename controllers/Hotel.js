@@ -101,7 +101,7 @@ const deleteHotel = async (req, res) =>{
 
     try {
 
-        await Grooming.destroy({
+        await Hotel.destroy({
             where:{
                 [Op.and]: [
                     { id: value.hotelId },
