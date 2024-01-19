@@ -107,6 +107,7 @@ const confirmOrder = async (req, res) => {
         const checkPenyedia = await PenyediaJasa.findOne({
             where:{
                 id: value.penyediaId
+                // /confirm-order/:penyediaId/:orderId
             }
         })
 
@@ -117,11 +118,18 @@ const confirmOrder = async (req, res) => {
             })
         }
         
-        await Order.update({
-            status_order: 'On Progress',
-            where:{
-                order_id: value.orderId
+        await Order.update(
+            {
+                status_order: 'On Progress'
             },
+            {
+                where:{ id: value.orderId }
+            }
+        )
+
+        return res.status(200).json({
+            response_code: 200,
+            message: `Order ID: ${value.orderId} has been Confirmed by Penyedia Jasa: ${checkPenyedia.dataValues.nama}`
         })
 
     } catch (error) {

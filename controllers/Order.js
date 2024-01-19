@@ -59,7 +59,7 @@ const createOrder = async (req, res) => {
         let getDayStay;
         let totalDayStay;
         if(data.service_type === 'Grooming' || data.service_type === 'grooming'){
-
+            totalDayStay = 1
             for(let i = 0; i < data.order_detail.length; i++) {
 
                 const getPrice = await Grooming.findOne({
@@ -1511,7 +1511,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                     const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
                     const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
                     const orders = [...hotelOrders, ...groomingOrders];
-
+                    let count = 0;
                     for (const order of orders) {
                         // console.log(order)
                         // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
@@ -1520,12 +1520,13 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){
                             // Calculate the difference in milliseconds
-                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+                            differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
                             differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                            count++;
                         }
 
                         let coreApi = new midtransClient.CoreApi({

@@ -19,7 +19,7 @@ module.exports = {
         allowNull: false
       },
       tanggal_pertemuan: {
-        type: DataTypes.DATE,
+        type: Sequelize.DATE,
         allowNull:false,
       },
       jam_pertemuan: {
