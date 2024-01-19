@@ -102,7 +102,38 @@ const updateGrooming = async (req, res) =>{
     }
 }
 
+const deleteGrooming = async (req, res) =>{
+
+    const value = req.params
+
+    try {
+
+        await Grooming.destroy({
+            where:{
+                [Op.and]: [
+                    { id: value.groomingId },
+                    { toko_id: value.tokoId }
+                  ]
+            }
+        })
+
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Grooming Service has been deleted!",
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerGrooming,
-    updateGrooming
+    updateGrooming,
+    deleteGrooming
 }

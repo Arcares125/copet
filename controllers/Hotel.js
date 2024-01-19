@@ -95,8 +95,39 @@ const updateHotel = async (req, res) =>{
     }
 }
 
+const deleteHotel = async (req, res) =>{
+
+    const value = req.params
+
+    try {
+
+        await Grooming.destroy({
+            where:{
+                [Op.and]: [
+                    { id: value.hotelId },
+                    { toko_id: value.tokoId }
+                  ]
+            }
+        })
+
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Hotel Service has been deleted!",
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerHotel,
     getDataHotel,
-    updateHotel
+    updateHotel,
+    deleteHotel
 }

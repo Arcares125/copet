@@ -1281,7 +1281,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                                 attributes: [['id', 'order_id'], 'status_order'],
                                 where: {
                                     [Op.and]: [
-                                        { status_order: {[Op.iLike] : '%Waiting Payment%'} },
+                                        { status_order: {[Op.in] : ['Waiting Payment', 'Waiting Confirmation']} },
                                         { user_id: value.userId }
                                       ]
                                     // status_order:{
@@ -1309,7 +1309,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                                 attributes: [['id', 'order_id'], 'status_order'],
                                 where: {
                                     [Op.and]: [
-                                        { status_order: {[Op.iLike] : '%Waiting Payment%'} },
+                                        { status_order: {[Op.in] : ['Waiting Payment', 'Waiting Confirmation']} },
                                         { user_id: value.userId }
                                       ]
                                     // status_order:{
@@ -2180,7 +2180,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                                     }
                                 ],
                                 where: {
-                                    status_order: {[Op.iLike] : '%Waiting Payment%'} 
+                                    status_order: {[Op.in] : ['Waiting Payment', 'Waiting Confirmation']} 
                                 },
                             }]
                         },
@@ -2217,7 +2217,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                                     }
                                 ],
                                 where: {
-                                    status_order: {[Op.iLike] : '%Waiting Payment%'} 
+                                    status_order: {[Op.in] : ['Waiting Payment', 'Waiting Confirmation']} 
                                 },
                             }]
                         },
