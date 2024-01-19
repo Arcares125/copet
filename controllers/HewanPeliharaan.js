@@ -113,8 +113,39 @@ const getAllHewanPeliharaan = async (req, res) =>{
     }
 }
 
+const deleteHewan = async (req, res) =>{
+
+    const value = req.params
+
+    try {
+
+        await HewanPeliharaan.destroy({
+            where:{
+                [Op.and]: [
+                    { id: value.hewanId },
+                    { user_id: value.userId }
+                  ]
+            }
+        })
+
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Hewan Peliharaan has been deleted!",
+        })
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     createHewanPeliharaan,
     getHewanPeliharaan,
-    getAllHewanPeliharaan
+    getAllHewanPeliharaan,
+    deleteHewan
 }
