@@ -98,8 +98,45 @@ const deletePenyediaJasa = async (req, res) =>{
     }
 }
 
+const confirmOrder = async (req, res) => {
+
+    const value = req.params
+    // tokoId/orderId
+    try {
+
+        const checkPenyedia = await PenyediaJasa.findOne({
+            where:{
+                id: value.penyediaId
+            }
+        })
+
+        if(!checkPenyedia){
+            return res.status(404).json({
+                response_code: 404,
+                message: "Penyedia Jasa not found"
+            })
+        }
+        
+        await Order.update({
+            status_order: 'On Progress',
+            where:{
+                order_id: value.orderId
+            },
+        })
+
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 module.exports = {
     registerPenyediaJasa,
     updatePenyediaJasa,
-    deletePenyediaJasa
+    deletePenyediaJasa,
+    confirmOrder
 }
