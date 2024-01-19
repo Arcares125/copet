@@ -1027,7 +1027,7 @@ const getDetailOrder = async (req, res) => {
                         {
                             model: DetailOrderGrooming,
                             as: 'detail_order_grooming',
-                            attributes: ['quantity'],
+                            attributes: ['quantity', 'tanggal_grooming'],
                             required: true,
                             where: {
                                 order_id: value.orderId
@@ -1346,6 +1346,7 @@ const getDetailOrder = async (req, res) => {
                                     grooming_id: groomingData.id,
                                     grooming_title: groomingData.title_grooming,
                                     quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity,
+                                    tanggal_grooming: groomingData.detail_order_grooming[0]?.dataValues.tanggal_grooming,
                                     price: groomingData.harga
                                 };
                             }),
@@ -1385,6 +1386,7 @@ const getDetailOrder = async (req, res) => {
                                     grooming_id: groomingData.id,
                                     grooming_title: groomingData.title_grooming,
                                     quantity: groomingData.detail_order_grooming[0]?.dataValues.quantity,
+                                    tanggal_grooming: groomingData.detail_order_grooming[0]?.dataValues.tanggal_grooming,
                                     price: groomingData.harga
                                 };
                             }),
