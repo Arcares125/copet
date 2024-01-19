@@ -7,7 +7,7 @@ var router = express.Router();
 router.post('/register', registerPenyediaJasa)
 router.put('/update/:penyediaId', updatePenyediaJasa)
 router.delete('/delete/:penyediaId', deletePenyediaJasa)
-router.delete('/confirm-order/:penyediaId/:orderId', confirmOrder)
+router.post('/confirm-order/:penyediaId/:orderId', confirmOrder)
 
 
 module.exports = router;

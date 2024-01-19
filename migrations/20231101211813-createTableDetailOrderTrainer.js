@@ -18,6 +18,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      tanggal_pertemuan: {
+        type: DataTypes.DATE,
+        allowNull:false,
+      },
       jam_pertemuan: {
         type: Sequelize.DATE,
         allowNull:false,

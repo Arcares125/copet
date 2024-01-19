@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.INTEGER,
             allowNull: false
           },
+          tanggal_pertemuan: {
+            type: DataTypes.DATE,
+            allowNull:false,
+          },
           jam_pertemuan: {
             type: DataTypes.DATE,
             allowNull:false,

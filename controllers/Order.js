@@ -6,6 +6,7 @@ const {Dokter,
     DetailOrderGrooming, 
     DetailOrderHotel, 
     DetailOrderDokter,
+    DetailOrderTrainer,
     Grooming, 
     Hotel,
     Toko,
@@ -424,6 +425,176 @@ const createOrderDokter = async (req, res) => {
         })
     }
 }
+const createOrderTrainer = async (req, res) => {
+
+    const data = req.body
+    const currentDate = new Date();
+    let details = [];
+    let totalPrice = 0;
+
+    try {
+
+        const dataOrder = await Order.create({
+            // dokter_id: data.toko_id,
+            user_id: data.user_id,
+            status_order: "Waiting Payment",
+            metode_pembayaran: data.metode_pembayaran,
+            status_pembayaran: "Pending",
+            tanggal_order: currentDate
+        })
+
+        const getUserUid = await User.findOne({
+            attributes: ['uid'],
+            where:{
+                id: data.user_id
+            }
+        })
+
+        await dataOrder.update({
+            status: "Waiting Payment"
+        }, {
+            where: {
+                order_id: dataOrder.dataValues.id
+            }
+        })
+
+        const getPrice = await Trainer.findOne({
+            where:{
+                id: data.trainer_id
+            }
+        })
+
+        if(!getPrice){
+            return res.status(404).json({
+                message: "Data Trainer tidak ditemukan / tidak terdaftar"
+            })
+        }
+
+        const price = getPrice.dataValues.harga
+        totalPrice = price;
+
+        const dataDetailTrainer = await DetailOrderTrainer.create({
+            order_id: dataOrder.dataValues.id,
+            trainer_id: data.trainer_id,
+            tanggal_pertemuan: data.tanggal_pertemuan,
+            durasi_pertemuan: 60,
+            discount: "0",
+            jam_pertemuan: (new Date(data.jam_pertemuan).getTime()),
+        })
+
+        //MIDTRANS PAYMENT
+        let coreApi = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+        
+        let parameter = {
+            "payment_type": "bank_transfer",
+            "transaction_details": {
+                "order_id": "QQQ-"+dataOrder.dataValues.id,
+                "gross_amount": totalPrice
+            },
+            "custom_expiry":
+            {   
+                // "order_time":  dataOrder.dataValues.tanggal_order,
+                "expiry_duration": 3,
+                "unit": "minute"
+            },
+            "bank_transfer": {
+                "bank": "bca"
+            },
+            "name_payment": "BCA Virtual Account"
+        };
+
+        const chargeAndHandleError = async (retryCount = 3) => {
+            try {
+                // console.log(retryCount)
+                const chargeResponse = await coreApi.charge(parameter);
+                const nama = parameter.name_payment;
+                let kode = chargeResponse.va_numbers[0].va_number;
+
+                const updateVaOrder = await Order.update(
+                    { 
+                        virtual_number: kode,
+                    },
+                    { where: {id: dataOrder.dataValues.id} }
+                );
+                
+                const createChat = await Chat.create({
+                    uid: getUserUid.dataValues.uid,
+                    order_id: dataOrder.dataValues.id,
+                    status: "Waiting Payment"
+                })
+
+                setTimeout(async () => {
+                    const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
+                    const transactionStatusResponse = await coreApi.transaction.status(dataOrder.dataValues.id);
+                    const latestTransaction = transactionStatusResponse.transaction_status
+                    if (currOrder && latestTransaction === 'pending') {
+                        await Order.update(
+                            { status_order: 'Expired' },
+                            { where: { id: dataOrder.dataValues.id } }
+                        );
+
+                        await Chat.update({
+                            status: 'Expired'
+                        }, {
+                            where: {
+                                order_id: dataOrder.dataValues.id
+                            }
+                        })
+                        console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
+                    } else if(currOrder && latestTransaction === 'settlement'){
+                        await Order.update(
+                            { status_order: 'Waiting Confirmation' },
+                            { where: { id: dataOrder.dataValues.id } }
+                        );
+                        console.log(`Order ${dataOrder.dataValues.id} is Settlement.`);
+                    }
+                }, 3 * 60 * 1000);  // 3 minutes
+
+                return res.status(200).json({
+                    response_code: 200,
+                    message: "Data Order Berhasil Disimpan",
+                    data: {
+                        order: {...dataOrder.dataValues, virtual_number: kode},
+                        total_price: totalPrice,
+                        nama,
+                        kode,
+                        'transactionStatus': chargeResponse.transaction_status, 
+                        'fraudStatus': chargeResponse.fraud_status
+                    }
+                });
+            } catch (e) {
+                console.log('Error occured:', e.message);
+                if (e.message.includes('HTTP status code: 406')) {
+                    return res.status(200).json({
+                        message: "Order ID has been used, try another order ID"
+                    });
+                } else if (e.message.includes('HTTP status code: 505')) {
+                    if (retryCount > 0) {
+                        console.log(`Retry attempt number: ${4 - retryCount}`);
+                        return chargeAndHandleError(retryCount - 1);
+                    } else {
+                        return res.status(200).json({
+                            message: "Unable to create va_number for this transaction"
+                        });
+                    }
+                }
+            }
+        };
+
+        chargeAndHandleError();
+        
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: error.message,
+        })
+    }
+}
+// end
 
 const getPaymentData = async (req, res) => {
 
@@ -3543,6 +3714,36 @@ const getDetailOrderPenyedia = async (req, res) => {
         return res.status(500).json({
             message: e.message
         })
+    }
+}
+
+const refund = async (req, res) => {
+    try {
+
+        let coreApi = new midtransClient.CoreApi({
+            isProduction: false,
+            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        });
+
+        let orderId = req.body.orderId;
+        let parameter = {
+            "amount": 5000,
+            "reason": "Cancel from Penyedia Jasa"
+        };
+    
+        coreApi.refund(orderId, parameter)
+            .then((response) => {
+                console.log('Refund result:');
+                console.log(JSON.stringify(response));
+                res.send(response);
+            })
+            .catch((e) => {
+                console.log('Error occured:');
+                console.log(e.message);
+            });
+    } catch (error) {
+        
     }
 }
 
