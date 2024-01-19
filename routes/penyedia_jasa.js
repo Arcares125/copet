@@ -1,5 +1,5 @@
 var express = require('express');
-const { registerPenyediaJasa, updatePenyediaJasa, deletePenyediaJasa } = require('../controllers/PenyediaJasa');
+const { registerPenyediaJasa, updatePenyediaJasa, deletePenyediaJasa, confirmOrder } = require('../controllers/PenyediaJasa');
 var router = express.Router();
 
 /* GET users listing. */
@@ -7,7 +7,7 @@ var router = express.Router();
 router.post('/register', registerPenyediaJasa)
 router.put('/update/:penyediaId', updatePenyediaJasa)
 router.delete('/delete/:penyediaId', deletePenyediaJasa)
-router.delete('/confirm-order/:penyediaId/:orderId', deletePenyediaJasa)
+router.delete('/confirm-order/:penyediaId/:orderId', confirmOrder)
 
 
 module.exports = router;
