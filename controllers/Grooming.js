@@ -1,5 +1,7 @@
 const {Toko, PenyediaJasa, sequelize, Grooming} = require("../models")
 const bcrypt = require('bcrypt')
+const { Op } = require('sequelize');
+
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const { QueryTypes } = require("sequelize");

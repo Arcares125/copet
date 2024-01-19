@@ -1,4 +1,5 @@
 const {Toko, PenyediaJasa, sequelize, Hotel} = require("../models")
+const { Op } = require('sequelize');
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
