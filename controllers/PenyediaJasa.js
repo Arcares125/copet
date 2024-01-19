@@ -1,4 +1,4 @@
-const {PenyediaJasa} = require("../models")
+const {PenyediaJasa, Order} = require("../models")
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken')
