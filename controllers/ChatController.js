@@ -27,7 +27,7 @@ const checkStatus = async () =>{
         while(retries > 0){
 
             try {
-                transactionStatusOrder = await coreApiOrder.transaction.status(`RRR-${order.dataValues.order_id}`);//redeploy
+                transactionStatusOrder = await coreApiOrder.transaction.status(`SSS-${order.dataValues.order_id}`);//redeploy
                 break;
             } catch (error) {
                 if(error.httpStatusCode === '404'){
