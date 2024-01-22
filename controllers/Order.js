@@ -206,7 +206,7 @@ const createOrder = async (req, res) => {
                             }
                         })
                         console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
-                    } else if(currOrder && latestTransaction === 'settlement'){
+                    } else if(currOrder && latestTransaction === 'settlement' && currOrder.dataValues.status_order === 'Waiting Payment'){
                         await Order.update(
                             { status_order: 'Waiting Confirmation' },
                             { where: { id: dataOrder.dataValues.id } }
