@@ -1804,7 +1804,7 @@ const getOrderStatusOnProgress = async (req, res) => {
                     const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
                     const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
                     const orders = [...hotelOrders, ...groomingOrders];
-
+                    let count = 0;
                     for (const order of orders) {
                         // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
                         // console.log(order.dataValues.orders.dataValues.order_id)
@@ -1812,12 +1812,13 @@ const getOrderStatusOnProgress = async (req, res) => {
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){
                             // Calculate the difference in milliseconds
-                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+                            differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
                             differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                            count++
                         }
 
                         if(orderIdValid === false){
@@ -2243,6 +2244,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                     const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
                     const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
                     const orders = [...hotelOrders, ...groomingOrders];
+                    let count = 0;
 
                     for (const order of orders) {
                         // console.log(order.dataValues.orders.dataValues.status_order !== 'Cancel')
@@ -2250,12 +2252,13 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){
                             // Calculate the difference in milliseconds
-                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+                            differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
                             differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                            count++
                         }
 
                         if(orderIdValid === false){
@@ -2978,7 +2981,7 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
                     const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
                     const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
                     const orders = [...hotelOrders, ...groomingOrders];
-
+                    let count = 0;
                     for (const order of orders) {
                         const username = order.orders.dataValues.users.dataValues.nama
 
@@ -2986,12 +2989,13 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){
                             // Calculate the difference in milliseconds
-                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+                            differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
                             differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                            count++;
                         }
 
                         let existingOrder = formattedData.find(o => o.order_id === order.orders.dataValues.order_id);
@@ -3221,7 +3225,7 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
                     const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
                     const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
                     const orders = [...hotelOrders, ...groomingOrders];
-
+                    let count = 0;
                     for (const order of orders) {
                         const username = order.orders.dataValues.users.dataValues.nama
 
@@ -3230,12 +3234,13 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){
                             // Calculate the difference in milliseconds
-                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+                            differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
                             differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                            count++;
                         }
 
                         if(orderIdValid === false){
