@@ -1,4 +1,5 @@
 const {Dokter,PenyediaJasa, sequelize} = require("../models")
+const { Op } = require('sequelize');
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
@@ -101,17 +102,26 @@ const registerDokter = async (req, res) => {
 
 const getDataDokter = async (req, res) => {
 
-    const dataDokter = await sequelize.query(
-        `
-        SELECT * FROM dokter
-        `
-    )
+    let dataDokter
+    let value = req.params
+
+    if(!value.dokterId && req.query.nama_dokter){   
+        dataDokter = await Dokter.findAll({
+            where:{
+                nama: {
+                    [Op.substring]: req.query.nama_dokter
+                }
+            }
+        })
+    } else {
+        dataDokter = await Dokter.findAll()
+    }
 
     try {
         return res.status(200).json({
             response_code: 200,
             message: "Data Dokter berhasil diambil",
-            data: dataDokter[0]
+            data: dataDokter
         })
 
         
