@@ -376,7 +376,7 @@ const createOrderDokter = async (req, res) => {
                             }
                         })
                         console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
-                    } else if(currOrder && latestTransaction === 'settlement'){
+                    } else if(currOrder && latestTransaction === 'settlement' && currOrder.dataValues.status_order === 'Waiting Payment'){
                         await Order.update(
                             { status_order: 'Waiting Confirmation' },
                             { where: { id: dataOrder.dataValues.id } }
@@ -545,7 +545,7 @@ const createOrderTrainer = async (req, res) => {
                             }
                         })
                         console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
-                    } else if(currOrder && latestTransaction === 'settlement'){
+                    } else if(currOrder && latestTransaction === 'settlement' && currOrder.dataValues.status_order === 'Waiting Payment'){
                         await Order.update(
                             { status_order: 'Waiting Confirmation' },
                             { where: { id: dataOrder.dataValues.id } }
@@ -2420,7 +2420,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                     const hotelOrders = Array.isArray(service.detail_order_hotel) ? service.detail_order_hotel : [];
                     const groomingOrders = Array.isArray(service.detail_order_grooming) ? service.detail_order_grooming : [];
                     const orders = [...hotelOrders, ...groomingOrders];
-
+                    let count = 0;
                     for (const order of orders) {
                         const username = order.orders.dataValues.users.dataValues.nama
 
@@ -2428,12 +2428,13 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                         let differenceInDays = 0;
                         if(hotelOrders.length > 0){
                             // Calculate the difference in milliseconds
-                            differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
+                            differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
                             differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
+                            count++;
                         }
 
                         let coreApi = new midtransClient.CoreApi({
