@@ -23,7 +23,7 @@ module.exports = {
         allowNull: false
       },
       pengalaman: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(255),
         allowNull: false
       },
       harga: {
@@ -46,6 +46,10 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         allowNull: true,
         defaultValue: false
+      },
+      foto: {
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
       createdAt: {
         type: Sequelize.DATE,

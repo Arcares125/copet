@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: false
           },
           pengalaman: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING(255),
             allowNull: false
           },
           harga: {
@@ -42,6 +42,11 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.BOOLEAN,
             allowNull: true,
             defaultValue: false
+          },
+          foto: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            // defaultValue: 
           },
           createdAt: {
             type: DataTypes.DATE,
