@@ -3770,6 +3770,7 @@ module.exports = {
     getOrderStatusOnProgressPenyediaJasa,
     getOrderStatusCompleteExpireCancelPenyediaJasa,
     getDetailOrderPenyedia,
-    createOrderDokter
+    createOrderDokter,
+    createOrderTrainer
 
 }
