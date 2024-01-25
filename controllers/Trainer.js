@@ -1,4 +1,4 @@
-const {Trainer, PenyediaJasa, sequelize} = require("../models")
+const {Trainer, PenyediaJasa, sequelize, DetailOrderTrainer, Order, Review} = require("../models")
 const bcrypt = require('bcrypt')
 const { Op } = require('sequelize')
 const saltRounds = 10;
@@ -131,6 +131,66 @@ const getDataTrainer = async (req, res) => {
     }
 }
 
+const getDataTrainerDetail = async (req, res) => {
+
+    let dataTrainer
+    let value = req.params
+
+    try {
+        dataTrainer = await Trainer.findOne({
+            where:{
+                id: value.trainerId
+            }
+        })
+    
+        let dataDetail = await DetailOrderTrainer.findOne({
+            where:{
+                trainer_id: dataTrainer.dataValues.id
+            }
+        })
+    
+       if(dataDetail){
+            let dataOrder = await Order.findOne({
+                where: {
+                    id: dataDetail.dataValues.order_id
+                }
+            })
+    
+            let reviewData = await Review.findAll({
+                where: {
+                    trainer_id: dataTrainer.dataValues.id,
+                    customer_id: dataOrder.dataValues.user_id
+                }
+            })
+            let sum = 0;
+            for(let i = 0; i < reviewData.length; i++){
+                sum += reviewData[i].dataValues.rating;
+            }
+            let averageReview = sum / reviewData.length;
+
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Trainer berhasil diambil",
+                data: {...dataTrainer.dataValues, rating: averageReview, total_rating: reviewData.length}
+            })
+        } else {
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Trainer berhasil diambil",
+                data: {...dataTrainer.dataValues, rating: 0, total_rating: 0}
+            })
+        }
+        
+
+        
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: error.message
+        })
+    }
+}
+
 const updateTrainer = async (req, res) =>{
 
     const value = req.params
@@ -229,10 +289,68 @@ const confirmOrder = async (req, res) => {
     }
 }
 
+const updateAvailable = async (req, res) => {
+
+    const value = req.params
+
+    try {
+
+        const currTrainer = await Trainer.findOne({
+            where: {
+                id: value.trainerId
+            }
+        })
+
+        if(!currTrainer){
+            return res.status(404).json({
+                response_code: 404,
+                message: "Trainer not found"
+            })
+        }
+
+        if(currTrainer.dataValues.is_available){
+            await Trainer.update({
+                is_available: false
+            },{
+                where: {
+                    id: value.trainerId
+                }
+            })
+    
+            return res.status(200).json({
+                response_code: 200,
+                message: "Trainer is Now Not Available"
+            })
+        } else {
+            await Trainer.update({
+                is_available: true
+            },{
+                where: {
+                    id: value.trainerId
+                }
+            })
+    
+            return res.status(200).json({
+                response_code: 200,
+                message: "Trainer is Now Available"
+            })
+        }
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error: "+error.message
+        })
+    }
+}
+
 module.exports = {
     registerTrainer,
     getDataTrainer,
     updateTrainer,
     deleteTrainer,
-    confirmOrder
+    confirmOrder,
+    getDataTrainerDetail,
+    updateAvailable
 }

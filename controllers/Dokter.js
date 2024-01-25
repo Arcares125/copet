@@ -1,4 +1,4 @@
-const {Dokter,PenyediaJasa, sequelize, detailOrderDokter, Order, Review} = require("../models")
+const {Dokter,PenyediaJasa, sequelize, DetailOrderDokter, Order, Review} = require("../models")
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
@@ -138,36 +138,51 @@ const getDataDokterDetail = async (req, res) => {
     let dataDokter
     let value = req.params
 
-   dataDokter = await Dokter.findOne({
-        where:{
-            id: value.dokterId
-        }
-   })
-
-   let dataDetail = await detailOrderDokter.findOne({
-        where:{
-            dokter_id: dataDokter.dataValues.id
-        }
-   })
-
-   let dataOrder = await Order.findOne({
-        where: {
-            id: dataDetail.dataValues.order_id
-        }
-   })
-
-   let reviewData = await Review.findAll({
-        where: {
-            dokter_id: dataDokter.dataValues.id
-        }
-   })
-
     try {
-        return res.status(200).json({
-            response_code: 200,
-            message: "Data Dokter berhasil diambil",
-            data: dataDokter
+        dataDokter = await Dokter.findOne({
+            where:{
+                id: value.dokterId
+            }
         })
+    
+        let dataDetail = await DetailOrderDokter.findOne({
+            where:{
+                dokter_id: dataDokter.dataValues.id
+            }
+        })
+    
+       if(dataDetail){
+            let dataOrder = await Order.findOne({
+                where: {
+                    id: dataDetail.dataValues.order_id
+                }
+            })
+    
+            let reviewData = await Review.findAll({
+                where: {
+                    dokter_id: dataDokter.dataValues.id,
+                    customer_id: dataOrder.dataValues.user_id
+                }
+            })
+            let sum = 0;
+            for(let i = 0; i < reviewData.length; i++){
+                sum += reviewData[i].dataValues.rating;
+            }
+            let averageReview = sum / reviewData.length;
+
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Dokter berhasil diambil",
+                data: {...dataDokter.dataValues, rating: averageReview, total_rating: reviewData.length}
+            })
+        } else {
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Dokter berhasil diambil",
+                data: {...dataDokter.dataValues, rating: 0, total_rating: 0}
+            })
+        }
+        
 
         
     } catch (error) {
@@ -278,10 +293,68 @@ const confirmOrder = async (req, res) => {
     }
 }
 
+const updateAvailable = async (req, res) => {
+
+    const value = req.params
+
+    try {
+
+        const currDokter = await Dokter.findOne({
+            where: {
+                id: value.dokterId
+            }
+        })
+
+        if(!currDokter){
+            return res.status(404).json({
+                response_code: 404,
+                message: "Dokter not found"
+            })
+        }
+
+        if(currDokter.dataValues.is_available){
+            await Dokter.update({
+                is_available: false
+            },{
+                where: {
+                    id: value.dokterId
+                }
+            })
+    
+            return res.status(200).json({
+                response_code: 200,
+                message: "Dokter is Now Not Available"
+            })
+        } else {
+            await Dokter.update({
+                is_available: true
+            },{
+                where: {
+                    id: value.dokterId
+                }
+            })
+    
+            return res.status(200).json({
+                response_code: 200,
+                message: "Dokter is Now Available"
+            })
+        }
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error: "+error.message
+        })
+    }
+}
+
 module.exports = {
     registerDokter,
     getDataDokter,
     updateDokter,
     deleteDokter,
-    confirmOrder
+    confirmOrder,
+    getDataDokterDetail,
+    updateAvailable
 }

@@ -43,6 +43,11 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: true,
             defaultValue: false
           },
+          is_available:{
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
+          },
           foto: {
             type: DataTypes.TEXT,
             allowNull: true,
