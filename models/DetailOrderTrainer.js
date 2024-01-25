@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull:false,
           },
           durasi_pertemuan: {
-            type: DataTypes.DATE,
+            type: DataTypes.INTEGER,
             allowNull: false
           },
           discount: {
