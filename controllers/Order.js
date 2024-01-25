@@ -12,7 +12,8 @@ const {Dokter,
     Toko,
     User,
     Review, 
-    Chat} = require("../models")
+    Chat,
+    Trainer} = require("../models")
     const { Op } = require('sequelize');
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
