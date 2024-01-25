@@ -118,10 +118,18 @@ const getDataTrainer = async (req, res) => {
     }
 
     try {
+        let tempDataTrainer = []
+        for(let i = 0; i < dataTrainer.length; i++){
+            if(dataTrainer[i].dataValues.is_acc){
+                tempDataTrainer.push(dataTrainer[i])
+            } else {
+                continue
+            }
+        }
         return res.status(200).json({
             response_code: 200,
             message: "Data Trainer berhasil diambil",
-            data: dataTrainer
+            data: tempDataTrainer
         })
     } catch (error) {
         return res.status(500).json({

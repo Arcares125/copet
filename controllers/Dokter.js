@@ -118,10 +118,18 @@ const getDataDokter = async (req, res) => {
     }
 
     try {
+        let tempDataDokter = []
+        for(let i = 0; i < dataDokter.length; i++){
+            if(dataDokter[i].dataValues.is_acc){
+                tempDataDokter.push(dataDokter[i])
+            } else {
+                continue
+            }
+        }
         return res.status(200).json({
             response_code: 200,
             message: "Data Dokter berhasil diambil",
-            data: dataDokter
+            data: tempDataDokter
         })
 
         
