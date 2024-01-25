@@ -20,7 +20,15 @@ module.exports = {
       },
       toko_id: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: true
+      },
+      trainer_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
+      dokter_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true
       },
       rating: {
         type: Sequelize.INTEGER,

@@ -1,4 +1,4 @@
-const {Dokter,PenyediaJasa, sequelize} = require("../models")
+const {Dokter,PenyediaJasa, sequelize, detailOrderDokter, Order, Review} = require("../models")
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
@@ -116,6 +116,51 @@ const getDataDokter = async (req, res) => {
     } else {
         dataDokter = await Dokter.findAll()
     }
+
+    try {
+        return res.status(200).json({
+            response_code: 200,
+            message: "Data Dokter berhasil diambil",
+            data: dataDokter
+        })
+
+        
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: error.message
+        })
+    }
+}
+
+const getDataDokterDetail = async (req, res) => {
+
+    let dataDokter
+    let value = req.params
+
+   dataDokter = await Dokter.findOne({
+        where:{
+            id: value.dokterId
+        }
+   })
+
+   let dataDetail = await detailOrderDokter.findOne({
+        where:{
+            dokter_id: dataDokter.dataValues.id
+        }
+   })
+
+   let dataOrder = await Order.findOne({
+        where: {
+            id: dataDetail.dataValues.order_id
+        }
+   })
+
+   let reviewData = await Review.findAll({
+        where: {
+            dokter_id: dataDokter.dataValues.id
+        }
+   })
 
     try {
         return res.status(200).json({
