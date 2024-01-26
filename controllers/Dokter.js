@@ -120,7 +120,7 @@ const getDataDokter = async (req, res) => {
     try {
         let tempDataDokter = []
         for(let i = 0; i < dataDokter.length; i++){
-            if(dataDokter[i].dataValues.is_acc && dataDokter[i].dataValues.is_available){
+            if(dataDokter[i].dataValues.is_acc){
                 tempDataDokter.push(dataDokter[i])
             } else {
                 continue

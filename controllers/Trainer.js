@@ -120,7 +120,7 @@ const getDataTrainer = async (req, res) => {
     try {
         let tempDataTrainer = []
         for(let i = 0; i < dataTrainer.length; i++){
-            if(dataTrainer[i].dataValues.is_acc && dataTrainer[i].dataValues.is_available){
+            if(dataTrainer[i].dataValues.is_acc){
                 tempDataTrainer.push(dataTrainer[i])
             } else {
                 continue
