@@ -165,30 +165,28 @@ const loginPenyediaJasa = async (req, res) =>{
             is_acc: getDataPenyedia.dataValues.is_acc
         }
 
+        const getDataToko = await Toko.findOne({
+            where: {
+                penyedia_id: getDataPenyedia.dataValues.id
+            }
+        })
+
+        const getDataDokter = await Dokter.findOne({
+            where: {
+                penyedia_id: getDataPenyedia.dataValues.id
+            }
+        })
+
+        const getDataTrainer = await Trainer.findOne({
+            where: {
+                penyedia_id: getDataPenyedia.dataValues.id
+            }
+        })
         
         const tokenLogin = jwt.sign(penyediaJasa, TOKEN_LOGIN, { expiresIn: '5m' })
         const refreshToken = jwt.sign(penyediaJasa, TOKEN_REFRESH, { expiresIn: '7d' })
         // II202311240006
         if(getDataPenyedia.dataValues.jenis_jasa !== null && getDataPenyedia.dataValues.is_acc === false){
-            const getDataToko = await Toko.findOne({
-                where: {
-                    penyedia_id: getDataPenyedia.dataValues.id
-                }
-            })
-
-            const getDataDokter = await Dokter.findOne({
-                where: {
-                    penyedia_id: getDataPenyedia.dataValues.id
-                }
-            })
-
-            const getDataTrainer = await Trainer.findOne({
-                where: {
-                    penyedia_id: getDataPenyedia.dataValues.id
-                }
-            })
-
-
             if(getDataToko){
                 if(getDataToko.dataValues.is_acc === true){
                     await PenyediaJasa.update({
@@ -302,17 +300,43 @@ const loginPenyediaJasa = async (req, res) =>{
 
 
         } else {
-            await PenyediaJasa.update({ refreshToken: refreshToken },
-                { where: { email: penyediaJasa.email} }
-            )
-    
-            res.status(200).json({
-                response_code: 200,
-                message: "Login Success",
-                data: penyediaJasa,
-                token: tokenLogin,
-                refreshToken: refreshToken
-            })
+            if(getDataToko){
+                await PenyediaJasa.update({ refreshToken: refreshToken },
+                    { where: { email: penyediaJasa.email} }
+                )
+        
+                res.status(200).json({
+                    response_code: 200,
+                    message: "Login Success",
+                    data: { toko_id:getDataToko.dataValues.id, ...penyediaJasa },
+                    token: tokenLogin,
+                    refreshToken: refreshToken
+                })
+            } else if(getDataDokter){
+                await PenyediaJasa.update({ refreshToken: refreshToken },
+                    { where: { email: penyediaJasa.email} }
+                )
+        
+                res.status(200).json({
+                    response_code: 200,
+                    message: "Login Success",
+                    data: { dokter_id:getDataDokter.dataValues.id, ...penyediaJasa },
+                    token: tokenLogin,
+                    refreshToken: refreshToken
+                })
+            } else if(getDataTrainer){
+                await PenyediaJasa.update({ refreshToken: refreshToken },
+                    { where: { email: penyediaJasa.email} }
+                )
+        
+                res.status(200).json({
+                    response_code: 200,
+                    message: "Login Success",
+                    data: { trainer_id:getDataTrainer.dataValues.id, ...penyediaJasa },
+                    token: tokenLogin,
+                    refreshToken: refreshToken
+                })
+            }
         }
     } catch (error) {
         res.json({
