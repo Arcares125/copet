@@ -207,7 +207,7 @@ const loginPenyediaJasa = async (req, res) =>{
                     res.status(200).json({
                         response_code: 200,
                         message: "Login Success",
-                        data: {...penyediaJasa, is_acc: true},
+                        data: {toko_id:getDataToko.dataValues.id, is_acc: true, ...penyediaJasa},
                         token: tokenLogin,
                         refreshToken: refreshToken
                     })
@@ -219,7 +219,7 @@ const loginPenyediaJasa = async (req, res) =>{
                     res.status(200).json({
                         response_code: 200,
                         message: "Login Success",
-                        data: penyediaJasa,
+                        data: {toko_id:getDataToko.dataValues.id, ...penyediaJasa},
                         token: tokenLogin,
                         refreshToken: refreshToken
                     })
@@ -244,7 +244,7 @@ const loginPenyediaJasa = async (req, res) =>{
                     res.status(200).json({
                         response_code: 200,
                         message: "Login Success",
-                        data: {...penyediaJasa, is_acc: true},
+                        data: {dokter_id: getDataDokter.dataValues.id, is_acc: true, ...penyediaJasa},
                         token: tokenLogin,
                         refreshToken: refreshToken
                     })
@@ -256,7 +256,7 @@ const loginPenyediaJasa = async (req, res) =>{
                     res.status(200).json({
                         response_code: 200,
                         message: "Login Success",
-                        data: penyediaJasa,
+                        data: {dokter_id: getDataDokter.dataValues.id, ...penyediaJasa},
                         token: tokenLogin,
                         refreshToken: refreshToken
                     })
@@ -281,7 +281,7 @@ const loginPenyediaJasa = async (req, res) =>{
                     res.status(200).json({
                         response_code: 200,
                         message: "Login Success",
-                        data: {...penyediaJasa, is_acc: true},
+                        data: {trainer_id:getDataTrainer.dataValues.id, is_acc: true, ...penyediaJasa},
                         token: tokenLogin,
                         refreshToken: refreshToken
                     })
@@ -293,7 +293,7 @@ const loginPenyediaJasa = async (req, res) =>{
                     res.status(200).json({
                         response_code: 200,
                         message: "Login Success",
-                        data: penyediaJasa,
+                        data: {trainer_id: getDataTrainer.dataValues.id, ...penyediaJasa},
                         token: tokenLogin,
                         refreshToken: refreshToken
                     })
