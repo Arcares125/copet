@@ -139,6 +139,33 @@ const getDataTrainer = async (req, res) => {
     }
 }
 
+const getDataTrainerAvailable = async (req, res) => {
+
+    let dataTrainer
+
+    try {
+
+        dataTrainer = await Trainer.findAll({
+            where:{
+                is_available: true
+            }
+        })
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Data Trainer berhasil diambil",
+            data: dataTrainer
+        })
+
+        
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: error.message
+        })
+    }
+}
+
 const getDataTrainerDetail = async (req, res) => {
 
     let dataTrainer
@@ -356,6 +383,7 @@ const updateAvailable = async (req, res) => {
 module.exports = {
     registerTrainer,
     getDataTrainer,
+    getDataTrainerAvailable,
     updateTrainer,
     deleteTrainer,
     confirmOrder,

@@ -141,6 +141,33 @@ const getDataDokter = async (req, res) => {
     }
 }
 
+const getDataDokterAvailable = async (req, res) => {
+
+    let dataDokter
+
+    try {
+
+        dataDokter = await Dokter.findAll({
+            where:{
+                is_available: true
+            }
+        })
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Data Dokter berhasil diambil",
+            data: dataDokter
+        })
+
+        
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: error.message
+        })
+    }
+}
+
 const getDataDokterDetail = async (req, res) => {
 
     let dataDokter
@@ -360,6 +387,7 @@ const updateAvailable = async (req, res) => {
 module.exports = {
     registerDokter,
     getDataDokter,
+    getDataDokterAvailable,
     updateDokter,
     deleteDokter,
     confirmOrder,
