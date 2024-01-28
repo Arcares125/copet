@@ -104,6 +104,7 @@ const getDataDokter = async (req, res) => {
 
     let dataDokter
     let value = req.params
+    let mergeData = []
 
     if(!value.dokterId && req.query.nama_dokter){   
         dataDokter = await Dokter.findAll({
@@ -113,16 +114,80 @@ const getDataDokter = async (req, res) => {
                 }
             }
         })
+
+        for(let i = 0; i < dataDokter.length; i++){
+
+            let dataDetail = await DetailOrderDokter.findAll({
+                where:{
+                    dokter_id: dataDokter[i].dataValues.id
+                }
+            })
+        
+           if(dataDetail.length > 0){
+                let dataOrder = await Order.findOne({
+                    where: {
+                        id: dataDetail[i].dataValues.order_id
+                    }
+                })
+        
+                let reviewData = await Review.findAll({
+                    where: {
+                        dokter_id: dataDokter[i].dataValues.id,
+                        customer_id: dataOrder[i].dataValues.user_id
+                    }
+                })
+                let sum = 0;
+                for(let j = 0; j < reviewData.length; j++){
+                    sum += reviewData[j].dataValues.rating;
+                }
+                let averageReview = sum / reviewData.length;
+                mergeData.push({...dataDokter.dataValues, rating: averageReview, total_rating: reviewData.length})
+            } else {
+                mergeData.push({...dataDokter[i].dataValues, rating: 0, total_rating: 0})
+            }
+        }
     } else {
         dataDokter = await Dokter.findAll()
+    
+        for(let i = 0; i < dataDokter.length; i++){
+
+            let dataDetail = await DetailOrderDokter.findAll({
+                where:{
+                    dokter_id: dataDokter[i].dataValues.id
+                }
+            })
+        
+           if(dataDetail.length > 0){
+                let dataOrder = await Order.findOne({
+                    where: {
+                        id: dataDetail[i].dataValues.order_id
+                    }
+                })
+        
+                let reviewData = await Review.findAll({
+                    where: {
+                        dokter_id: dataDokter[i].dataValues.id,
+                        customer_id: dataOrder[i].dataValues.user_id
+                    }
+                })
+                let sum = 0;
+                for(let j = 0; j < reviewData.length; j++){
+                    sum += reviewData[j].dataValues.rating;
+                }
+                let averageReview = sum / reviewData.length;
+                mergeData.push({...dataDokter.dataValues, rating: averageReview, total_rating: reviewData.length})
+            } else {
+                mergeData.push({...dataDokter[i].dataValues, rating: 0, total_rating: 0})
+            }
+        }
     }
 
     try {
         let tempDataDokter = []
-        for(let i = 0; i < dataDokter.length; i++){
-            if(dataDokter[i].dataValues.is_acc){
-                tempDataDokter.push(dataDokter[i])
-            } else {
+        for(let i = 0; i < mergeData.length; i++){
+            if(mergeData[i].is_acc){
+                tempDataDokter.push(mergeData[i])
+            }else {
                 continue
             }
         }
@@ -217,9 +282,6 @@ const getDataDokterDetail = async (req, res) => {
                 data: {...dataDokter.dataValues, rating: 0, total_rating: 0}
             })
         }
-        
-
-        
     } catch (error) {
         return res.status(500).json({
             response_code: 500,
