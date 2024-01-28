@@ -104,6 +104,7 @@ const getDataTrainer = async (req, res) => {
 
     let dataTrainer
     let value = req.params
+    let mergeData = []
 
     if(!value.trainerId && req.query.nama_trainer){   
         dataTrainer = await Trainer.findAll({
@@ -113,15 +114,79 @@ const getDataTrainer = async (req, res) => {
                 }
             }
         })
+
+        for(let i = 0; i < dataTrainer.length; i++){
+
+            let dataDetail = await DetailOrderTrainer.findAll({
+                where:{
+                    trainer_id: dataTrainer[i].dataValues.id
+                }
+            })
+        
+           if(dataDetail.length > 0){
+                let dataOrder = await Order.findOne({
+                    where: {
+                        id: dataDetail[i].dataValues.order_id
+                    }
+                })
+        
+                let reviewData = await Review.findAll({
+                    where: {
+                        trainer_id: dataTrainer[i].dataValues.id,
+                        customer_id: dataOrder[i].dataValues.user_id
+                    }
+                })
+                let sum = 0;
+                for(let j = 0; j < reviewData.length; j++){
+                    sum += reviewData[j].dataValues.rating;
+                }
+                let averageReview = sum / reviewData.length;
+                mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+            } else {
+                mergeData.push({rating: 0, total_rating: 0, ...dataTrainer[i].dataValues})
+            }
+        }
     } else {
         dataTrainer = await Trainer.findAll()
+
+        for(let i = 0; i < dataTrainer.length; i++){
+
+            let dataDetail = await DetailOrderTrainer.findAll({
+                where:{
+                    trainer_id: dataTrainer[i].dataValues.id
+                }
+            })
+        
+           if(dataDetail.length > 0){
+                let dataOrder = await Order.findAll({
+                    where: {
+                        id: dataDetail[i].dataValues.order_id
+                    }
+                })
+        
+                let reviewData = await Review.findAll({
+                    where: {
+                        trainer_id: dataTrainer[i].dataValues.id,
+                        customer_id: dataOrder[i].dataValues.user_id
+                    }
+                })
+                let sum = 0;
+                for(let j = 0; j < reviewData.length; j++){
+                    sum += reviewData[j].dataValues.rating;
+                }
+                let averageReview = sum / reviewData.length;
+                mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+            } else {
+                mergeData.push({rating: 0, total_rating: 0, ...dataTrainer[i].dataValues})
+            }
+        }
     }
 
     try {
         let tempDataTrainer = []
-        for(let i = 0; i < dataTrainer.length; i++){
-            if(dataTrainer[i].dataValues.is_acc){
-                tempDataTrainer.push(dataTrainer[i])
+        for(let i = 0; i < mergeData.length; i++){
+            if(mergeData[i].is_acc){
+                tempDataTrainer.push(mergeData[i])
             } else {
                 continue
             }

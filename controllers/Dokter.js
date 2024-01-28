@@ -141,9 +141,9 @@ const getDataDokter = async (req, res) => {
                     sum += reviewData[j].dataValues.rating;
                 }
                 let averageReview = sum / reviewData.length;
-                mergeData.push({...dataDokter.dataValues, rating: averageReview, total_rating: reviewData.length})
+                mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataDokter[i].dataValues})
             } else {
-                mergeData.push({...dataDokter[i].dataValues, rating: 0, total_rating: 0})
+                mergeData.push({ rating: 0, total_rating: 0, ...dataDokter[i].dataValues})
             }
         }
     } else {
@@ -175,9 +175,9 @@ const getDataDokter = async (req, res) => {
                     sum += reviewData[j].dataValues.rating;
                 }
                 let averageReview = sum / reviewData.length;
-                mergeData.push({...dataDokter.dataValues, rating: averageReview, total_rating: reviewData.length})
+                mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataDokter[i].dataValues})
             } else {
-                mergeData.push({...dataDokter[i].dataValues, rating: 0, total_rating: 0})
+                mergeData.push({ rating: 0, total_rating: 0, ...dataDokter[i].dataValues})
             }
         }
     }
