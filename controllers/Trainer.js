@@ -1,4 +1,4 @@
-const {Trainer, PenyediaJasa, sequelize, DetailOrderTrainer, Order, Review} = require("../models")
+const {Trainer, PenyediaJasa, sequelize, DetailOrderTrainer, Order, Review, User} = require("../models")
 const bcrypt = require('bcrypt')
 const { Op } = require('sequelize')
 const saltRounds = 10;
@@ -141,7 +141,7 @@ const getDataTrainer = async (req, res) => {
                     sum += reviewData[j].dataValues.rating;
                 }
                 let averageReview = sum / reviewData.length;
-                mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+                mergeData.push({rating: averageReview.toFixed(1), total_rating: reviewData.length, ...dataTrainer[i].dataValues})
             } else {
                 mergeData.push({rating: 0, total_rating: 0, ...dataTrainer[i].dataValues})
             }
@@ -175,7 +175,7 @@ const getDataTrainer = async (req, res) => {
                     sum += reviewData[j].dataValues.rating;
                 }
                 let averageReview = sum / reviewData.length;
-                mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+                mergeData.push({rating: averageReview.toFixed(1), total_rating: reviewData.length, ...dataTrainer[i].dataValues})
             } else {
                 mergeData.push({rating: 0, total_rating: 0, ...dataTrainer[i].dataValues})
             }
@@ -237,8 +237,8 @@ const getDataTrainerDetail = async (req, res) => {
     let value = req.params
     let ulasan = []
     let counter = 0
-    let averageRev = 0.00.toFixed(2);
-    let total_rate = 0
+    let averageRev = 0.0.toFixed(1);
+    let allReview = []
 
     try {
         dataTrainer = await Trainer.findOne({
@@ -254,50 +254,55 @@ const getDataTrainerDetail = async (req, res) => {
         })
     
        if(dataDetail){
-        for(let j = 0; j < dataDetail.length; j++){
-            let dataOrder = await Order.findOne({
-                where: {
-                    id: dataDetail[j].dataValues.order_id
-                }
-            })
-    
-            let reviewData = await Review.findAll({
-                where: {
-                    trainer_id: dataTrainer.dataValues.id,
-                    customer_id: dataOrder.dataValues.user_id
-                }
-            })
-            let sum = 0;
-            if(counter === reviewData.length){
-                //do nothing
-            } else {
-                for(let i = 0; i < reviewData.length; i++){
-                    sum += reviewData[i].dataValues.rating;
-                    ulasan.push(reviewData[i].dataValues.ulasan)
-                    counter++;
-                }
-                let averageReview = sum / reviewData.length;
-                averageRev = parseFloat(averageReview).toFixed(1);
-                total_rate = reviewData.length
-            }
-        }
+            for(let j = 0; j < dataDetail.length; j++){
+                let dataOrder = await Order.findOne({
+                    where: {
+                        id: dataDetail[j].dataValues.order_id
+                    }
+                })
 
-        return res.status(200).json({
-            response_code: 200,
-            message: "Data Dokter berhasil diambil",
-            data: {...dataTrainer.dataValues, rate: averageRev, total_rating: total_rate, description: ulasan}
-        })
+                let userData = await User.findOne({
+                    where: {
+                        id: dataOrder.dataValues.user_id
+                    }
+                })
+        
+                let reviewData = await Review.findAll({
+                    where: {
+                        trainer_id: dataTrainer.dataValues.id,
+                        customer_id: dataOrder.dataValues.user_id
+                    }
+                })
+                let sum = 0;
+                if(counter === reviewData.length){
+                    //do nothing
+                } else {
+                    for(let i = 0; i < reviewData.length; i++){
+                        sum += reviewData[i].dataValues.rating;
+                        ulasan.push(reviewData[i].dataValues.ulasan)
+                        counter++;
+                        allReview.push({ nama_user: userData.dataValues.nama, rate: reviewData[i].dataValues.rating.toFixed(1), review_description: reviewData[i].dataValues.ulasan})
+                    }
+                    // let averageReview = sum / reviewData.length;
+                    // averageRev = parseFloat(averageReview).toFixed(1);
+                    // total_rate = reviewData.length
+                }
+            }
+
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Trainer berhasil diambil",
+                data: {...dataTrainer.dataValues, review: allReview}
+            })
         } else {
             return res.status(200).json({
                 response_code: 200,
                 message: "Data Trainer berhasil diambil",
-                data: {...dataTrainer.dataValues, rating: 0, total_rating: 0}
+                data: {...dataTrainer.dataValues, rating: averageRev, total_rating: 0}
             })
         }
-        
-
-        
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             response_code: 500,
             message: error.message
