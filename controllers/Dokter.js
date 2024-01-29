@@ -284,7 +284,7 @@ const getDataDokterDetail = async (req, res) => {
                         sum += reviewData[i].dataValues.rating;
                         ulasan.push(reviewData[i].dataValues.ulasan)
                         counter++;
-                        allReview.push({ nama_user: userData.dataValues.nama, rate: reviewData[i].dataValues.rating, review_description: reviewData[i].dataValues.ulasan})
+                        allReview.push({ nama_user: userData.dataValues.nama, rate: reviewData[i].dataValues.rating.toFixed(1), review_description: reviewData[i].dataValues.ulasan})
                     }
                     // let averageReview = sum / reviewData.length;
                     // averageRev = parseFloat(averageReview).toFixed(1);
@@ -301,7 +301,7 @@ const getDataDokterDetail = async (req, res) => {
             return res.status(200).json({
                 response_code: 200,
                 message: "Data Dokter berhasil diambil",
-                data: {...dataDokter.dataValues, rating: 0, total_rating: 0}
+                data: {...dataDokter.dataValues, rating: averageRev, total_rating: 0}
             })
         }
     } catch (error) {
