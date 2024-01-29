@@ -2304,19 +2304,22 @@ const getDetailOrderDokter = async (req, res) =>{
         }
 
         const dataOrder = await Order.findOne({
+            attributes: [['id', 'order_id'], 'user_id', 'virtual_number', 'status_order', 'metode_pembayaran', 'status_pembayaran', 'tanggal_order'],
+
             where:{
                 id: value.orderId
             }
         })
 
         const detailOrder = await DetailOrderDokter.findOne({
+            attributes: ['dokter_id', 'tanggal_konsultasi', 'discount', 'durasi_konsultasi', 'jam_konsultasi'],
             where:{
                 order_id: value.orderId
             }
         })
 
         const dataDokter = await Dokter.findOne({
-            attributes: ['id', 'nama', 'penyedia_id', 'foto'],
+            attributes: ['nama', 'penyedia_id', 'foto'],
             where:{
                 id: detailOrder.dataValues.dokter_id
             }
@@ -3929,7 +3932,7 @@ const getDetailOrderDokterPenyedia = async (req, res) =>{
         })
 
         const dataDokter = await Dokter.findOne({
-            attributes: ['nama', 'penyedia_id', 'foto'],
+            attributes: ['nama', 'foto'],
             where:{
                 id: detailOrder.dataValues.dokter_id
             }
