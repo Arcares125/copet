@@ -167,7 +167,7 @@ const getDataDokter = async (req, res) => {
                 let reviewData = await Review.findAll({
                     where: {
                         dokter_id: dataDokter[i].dataValues.id,
-                        customer_id: dataOrder[i].dataValues.user_id
+                        customer_id: dataOrder[0].dataValues.user_id
                     }
                 })
                 let sum = 0;

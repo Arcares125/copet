@@ -13,7 +13,9 @@ const { createOrder,
     getOrderStatusCompleteExpireCancelPenyediaJasa,
     getDetailOrderPenyedia,
     createOrderDokter,
-    createOrderTrainer} = require('../controllers/Order');
+    createOrderTrainer,
+    getDetailOrderDokter,
+    getDetailOrderDokterPenyedia} = require('../controllers/Order');
 var router = express.Router();
 
 /* GET users listing. */
@@ -30,11 +32,16 @@ router.get('/:userId?/getOrderStatusOnProgress', getOrderStatusOnProgress)
 router.get('/:penyediaId?/getOrderStatusWaitingPaymentPenyedia', getOrderStatusWaitingPaymentPenyediaJasa)
 router.get('/:penyediaId?/getOrderStatusCompleteExpireCancelPenyedia', getOrderStatusCompleteExpireCancelPenyediaJasa)
 router.get('/:penyediaId?/getOrderStatusOnProgressPenyedia', getOrderStatusOnProgressPenyediaJasa)
+router.get('/order-dokter-penyedia/:penyediaId?/:orderId?', getDetailOrderDokterPenyedia)
 //end
 router.post('/setOrderToCompleted/:orderId?', setOrderToCompleted)
 router.post('/set-order-to-expired/:orderId?', setPaymentToExpired)
 router.get('/:userId?/:orderId?', getDetailOrder)
+router.get('/order-dokter/:userId?/:orderId?', getDetailOrderDokter)
 router.get('/order-penyedia/:penyediaId?/:orderId?', getDetailOrderPenyedia)
+
+// router.get('/:userId?/:orderId?', getDetailOrder)
+// router.get('/order-penyedia/:penyediaId?/:orderId?', getDetailOrderPenyedia)
 
 
 
