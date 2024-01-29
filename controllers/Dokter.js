@@ -158,7 +158,7 @@ const getDataDokter = async (req, res) => {
             })
         
            if(dataDetail.length > 0){
-                let dataOrder = await Order.findOne({
+                let dataOrder = await Order.findAll({
                     where: {
                         id: dataDetail[i].dataValues.order_id
                     }
@@ -237,6 +237,10 @@ const getDataDokterDetail = async (req, res) => {
 
     let dataDokter
     let value = req.params
+    let ulasan = []
+    let counter = 0
+    let averageRev = 0.00.toFixed(2);
+    let total_rate = 0
 
     try {
         dataDokter = await Dokter.findOne({
@@ -245,35 +249,45 @@ const getDataDokterDetail = async (req, res) => {
             }
         })
     
-        let dataDetail = await DetailOrderDokter.findOne({
+        let dataDetail = await DetailOrderDokter.findAll({
             where:{
                 dokter_id: dataDokter.dataValues.id
             }
         })
     
        if(dataDetail){
-            let dataOrder = await Order.findOne({
-                where: {
-                    id: dataDetail.dataValues.order_id
+            for(let j = 0; j < dataDetail.length; j++){
+                let dataOrder = await Order.findOne({
+                    where: {
+                        id: dataDetail[j].dataValues.order_id
+                    }
+                })
+        
+                let reviewData = await Review.findAll({
+                    where: {
+                        dokter_id: dataDokter.dataValues.id,
+                        customer_id: dataOrder.dataValues.user_id
+                    }
+                })
+                let sum = 0;
+                if(counter === reviewData.length){
+                    //do nothing
+                } else {
+                    for(let i = 0; i < reviewData.length; i++){
+                        sum += reviewData[i].dataValues.rating;
+                        ulasan.push(reviewData[i].dataValues.ulasan)
+                        counter++;
+                    }
+                    let averageReview = sum / reviewData.length;
+                    averageRev = parseFloat(averageReview).toFixed(1);
+                    total_rate = reviewData.length
                 }
-            })
-    
-            let reviewData = await Review.findAll({
-                where: {
-                    dokter_id: dataDokter.dataValues.id,
-                    customer_id: dataOrder.dataValues.user_id
-                }
-            })
-            let sum = 0;
-            for(let i = 0; i < reviewData.length; i++){
-                sum += reviewData[i].dataValues.rating;
             }
-            let averageReview = sum / reviewData.length;
 
             return res.status(200).json({
                 response_code: 200,
                 message: "Data Dokter berhasil diambil",
-                data: {...dataDokter.dataValues, rating: averageReview, total_rating: reviewData.length}
+                data: {...dataDokter.dataValues, rate: averageRev, total_rating: total_rate, description: ulasan}
             })
         } else {
             return res.status(200).json({
@@ -283,6 +297,7 @@ const getDataDokterDetail = async (req, res) => {
             })
         }
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             response_code: 500,
             message: error.message

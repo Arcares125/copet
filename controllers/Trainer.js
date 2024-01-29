@@ -235,6 +235,10 @@ const getDataTrainerDetail = async (req, res) => {
 
     let dataTrainer
     let value = req.params
+    let ulasan = []
+    let counter = 0
+    let averageRev = 0.00.toFixed(2);
+    let total_rate = 0
 
     try {
         dataTrainer = await Trainer.findOne({
@@ -243,16 +247,17 @@ const getDataTrainerDetail = async (req, res) => {
             }
         })
     
-        let dataDetail = await DetailOrderTrainer.findOne({
+        let dataDetail = await DetailOrderTrainer.findAll({
             where:{
                 trainer_id: dataTrainer.dataValues.id
             }
         })
     
        if(dataDetail){
+        for(let j = 0; j < dataDetail.length; j++){
             let dataOrder = await Order.findOne({
                 where: {
-                    id: dataDetail.dataValues.order_id
+                    id: dataDetail[j].dataValues.order_id
                 }
             })
     
@@ -263,16 +268,25 @@ const getDataTrainerDetail = async (req, res) => {
                 }
             })
             let sum = 0;
-            for(let i = 0; i < reviewData.length; i++){
-                sum += reviewData[i].dataValues.rating;
+            if(counter === reviewData.length){
+                //do nothing
+            } else {
+                for(let i = 0; i < reviewData.length; i++){
+                    sum += reviewData[i].dataValues.rating;
+                    ulasan.push(reviewData[i].dataValues.ulasan)
+                    counter++;
+                }
+                let averageReview = sum / reviewData.length;
+                averageRev = parseFloat(averageReview).toFixed(1);
+                total_rate = reviewData.length
             }
-            let averageReview = sum / reviewData.length;
+        }
 
-            return res.status(200).json({
-                response_code: 200,
-                message: "Data Trainer berhasil diambil",
-                data: {...dataTrainer.dataValues, rating: averageReview, total_rating: reviewData.length}
-            })
+        return res.status(200).json({
+            response_code: 200,
+            message: "Data Dokter berhasil diambil",
+            data: {...dataTrainer.dataValues, rate: averageRev, total_rating: total_rate, description: ulasan}
+        })
         } else {
             return res.status(200).json({
                 response_code: 200,
