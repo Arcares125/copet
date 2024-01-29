@@ -1,4 +1,4 @@
-const {Dokter,PenyediaJasa, sequelize, DetailOrderDokter, Order, Review} = require("../models")
+const {Dokter,PenyediaJasa, sequelize, DetailOrderDokter, Order, Review, User} = require("../models")
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
@@ -241,6 +241,7 @@ const getDataDokterDetail = async (req, res) => {
     let counter = 0
     let averageRev = 0.00.toFixed(2);
     let total_rate = 0
+    let allReview = []
 
     try {
         dataDokter = await Dokter.findOne({
@@ -262,6 +263,12 @@ const getDataDokterDetail = async (req, res) => {
                         id: dataDetail[j].dataValues.order_id
                     }
                 })
+
+                let userData = await User.findOne({
+                    where: {
+                        id: dataOrder.dataValues.user_id
+                    }
+                })
         
                 let reviewData = await Review.findAll({
                     where: {
@@ -277,17 +284,18 @@ const getDataDokterDetail = async (req, res) => {
                         sum += reviewData[i].dataValues.rating;
                         ulasan.push(reviewData[i].dataValues.ulasan)
                         counter++;
+                        allReview.push({ nama_user: userData.dataValues.nama, rate: reviewData[i].dataValues.rating, review_description: reviewData[i].dataValues.ulasan})
                     }
-                    let averageReview = sum / reviewData.length;
-                    averageRev = parseFloat(averageReview).toFixed(1);
-                    total_rate = reviewData.length
+                    // let averageReview = sum / reviewData.length;
+                    // averageRev = parseFloat(averageReview).toFixed(1);
+                    // total_rate = reviewData.length
                 }
             }
 
             return res.status(200).json({
                 response_code: 200,
                 message: "Data Dokter berhasil diambil",
-                data: {...dataDokter.dataValues, rate: averageRev, total_rating: total_rate, description: ulasan}
+                data: {...dataDokter.dataValues, review: allReview}
             })
         } else {
             return res.status(200).json({
