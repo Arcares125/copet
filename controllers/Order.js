@@ -507,7 +507,7 @@ const createOrderTrainer = async (req, res) => {
             "custom_expiry":
             {   
                 // "order_time":  dataOrder.dataValues.tanggal_order,
-                "expiry_duration": 2,
+                "expiry_duration": 3,
                 "unit": "minute"
             },
             "bank_transfer": {
@@ -538,12 +538,9 @@ const createOrderTrainer = async (req, res) => {
 
                 setTimeout(async (dataOrder) => {
                    try {
-                    console.log(dataOrder.dataValues.id)
-
                     const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
                     const transactionStatusResponse = await coreApi.transaction.status(dataOrder.dataValues.id);
                     const latestTransaction = transactionStatusResponse.transaction_status
-                    console.log(latestTransaction)
                     if (currOrder && latestTransaction === 'pending') {
                         console.log("EXPIRED")
                         await Order.update(
@@ -570,8 +567,7 @@ const createOrderTrainer = async (req, res) => {
                    } catch (error) {
                     console.log(error.message)
                    }
-                }, 60000, dataOrder);  // 3 minutes
-                // 120000
+                }, 180000, dataOrder);  // 3 minutes
 
                 return res.status(200).json({
                     response_code: 200,
