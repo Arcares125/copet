@@ -239,6 +239,7 @@ const getDataTrainerDetail = async (req, res) => {
     let counter = 0
     let averageRev = 0.0.toFixed(1);
     let allReview = []
+    let averageReview
 
     try {
         dataTrainer = await Trainer.findOne({
@@ -270,7 +271,7 @@ const getDataTrainerDetail = async (req, res) => {
                 let reviewData = await Review.findAll({
                     where: {
                         trainer_id: dataTrainer.dataValues.id,
-                        customer_id: dataOrder.dataValues.user_id
+                        // customer_id: dataOrder.dataValues.user_id
                     }
                 })
                 let sum = 0;
@@ -283,16 +284,16 @@ const getDataTrainerDetail = async (req, res) => {
                         counter++;
                         allReview.push({ nama_user: userData.dataValues.nama, rate: reviewData[i].dataValues.rating.toFixed(1), review_description: reviewData[i].dataValues.ulasan})
                     }
-                    // let averageReview = sum / reviewData.length;
-                    // averageRev = parseFloat(averageReview).toFixed(1);
-                    // total_rate = reviewData.length
+                    averageReview = sum / reviewData.length;
+                    averageRev = parseFloat(averageReview).toFixed(1);
+                    total_rate = reviewData.length
                 }
             }
 
             return res.status(200).json({
                 response_code: 200,
                 message: "Data Trainer berhasil diambil",
-                data: {...dataTrainer.dataValues, review: allReview}
+                data: {...dataTrainer.dataValues, review: allReview, rating: averageRev, total_rating: total_rate}
             })
         } else {
             return res.status(200).json({

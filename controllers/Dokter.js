@@ -242,6 +242,7 @@ const getDataDokterDetail = async (req, res) => {
     let averageRev = 0.00.toFixed(2);
     let total_rate = 0
     let allReview = []
+    let averageReview
 
     try {
         dataDokter = await Dokter.findOne({
@@ -273,7 +274,7 @@ const getDataDokterDetail = async (req, res) => {
                 let reviewData = await Review.findAll({
                     where: {
                         dokter_id: dataDokter.dataValues.id,
-                        customer_id: dataOrder.dataValues.user_id
+                        // customer_id: dataOrder.dataValues.user_id
                     }
                 })
                 let sum = 0;
@@ -286,16 +287,16 @@ const getDataDokterDetail = async (req, res) => {
                         counter++;
                         allReview.push({ nama_user: userData.dataValues.nama, rate: reviewData[i].dataValues.rating.toFixed(1), review_description: reviewData[i].dataValues.ulasan})
                     }
-                    // let averageReview = sum / reviewData.length;
-                    // averageRev = parseFloat(averageReview).toFixed(1);
-                    // total_rate = reviewData.length
+                    averageReview = sum / reviewData.length;
+                    averageRev = parseFloat(averageReview).toFixed(1);
+                    total_rate = reviewData.length
                 }
             }
 
             return res.status(200).json({
                 response_code: 200,
                 message: "Data Dokter berhasil diambil",
-                data: {...dataDokter.dataValues, review: allReview}
+                data: {...dataDokter.dataValues, review: allReview, rating: averageRev, total_rating: total_rate}
             })
         } else {
             return res.status(200).json({
