@@ -16,7 +16,14 @@ const { createOrder,
     createOrderTrainer,
     getDetailOrderDokter,
     getDetailOrderDokterPenyedia,
-    getOrderStatusWaitingPaymentDokter} = require('../controllers/Order');
+    getOrderStatusWaitingPaymentDokter,
+    getOrderStatusOnProgressDokter,
+    getOrderStatusCompleteExpireCancelDokter,
+    getOrderStatusWaitingPaymentTrainer,
+    getOrderStatusOnProgressTrainer,
+    getOrderStatusCompleteExpireCancelTrainer,
+    getDetailOrderTrainer,
+    getDetailOrderTrainerPenyedia} = require('../controllers/Order');
 var router = express.Router();
 
 /* GET users listing. */
@@ -31,22 +38,29 @@ router.get('/:userId?/getOrderStatusCompleteExpireCancel', getOrderStatusComplet
 router.get('/:userId?/getOrderStatusOnProgress', getOrderStatusOnProgress)
 
 router.get('/:userId?/order-dokter-waiting', getOrderStatusWaitingPaymentDokter)
+router.get('/:userId?/order-dokter-onprogress', getOrderStatusOnProgressDokter)
+router.get('/:userId?/order-dokter-complete-expire-cancel', getOrderStatusCompleteExpireCancelDokter)
+
+router.get('/:userId?/order-trainer-waiting', getOrderStatusWaitingPaymentTrainer)
+router.get('/:userId?/order-trainer-onprogress', getOrderStatusOnProgressTrainer)
+router.get('/:userId?/order-trainer-complete-expire-cancel', getOrderStatusCompleteExpireCancelTrainer)
 
 //penyedia jasa
 router.get('/:penyediaId?/getOrderStatusWaitingPaymentPenyedia', getOrderStatusWaitingPaymentPenyediaJasa)
 router.get('/:penyediaId?/getOrderStatusCompleteExpireCancelPenyedia', getOrderStatusCompleteExpireCancelPenyediaJasa)
 router.get('/:penyediaId?/getOrderStatusOnProgressPenyedia', getOrderStatusOnProgressPenyediaJasa)
-router.get('/order-dokter-penyedia/:penyediaId?/:orderId?', getDetailOrderDokterPenyedia)
+router.get('/order-penyedia/:penyediaId?/:orderId?', getDetailOrderPenyedia)
 //end
 router.post('/setOrderToCompleted/:orderId?', setOrderToCompleted)
 router.post('/set-order-to-expired/:orderId?', setPaymentToExpired)
 router.get('/:userId?/:orderId?', getDetailOrder)
 // dokter
 router.get('/order-dokter/:userId?/:orderId?', getDetailOrderDokter)
-router.get('/order-penyedia/:penyediaId?/:orderId?', getDetailOrderPenyedia)
+router.get('/order-dokter-penyedia/:penyediaId?/:orderId?', getDetailOrderDokterPenyedia)
 
-// router.get('/:userId?/:orderId?', getDetailOrder)
-// router.get('/order-penyedia/:penyediaId?/:orderId?', getDetailOrderPenyedia)
+// Trainer
+router.get('/order-trainer/:userId?/:orderId?', getDetailOrderTrainer)
+router.get('/order-trainer-penyedia/:penyediaId?/:orderId?', getDetailOrderTrainerPenyedia)
 
 
 
