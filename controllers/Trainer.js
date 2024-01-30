@@ -240,6 +240,7 @@ const getDataTrainerDetail = async (req, res) => {
     let averageRev = 0.0.toFixed(1);
     let allReview = []
     let averageReview
+    let total_rate = 0
 
     try {
         dataTrainer = await Trainer.findOne({
