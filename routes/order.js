@@ -15,7 +15,8 @@ const { createOrder,
     createOrderDokter,
     createOrderTrainer,
     getDetailOrderDokter,
-    getDetailOrderDokterPenyedia} = require('../controllers/Order');
+    getDetailOrderDokterPenyedia,
+    getOrderStatusWaitingPaymentDokter} = require('../controllers/Order');
 var router = express.Router();
 
 /* GET users listing. */
@@ -28,6 +29,9 @@ router.post('/check-payment', checkPaymentStatus)
 router.get('/:userId?/getOrderStatusWaitingPayment', getOrderStatusWaitingPayment)
 router.get('/:userId?/getOrderStatusCompleteExpireCancel', getOrderStatusCompleteExpireCancel)
 router.get('/:userId?/getOrderStatusOnProgress', getOrderStatusOnProgress)
+
+router.get('/:userId?/order-dokter-waiting', getOrderStatusWaitingPaymentDokter)
+
 //penyedia jasa
 router.get('/:penyediaId?/getOrderStatusWaitingPaymentPenyedia', getOrderStatusWaitingPaymentPenyediaJasa)
 router.get('/:penyediaId?/getOrderStatusCompleteExpireCancelPenyedia', getOrderStatusCompleteExpireCancelPenyediaJasa)
@@ -37,6 +41,7 @@ router.get('/order-dokter-penyedia/:penyediaId?/:orderId?', getDetailOrderDokter
 router.post('/setOrderToCompleted/:orderId?', setOrderToCompleted)
 router.post('/set-order-to-expired/:orderId?', setPaymentToExpired)
 router.get('/:userId?/:orderId?', getDetailOrder)
+// dokter
 router.get('/order-dokter/:userId?/:orderId?', getDetailOrderDokter)
 router.get('/order-penyedia/:penyediaId?/:orderId?', getDetailOrderPenyedia)
 

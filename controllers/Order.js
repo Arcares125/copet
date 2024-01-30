@@ -2281,6 +2281,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
     }
 }
 
+// DOKTER
 const getDetailOrderDokter = async (req, res) =>{
 
     const value = req.params
@@ -2466,6 +2467,209 @@ const getDetailOrderDokter = async (req, res) =>{
         console.log(e.message)
         return res.status(500).json({
             message: e.message
+        })
+    }
+}
+
+const getOrderStatusWaitingPaymentDokter = async (req, res) =>{
+
+    const value = req.params
+    let mergeData = []
+    const now = new Date();
+    // userid/orderid
+    let dataPenyedia
+    try {
+
+        const userIsValid = await User.findOne({
+            attributes: ['nama'],
+            where: {
+                id: value.userId
+            }
+        })
+
+        if(!userIsValid){
+            return res.status(404).json({
+                response_code: '400',
+                message: 'User not found'
+            })
+        }
+
+        const dataOrder = await Order.findAll({
+            attributes: [['id', 'order_id'], 'user_id', 'virtual_number', 'status_order', 'metode_pembayaran', 'status_pembayaran', 'tanggal_order'],
+            where:{
+                status_order:{
+                    [Op.in]: ['Waiting Payment']
+                },
+                virtual_number:{
+                    [Op.not]: null
+                }
+            }
+        })
+
+        if(dataOrder.length > 0){
+            for(let i = 0; i < dataOrder.length; i++){
+                const detailOrder = await DetailOrderDokter.findOne({
+                    attributes: ['dokter_id', 'tanggal_konsultasi', 'discount', 'durasi_konsultasi', 'jam_konsultasi'],
+                    where:{
+                        order_id: dataOrder[i].dataValues.order_id
+                    }
+                })
+
+                if(!detailOrder){
+                    continue;
+                } else if(!detailOrder && detailOrder.dataValues.dokter_id === null){
+                    continue
+                } else {
+                    const dataDokter = await Dokter.findOne({
+                        attributes: ['nama', 'penyedia_id', 'foto', 'harga'],
+                        where:{
+                            id: detailOrder.dataValues.dokter_id
+                        }
+                    })
+
+                    dataPenyedia = await PenyediaJasa.findAll({
+                        attributes: ['uid'],
+                        where:{
+                            id: dataDokter.dataValues.penyedia_id
+                        }
+                    })
+            
+                    const reviewData = await Review.findAll({
+                        attributes: ['rating', 'ulasan'],
+                        where:{
+                            order_id: dataOrder[i].dataValues.order_id
+                        }
+                    })
+            
+                    let coreApi = new midtransClient.CoreApi({
+                        isProduction: false,
+                        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
+                        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                    });
+                    let transactionStatus;
+                    let retries = 3;
+            
+                    while(retries > 0){
+                        // console.log(retries)
+                        try {
+                            transactionStatus = await coreApi.transaction.status(`UUU-${dataOrder[i].dataValues.order_id}`);
+                            break;
+                            // console.log(transactionStatus)
+                        } catch (error) {
+                            retries--;
+                            if(retries === 0){
+                                throw error;
+                            } else {
+                                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before retrying
+                            } 
+                        }
+                    }
+    
+                    if (transactionStatus.transaction_status === 'expire' && dataOrder[i].dataValues.status_order === 'Waiting Payment') {
+                        await Order.update({
+                            status_pembayaran: "Expired",
+                            status_order: 'Expired'
+                        }, 
+                        {
+                            where:{
+                                id: dataOrder[i].dataValues.order_id
+                            }
+                        });
+            
+                        await Chat.update({
+                            status: 'Expired'
+                        }, {
+                            where: {
+                                order_id: dataOrder[i].dataValues.order_id
+                            }
+                        })
+                    } else if(transactionStatus.transaction_status === 'settlement' && dataOrder[i].dataValues.status_order === 'Waiting Payment'){
+                        await Order.update({
+                            status_pembayaran: "Berhasil",
+                            // status_order: "On Progress"
+                            status_order: "Waiting Confirmation"
+                        }, 
+                        {
+                            where:{
+                                id: dataOrder[i].dataValues.order_id
+                            }
+                        });
+            
+                        await Chat.update({
+                            status: 'On Progress'
+                        }, {
+                            where: {
+                                order_id: dataOrder[i].dataValues.order_id
+                            }
+                        })
+            
+                    } else if(transactionStatus.transaction_status === 'settlement' && dataOrder[i].dataValues.status_order === 'Completed'){
+                        await Order.update({
+                            status_pembayaran: "Berhasil",
+                        }, 
+                        {
+                            where:{
+                                id: dataOrder[i].dataValues.order_id
+                            }
+                        });
+                    }
+            
+                    const orderDate = dataOrder[i].dataValues.tanggal_order;
+                            const diffInMilliseconds = now - orderDate; // Difference in milliseconds
+                            let minutes = 0;
+                            let seconds = 0
+                            if (diffInMilliseconds < 3 * 60 * 1000) { // If less than 15 minutes
+                                const remainingMilliseconds = 3 * 60 * 1000 - diffInMilliseconds;
+                                const remainingSeconds = Math.floor(remainingMilliseconds / 1000); // Convert to seconds
+                                minutes = Math.floor(remainingSeconds / 60);
+                                seconds = remainingSeconds % 60;
+                                remainingTime = `${minutes} minutes ${seconds} seconds`;
+                            }
+            
+                            if(dataOrder[i].dataValues.status_order === 'Cancel' || dataOrder[i].dataValues.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
+                                minutes = 0;
+                                seconds = 0;
+                            }
+            
+                            if(minutes === 0 && seconds === 0 && dataOrder[i].dataValues.status_order !== 'Cancel' && dataOrder[i].dataValues.status_order !== 'On Progress' && dataOrder[i].dataValues.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && dataOrder[i].dataValues.status_order !== 'Waiting Confirmation'){
+                                await Order.update({
+                                    status_order: 'Expired'
+                                }, 
+                                {
+                                    where:{
+                                        id: dataOrder[i].dataValues.order_id
+                                    }
+                                })
+            
+                                await Chat.update({
+                                    status: 'Expired'
+                                }, {
+                                    where: {
+                                        order_id: dataOrder[i].dataValues.order_id
+                                    }
+                                })
+                            }      
+                    mergeData.push({order_id:dataOrder[i].dataValues.order_id, nama_dokter: dataDokter.dataValues.nama, status:dataOrder[i].dataValues.status_order, service_type: "Dokter", total_payment:dataDokter.dataValues.harga})        
+                    }
+                }
+        
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data detail order berhasil diambil",
+                // data: formattedData.filter(item => item !== null)
+                data: mergeData
+            })
+        } else{
+            return res.status(200).json({
+                response_code: 200,
+                message: "Tidak ada data"
+            })
+        }
+    } catch(e) {
+        console.log(e)
+        return res.status(500).json({
+            response_code: 500,
+            message: e
         })
     }
 }
@@ -3895,6 +4099,7 @@ const getDetailOrderPenyedia = async (req, res) => {
         })
     }
 }
+// PENYEDIA JASA - DOKTER
 
 const getDetailOrderDokterPenyedia = async (req, res) =>{
 
@@ -4131,6 +4336,7 @@ module.exports = {
     createOrderDokter,
     createOrderTrainer,
     getDetailOrderDokter,
-    getDetailOrderDokterPenyedia
+    getDetailOrderDokterPenyedia,
+    getOrderStatusWaitingPaymentDokter
 
 }
