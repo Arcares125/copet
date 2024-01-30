@@ -336,6 +336,18 @@ const loginPenyediaJasa = async (req, res) =>{
                     token: tokenLogin,
                     refreshToken: refreshToken
                 })
+            } else {
+                await PenyediaJasa.update({ refreshToken: refreshToken },
+                    { where: { email: penyediaJasa.email} }
+                )
+        
+                res.status(200).json({
+                    response_code: 200,
+                    message: "Login Success",
+                    data: {...penyediaJasa },
+                    token: tokenLogin,
+                    refreshToken: refreshToken
+                })
             }
         }
     } catch (error) {
