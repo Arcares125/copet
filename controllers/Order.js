@@ -190,29 +190,33 @@ const createOrder = async (req, res) => {
                 })
 
                 setTimeout(async (dataOrder) => {
-                    const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
-                    const transactionStatusResponse = await coreApi.transaction.status(dataOrder.dataValues.id);
-                    const latestTransaction = transactionStatusResponse.transaction_status
-                    if (currOrder && latestTransaction === 'pending') {
-                        await Order.update(
-                            { status_order: 'Expired' },
-                            { where: { id: dataOrder.dataValues.id } }
-                        );
-
-                        await Chat.update({
-                            status: 'Expired'
-                        }, {
-                            where: {
-                                order_id: dataOrder.dataValues.id
-                            }
-                        })
-                        console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
-                    } else if(currOrder && latestTransaction === 'settlement'){
-                        await Order.update(
-                            { status_order: 'Waiting Confirmation' },
-                            { where: { id: dataOrder.dataValues.id } }
-                        );
-                        console.log(`Order ${dataOrder.dataValues.id} is Settlement.`);
+                    try {
+                        const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
+                        const transactionStatusResponse = await coreApi.transaction.status(dataOrder.dataValues.id);
+                        const latestTransaction = transactionStatusResponse.transaction_status
+                        if (currOrder && latestTransaction === 'pending') {
+                            await Order.update(
+                                { status_order: 'Expired' },
+                                { where: { id: dataOrder.dataValues.id } }
+                            );
+    
+                            await Chat.update({
+                                status: 'Expired'
+                            }, {
+                                where: {
+                                    order_id: dataOrder.dataValues.id
+                                }
+                            })
+                            console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
+                        } else if(currOrder && latestTransaction === 'settlement'){
+                            await Order.update(
+                                { status_order: 'Waiting Confirmation' },
+                                { where: { id: dataOrder.dataValues.id } }
+                            );
+                            console.log(`Order ${dataOrder.dataValues.id} is Settlement.`);
+                        }
+                    } catch (error) {
+                        console.log(error.message)
                     }
                 }, 3 * 60 * 1000, dataOrder);  // 3 minutes
 
@@ -360,29 +364,33 @@ const createOrderDokter = async (req, res) => {
                 })
 
                 setTimeout(async (dataOrder) => {
-                    const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
-                    const transactionStatusResponse = await coreApi.transaction.status(dataOrder.dataValues.id);
-                    const latestTransaction = transactionStatusResponse.transaction_status
-                    if (currOrder && latestTransaction === 'pending') {
-                        await Order.update(
-                            { status_order: 'Expired' },
-                            { where: { id: dataOrder.dataValues.id } }
-                        );
-
-                        await Chat.update({
-                            status: 'Expired'
-                        }, {
-                            where: {
-                                order_id: dataOrder.dataValues.id
-                            }
-                        })
-                        console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
-                    } else if(currOrder && latestTransaction === 'settlement'){
-                        await Order.update(
-                            { status_order: 'Waiting Confirmation' },
-                            { where: { id: dataOrder.dataValues.id } }
-                        );
-                        console.log(`Order ${dataOrder.dataValues.id} is Settlement.`);
+                    try {
+                        const currOrder = await Order.findOne({ where: { id: dataOrder.dataValues.id } });
+                        const transactionStatusResponse = await coreApi.transaction.status(dataOrder.dataValues.id);
+                        const latestTransaction = transactionStatusResponse.transaction_status
+                        if (currOrder && latestTransaction === 'pending') {
+                            await Order.update(
+                                { status_order: 'Expired' },
+                                { where: { id: dataOrder.dataValues.id } }
+                            );
+    
+                            await Chat.update({
+                                status: 'Expired'
+                            }, {
+                                where: {
+                                    order_id: dataOrder.dataValues.id
+                                }
+                            })
+                            console.log(`Order ${dataOrder.dataValues.id} is now expired.`);
+                        } else if(currOrder && latestTransaction === 'settlement'){
+                            await Order.update(
+                                { status_order: 'Waiting Confirmation' },
+                                { where: { id: dataOrder.dataValues.id } }
+                            );
+                            console.log(`Order ${dataOrder.dataValues.id} is Settlement.`);
+                        }
+                    } catch (error) {
+                        console.log(error.message)
                     }
                 }, 3 * 60 * 1000, dataOrder);  // 3 minutes
 
@@ -562,7 +570,7 @@ const createOrderTrainer = async (req, res) => {
                    } catch (error) {
                     console.log(error.message)
                    }
-                }, 90000, dataOrder);  // 3 minutes
+                }, 60000, dataOrder);  // 3 minutes
                 // 120000
 
                 return res.status(200).json({
