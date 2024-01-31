@@ -24,7 +24,8 @@ const { createOrder,
     getOrderStatusCompleteExpireCancelTrainer,
     getDetailOrderTrainer,
     getDetailOrderTrainerPenyedia,
-    allOrder} = require('../controllers/Order');
+    allOrder,
+    allOrderOnProgress} = require('../controllers/Order');
 var router = express.Router();
 
 /* GET users listing. */
@@ -34,6 +35,7 @@ router.post('/create-trainer', createOrderTrainer)
 router.post('/get-payment', getPaymentData)
 router.post('/check-payment', checkPaymentStatus)
 router.get('/order-all/:userId?', allOrder)
+router.get('/order-all-on-progress/:userId?', allOrderOnProgress)
 
 //user
 router.get('/:userId?/getOrderStatusWaitingPayment', getOrderStatusWaitingPayment)
