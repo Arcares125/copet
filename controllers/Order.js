@@ -5758,8 +5758,9 @@ const allOrder = async (req, res) =>{
             "Trainer": trainerOrders
         }
 
-        return res.json({
-            message: allOders
+        return res.status(200).json({
+            message: "Order retrieved.",
+            data: allOders
         })
     } catch (error) {
         return res.json({
