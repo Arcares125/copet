@@ -2081,7 +2081,7 @@ const getOrderStatusWaitingConfirmation = async (req, res) => {
 
 const getOrderStatusCompleteExpireCancel = async (req, res) =>{
 
-    const value = req.params
+    const value = req
     let orderIdValid = true;
 
     const getAllOrder = await Order.findAll({
@@ -2147,9 +2147,10 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
     }
 
     try {
+        const formattedData = [];
         const userIsValid = await User.findOne({
             where: {
-                id: value.userId
+                id: value
             }
         })
 
@@ -2161,7 +2162,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
         }
         
         await checkStatus().then(async () =>{
-            const formattedData = [];
+
             const data = await Toko.findAll({
                 attributes: [
                     ['nama', 'title'],
@@ -2185,7 +2186,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                                     where: {
                                         [Op.and]: [
                                             { status_order: {[Op.in] : ['Completed', 'Expired', 'Cancel']} },
-                                            { user_id: value.userId }
+                                            { user_id: value}
                                           ]
                                         // status_order:{
                                         //     [Op.iLike] : '%Waiting Payment%'
@@ -2213,7 +2214,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                                     where: {
                                         [Op.and]: [
                                             { status_order: {[Op.in] : ['Completed', 'Expired', 'Cancel']} },
-                                            { user_id: value.userId }
+                                            { user_id: value }
                                           ]
                                         // status_order:{
                                         //     [Op.iLike] : '%Waiting Payment%'
@@ -2281,13 +2282,13 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                 }
             }
 
-            return res.status(200).json({
-                message: "Data Ditemukan",
-                response_code: 200,
-                data: formattedData.sort((a, b) => b.order_id - a.order_id)
-            })
+            // return res.status(200).json({
+            //     message: "Data Ditemukan",
+            //     response_code: 200,
+            //     data: formattedData.sort((a, b) => b.order_id - a.order_id)
+            // })
         })
-
+        return formattedData.sort((a, b) => b.order_id - a.order_id)
     } catch (error) {
         console.log(error)
         return res.status(500).json({
@@ -2939,7 +2940,7 @@ const getOrderStatusOnProgressDokter = async (req, res) =>{
 
 const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
 
-    const value = req.params
+    const value = req
     let mergeData = []
     const now = new Date();
     // userid/orderid
@@ -2949,7 +2950,7 @@ const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
         const userIsValid = await User.findOne({
             attributes: ['nama'],
             where: {
-                id: value.userId
+                id: value
             }
         })
 
@@ -2969,7 +2970,7 @@ const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
                 virtual_number:{
                     [Op.not]: null
                 },
-                user_id: value.userId
+                user_id: value
             }
         })
 
@@ -2979,6 +2980,12 @@ const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
                     attributes: ['dokter_id', 'tanggal_konsultasi', 'discount', 'durasi_konsultasi', 'jam_konsultasi'],
                     where:{
                         order_id: dataOrder[i].dataValues.order_id
+                    }
+                })
+
+                const dataOrder1 = await Order.findOne({
+                    where:{
+                        id: dataOrder[i].dataValues.order_id
                     }
                 })
 
@@ -3033,14 +3040,9 @@ const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
                     }
     
                     if (transactionStatus.transaction_status === 'expire' && dataOrder[i].dataValues.status_order === 'Waiting Payment') {
-                        await Order.update({
+                        await dataOrder1.update({
                             status_pembayaran: "Expired",
                             status_order: 'Expired'
-                        }, 
-                        {
-                            where:{
-                                id: dataOrder[i].dataValues.order_id
-                            }
                         });
             
                         await Chat.update({
@@ -3051,15 +3053,10 @@ const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
                             }
                         })
                     } else if(transactionStatus.transaction_status === 'settlement' && dataOrder[i].dataValues.status_order === 'Waiting Payment'){
-                        await Order.update({
+                        await dataOrder1.update({
                             status_pembayaran: "Berhasil",
                             // status_order: "On Progress"
                             status_order: "Waiting Confirmation"
-                        }, 
-                        {
-                            where:{
-                                id: dataOrder[i].dataValues.order_id
-                            }
                         });
             
                         await Chat.update({
@@ -3071,13 +3068,8 @@ const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
                         })
             
                     } else if(transactionStatus.transaction_status === 'settlement' && dataOrder[i].dataValues.status_order === 'Completed'){
-                        await Order.update({
+                        await dataOrder1.update({
                             status_pembayaran: "Berhasil",
-                        }, 
-                        {
-                            where:{
-                                id: dataOrder[i].dataValues.order_id
-                            }
                         });
                     }
             
@@ -3093,19 +3085,14 @@ const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
                                 remainingTime = `${minutes} minutes ${seconds} seconds`;
                             }
             
-                            if(dataOrder[i].dataValues.status_order === 'Cancel' || dataOrder[i].dataValues.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
+                            if(dataOrder1.dataValues.status_order === 'Cancel' || dataOrder1.dataValues.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
                                 minutes = 0;
                                 seconds = 0;
                             }
             
-                            if(minutes === 0 && seconds === 0 && dataOrder[i].dataValues.status_order !== 'Cancel' && dataOrder[i].dataValues.status_order !== 'On Progress' && dataOrder[i].dataValues.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && dataOrder[i].dataValues.status_order !== 'Waiting Confirmation'){
-                                await Order.update({
+                            if(minutes === 0 && seconds === 0 && dataOrder1.dataValues.status_order !== 'Cancel' && dataOrder1.dataValues.status_order !== 'On Progress' && dataOrder1.dataValues.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && dataOrder1.dataValues.status_order !== 'Waiting Confirmation'){
+                                await dataOrder1.update({
                                     status_order: 'Expired'
-                                }, 
-                                {
-                                    where:{
-                                        id: dataOrder[i].dataValues.order_id
-                                    }
                                 })
             
                                 await Chat.update({
@@ -3116,16 +3103,16 @@ const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
                                     }
                                 })
                             }      
-                    mergeData.push({order_id:dataOrder[i].dataValues.order_id, nama_dokter: dataDokter.dataValues.nama, status:dataOrder[i].dataValues.status_order, service_type: "Dokter", total_payment:dataDokter.dataValues.harga})        
+                    mergeData.push({order_id:dataOrder[i].dataValues.order_id, nama_dokter: dataDokter.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Dokter", total_payment:dataDokter.dataValues.harga})        
                     }
                 }
-        
-            return res.status(200).json({
-                response_code: 200,
-                message: "Data detail order berhasil diambil",
-                // data: formattedData.filter(item => item !== null)
-                data: mergeData.sort((a, b) => b.order_id - a.order_id)
-            })
+                return mergeData.sort((a, b) => b.order_id - a.order_id)
+            // return res.status(200).json({
+            //     response_code: 200,
+            //     message: "Data detail order berhasil diambil",
+            //     // data: formattedData.filter(item => item !== null)
+            //     data: mergeData.sort((a, b) => b.order_id - a.order_id)
+            // })
         } else{
             return res.status(200).json({
                 response_code: 200,
@@ -3776,7 +3763,7 @@ const getOrderStatusOnProgressTrainer = async (req, res) =>{
 
 const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
 
-    const value = req.params
+    const value = req
     let mergeData = []
     const now = new Date();
     // userid/orderid
@@ -3786,7 +3773,7 @@ const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
         const userIsValid = await User.findOne({
             attributes: ['nama'],
             where: {
-                id: value.userId
+                id: value
             }
         })
 
@@ -3806,7 +3793,7 @@ const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
                 virtual_number:{
                     [Op.not]: null
                 },
-                user_id: value.userId
+                user_id: value
             }
         })
 
@@ -3816,6 +3803,12 @@ const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
                     attributes: ['trainer_id', 'tanggal_pertemuan', 'discount', 'durasi_pertemuan', 'jam_pertemuan'],
                     where:{
                         order_id: dataOrder[i].dataValues.order_id
+                    }
+                })
+
+                const dataOrder1 = await Order.findOne({
+                    where:{
+                        id: dataOrder[i].dataValues.order_id
                     }
                 })
 
@@ -3870,14 +3863,9 @@ const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
                     }
     
                     if (transactionStatus.transaction_status === 'expire' && dataOrder[i].dataValues.status_order === 'Waiting Payment') {
-                        await Order.update({
+                        await dataOrder1.update({
                             status_pembayaran: "Expired",
                             status_order: 'Expired'
-                        }, 
-                        {
-                            where:{
-                                id: dataOrder[i].dataValues.order_id
-                            }
                         });
             
                         await Chat.update({
@@ -3888,15 +3876,10 @@ const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
                             }
                         })
                     } else if(transactionStatus.transaction_status === 'settlement' && dataOrder[i].dataValues.status_order === 'Waiting Payment'){
-                        await Order.update({
+                        await dataOrder1.update({
                             status_pembayaran: "Berhasil",
                             // status_order: "On Progress"
                             status_order: "Waiting Confirmation"
-                        }, 
-                        {
-                            where:{
-                                id: dataOrder[i].dataValues.order_id
-                            }
                         });
             
                         await Chat.update({
@@ -3908,13 +3891,8 @@ const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
                         })
             
                     } else if(transactionStatus.transaction_status === 'settlement' && dataOrder[i].dataValues.status_order === 'Completed'){
-                        await Order.update({
+                        await dataOrder1.update({
                             status_pembayaran: "Berhasil",
-                        }, 
-                        {
-                            where:{
-                                id: dataOrder[i].dataValues.order_id
-                            }
                         });
                     }
             
@@ -3930,19 +3908,14 @@ const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
                                 remainingTime = `${minutes} minutes ${seconds} seconds`;
                             }
             
-                            if(dataOrder[i].dataValues.status_order === 'Cancel' || dataOrder[i].dataValues.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
+                            if(dataOrder1.dataValues.status_order === 'Cancel' || dataOrder1.dataValues.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
                                 minutes = 0;
                                 seconds = 0;
                             }
             
-                            if(minutes === 0 && seconds === 0 && dataOrder[i].dataValues.status_order !== 'Cancel' && dataOrder[i].dataValues.status_order !== 'On Progress' && dataOrder[i].dataValues.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && dataOrder[i].dataValues.status_order !== 'Waiting Confirmation'){
-                                await Order.update({
+                            if(minutes === 0 && seconds === 0 && dataOrder1.dataValues.status_order !== 'Cancel' && dataOrder1.dataValues.status_order !== 'On Progress' && dataOrder1.dataValues.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && dataOrder1.dataValues.status_order !== 'Waiting Confirmation'){
+                                await dataOrder1.update({
                                     status_order: 'Expired'
-                                }, 
-                                {
-                                    where:{
-                                        id: dataOrder[i].dataValues.order_id
-                                    }
                                 })
             
                                 await Chat.update({
@@ -3953,16 +3926,16 @@ const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
                                     }
                                 })
                             }      
-                    mergeData.push({order_id:dataOrder[i].dataValues.order_id, nama_trainer: dataTrainer.dataValues.nama, status:dataOrder[i].dataValues.status_order, service_type: "Trainer", total_payment:dataTrainer.dataValues.harga})        
+                    mergeData.push({order_id:dataOrder[i].dataValues.order_id, nama_trainer: dataTrainer.dataValues.nama, status :dataOrder1.dataValues.status_order, service_type: "Trainer", total_payment:dataTrainer.dataValues.harga})        
                     }
                 }
-        
-            return res.status(200).json({
-                response_code: 200,
-                message: "Data detail order berhasil diambil",
-                // data: formattedData.filter(item => item !== null)
-                data: mergeData.sort((a, b) => b.order_id - a.order_id)
-            })
+                return mergeData.sort((a, b) => b.order_id - a.order_id)
+            // return res.status(200).json({
+            //     response_code: 200,
+            //     message: "Data detail order berhasil diambil",
+            //     // data: formattedData.filter(item => item !== null)
+            //     data: mergeData.sort((a, b) => b.order_id - a.order_id)
+            // })
         } else{
             return res.status(200).json({
                 response_code: 200,
@@ -5833,6 +5806,33 @@ const allOrderOnProgress = async (req, res) =>{
     }
 }
 
+const allOrderCompleteExpireCancel = async (req, res) =>{
+    try {
+        const value = req.params
+
+        const orders = await getOrderStatusCompleteExpireCancel(value.userId, res);
+        const trainerOrders = await getOrderStatusCompleteExpireCancelTrainer(value.userId, res);
+        const doctorOrders = await getOrderStatusCompleteExpireCancelDokter(value.userId, res);
+
+        const allOders = {
+            "Toko": orders,
+            "Dokter": doctorOrders,
+            "Trainer": trainerOrders
+        }
+
+        return res.status(200).json({
+            response_code: 200,
+            message: "Order retrieved.",
+            data: allOders
+        })
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: error.message
+        })
+    }
+}
+
 const refund = async (req, res) => {
     try {
 
@@ -5892,6 +5892,7 @@ module.exports = {
     getOrderStatusCompleteExpireCancelTrainer,
 
     allOrder,
-    allOrderOnProgress
+    allOrderOnProgress,
+    allOrderCompleteExpireCancel
 
 }
