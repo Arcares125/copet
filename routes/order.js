@@ -23,7 +23,8 @@ const { createOrder,
     getOrderStatusOnProgressTrainer,
     getOrderStatusCompleteExpireCancelTrainer,
     getDetailOrderTrainer,
-    getDetailOrderTrainerPenyedia} = require('../controllers/Order');
+    getDetailOrderTrainerPenyedia,
+    allOrder} = require('../controllers/Order');
 var router = express.Router();
 
 /* GET users listing. */
@@ -32,6 +33,8 @@ router.post('/create-dokter', createOrderDokter)
 router.post('/create-trainer', createOrderTrainer)
 router.post('/get-payment', getPaymentData)
 router.post('/check-payment', checkPaymentStatus)
+router.get('/order-all/:userId?', allOrder)
+
 //user
 router.get('/:userId?/getOrderStatusWaitingPayment', getOrderStatusWaitingPayment)
 router.get('/:userId?/getOrderStatusCompleteExpireCancel', getOrderStatusCompleteExpireCancel)
