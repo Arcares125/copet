@@ -1786,10 +1786,7 @@ const getOrderStatusOnProgress = async (req, res) => {
             },)
     
             if(data.length < 1){
-                return res.status(404).json({
-                    "response_code": 404,
-                    "message": "Data not found"
-                })
+                return null
             }
 
             for (const toko of data) {
@@ -3711,10 +3708,7 @@ const getOrderStatusOnProgressTrainer = async (req, res) =>{
             //     data: mergeData.sort((a, b) => b.order_id - a.order_id)
             // })
         } else{
-            return res.status(200).json({
-                response_code: 200,
-                message: "Tidak ada data"
-            })
+            return null
         }
     } catch(e) {
         console.log(e)
