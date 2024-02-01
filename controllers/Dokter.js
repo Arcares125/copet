@@ -105,7 +105,7 @@ const getDataDokter = async (req, res) => {
     let dataDokter
     let value = req.params
     let mergeData = []
-
+    let averageReview = 0.0.toFixed(1)
     if(!value.dokterId && req.query.nama_dokter){   
         dataDokter = await Dokter.findAll({
             where:{
@@ -140,10 +140,15 @@ const getDataDokter = async (req, res) => {
                 for(let j = 0; j < reviewData.length; j++){
                     sum += reviewData[j].dataValues.rating;
                 }
-                let averageReview = sum / reviewData.length;
-                mergeData.push({rating: averageReview.toFixed(1), total_rating: reviewData.length, ...dataDokter[i].dataValues})
+                averageReview = sum / reviewData.length;
+                if(averageReview === null || isNaN(averageReview)){
+                    mergeData.push({rating: 0.0.toFixed(1), total_rating: reviewData.length, ...dataDokter[i].dataValues})
+                } else {
+                    mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataDokter[i].dataValues})
+                }
+
             } else {
-                mergeData.push({ rating: 0, total_rating: 0, ...dataDokter[i].dataValues})
+                mergeData.push({ rating: 0.0.toFixed(1), total_rating: 0, ...dataDokter[i].dataValues})
             }
         }
     } else {
@@ -174,10 +179,14 @@ const getDataDokter = async (req, res) => {
                 for(let j = 0; j < reviewData.length; j++){
                     sum += reviewData[j].dataValues.rating;
                 }
-                let averageReview = sum / reviewData.length;
-                mergeData.push({rating: averageReview.toFixed(1), total_rating: reviewData.length, ...dataDokter[i].dataValues})
+                averageReview = sum / reviewData.length;
+                if(averageReview === null || isNaN(averageReview)){
+                    mergeData.push({rating: 0.0.toFixed(1), total_rating: reviewData.length, ...dataDokter[i].dataValues})
+                } else {
+                    mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataDokter[i].dataValues})
+                }
             } else {
-                mergeData.push({ rating: 0, total_rating: 0, ...dataDokter[i].dataValues})
+                mergeData.push({ rating: 0.0.toFixed(1), total_rating: 0, ...dataDokter[i].dataValues})
             }
         }
     }

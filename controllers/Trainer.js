@@ -105,6 +105,7 @@ const getDataTrainer = async (req, res) => {
     let dataTrainer
     let value = req.params
     let mergeData = []
+    let averageReview = 0.0.toFixed(1)
 
     if(!value.trainerId && req.query.nama_trainer){   
         dataTrainer = await Trainer.findAll({
@@ -133,17 +134,21 @@ const getDataTrainer = async (req, res) => {
                 let reviewData = await Review.findAll({
                     where: {
                         trainer_id: dataTrainer[i].dataValues.id,
-                        customer_id: dataOrder[i].dataValues.user_id
+                        customer_id: dataOrder[0].dataValues.user_id
                     }
                 })
                 let sum = 0;
                 for(let j = 0; j < reviewData.length; j++){
                     sum += reviewData[j].dataValues.rating;
                 }
-                let averageReview = sum / reviewData.length;
-                mergeData.push({rating: averageReview.toFixed(1), total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+                averageReview = sum / reviewData.length;
+                if(averageReview === null || isNaN(averageReview)){
+                    mergeData.push({rating: 0.0.toFixed(1), total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+                } else {
+                    mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+                }
             } else {
-                mergeData.push({rating: 0, total_rating: 0, ...dataTrainer[i].dataValues})
+                mergeData.push({rating: 0.0.toFixed(1), total_rating: 0, ...dataTrainer[i].dataValues})
             }
         }
     } else {
@@ -167,17 +172,21 @@ const getDataTrainer = async (req, res) => {
                 let reviewData = await Review.findAll({
                     where: {
                         trainer_id: dataTrainer[i].dataValues.id,
-                        customer_id: dataOrder[i].dataValues.user_id
+                        // customer_id: dataOrder[i].dataValues.user_id
                     }
                 })
                 let sum = 0;
                 for(let j = 0; j < reviewData.length; j++){
                     sum += reviewData[j].dataValues.rating;
                 }
-                let averageReview = sum / reviewData.length;
-                mergeData.push({rating: averageReview.toFixed(1), total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+                averageReview = sum / reviewData.length;
+                if(averageReview === null || isNaN(averageReview)){
+                    mergeData.push({rating: 0.0.toFixed(1), total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+                } else {
+                    mergeData.push({rating: averageReview, total_rating: reviewData.length, ...dataTrainer[i].dataValues})
+                }
             } else {
-                mergeData.push({rating: 0, total_rating: 0, ...dataTrainer[i].dataValues})
+                mergeData.push({rating: 0.0.toFixed(1), total_rating: 0, ...dataTrainer[i].dataValues})
             }
         }
     }
