@@ -189,23 +189,18 @@ const loginPenyediaJasa = async (req, res) =>{
         if(getDataPenyedia.dataValues.jenis_jasa !== null && getDataPenyedia.dataValues.is_acc === false){
             if(getDataToko){
                 if(getDataToko.dataValues.is_acc === true){
-                    await PenyediaJasa.update({
+                    await getDataPenyedia.update({
                         is_acc: true
-                    },
-                    {
-                        where: {
-                            id: getDataPenyedia.dataValues.id
-                        }
                     })
     
                     await PenyediaJasa.update({ refreshToken: refreshToken },
                         { where: { email: penyediaJasa.email} }
                     )
-    
+
                     res.status(200).json({
                         response_code: 200,
                         message: "Login Success",
-                        data: {toko_id:getDataToko.dataValues.id, is_acc: true, ...penyediaJasa},
+                        data: {toko_id:getDataToko.dataValues.id, ...penyediaJasa, is_acc: true},
                         token: tokenLogin,
                         refreshToken: refreshToken
                     })
@@ -226,13 +221,8 @@ const loginPenyediaJasa = async (req, res) =>{
 
             if(getDataDokter){
                 if(getDataDokter.dataValues.is_acc === true){
-                    await PenyediaJasa.update({
+                    await getDataPenyedia.update({
                         is_acc: true
-                    },
-                    {
-                        where: {
-                            id: getDataPenyedia.dataValues.id
-                        }
                     })
     
                     await PenyediaJasa.update({ refreshToken: refreshToken },
@@ -242,7 +232,7 @@ const loginPenyediaJasa = async (req, res) =>{
                     res.status(200).json({
                         response_code: 200,
                         message: "Login Success",
-                        data: {dokter_id: getDataDokter.dataValues.id, is_acc: true, ...penyediaJasa},
+                        data: {dokter_id: getDataDokter.dataValues.id, ...penyediaJasa, is_acc: true},
                         token: tokenLogin,
                         refreshToken: refreshToken
                     })
@@ -263,13 +253,8 @@ const loginPenyediaJasa = async (req, res) =>{
 
             if(getDataTrainer){
                 if(getDataTrainer.dataValues.is_acc === true){
-                    await PenyediaJasa.update({
+                    await getDataPenyedia.update({
                         is_acc: true
-                    },
-                    {
-                        where: {
-                            id: getDataPenyedia.dataValues.id
-                        }
                     })
     
                     await PenyediaJasa.update({ refreshToken: refreshToken },
@@ -279,7 +264,7 @@ const loginPenyediaJasa = async (req, res) =>{
                     res.status(200).json({
                         response_code: 200,
                         message: "Login Success",
-                        data: {trainer_id:getDataTrainer.dataValues.id, is_acc: true, ...penyediaJasa},
+                        data: {trainer_id:getDataTrainer.dataValues.id, ...penyediaJasa, is_acc: true},
                         token: tokenLogin,
                         refreshToken: refreshToken
                     })
