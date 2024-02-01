@@ -1,5 +1,5 @@
 var express = require('express');
-const { registerDokter, getDataDokter, updateDokter, confirmOrder, getDataDokterDetail, updateAvailable, getDataDokterAvailable } = require('../controllers/Dokter');
+const { registerDokter, getDataDokter, updateDokter, confirmOrder, getDataDokterDetail, updateAvailable, getDataDokterAvailable, deleteDokter } = require('../controllers/Dokter');
 var router = express.Router();
 
 /* GET users listing. */
@@ -9,6 +9,7 @@ router.get('/data-dokter/:dokterId?', getDataDokter)
 router.get('/data-dokter-detail/:dokterId?', getDataDokterDetail)
 router.get('/data-dokter-available', getDataDokterAvailable)
 router.put('/update/:dokterId', updateDokter)
+router.delete('/delete/:dokterId', deleteDokter)
 router.put('/update-status/:dokterId', updateAvailable)
 
 module.exports = router;
