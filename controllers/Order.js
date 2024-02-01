@@ -934,11 +934,11 @@ const setOrderToCompleted = async (req, res) => {
             })
         }
         
-        const updateOrderStatus = await Order.update(
+        const updateOrderStatus = await orderIsValid.update(
             { 
-                status_order: "Completed"
-            },
-            { where: {id: orderId} }
+                status_order: "Completed",
+                status_pembayaran: "Berhasil"
+            }
         )
 
         await Chat.update({
