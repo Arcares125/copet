@@ -364,7 +364,7 @@ const deleteTrainer = async (req, res) =>{
 
         const getTrainerData = await Trainer.findOne({
             where: {
-                id: value.TrainerId
+                id: value.trainerId
             }
         })
 
