@@ -368,7 +368,7 @@ const deleteDokter = async (req, res) =>{
 
         const getDokterData = await Dokter.findOne({
             where: {
-                id: value.DokterId
+                id: value.dokterId
             }
         })
 
