@@ -2365,6 +2365,12 @@ const getDetailOrderDokter = async (req, res) =>{
         let transactionStatus;
         let retries = 3;
 
+        const dataOrder1 = await Order.findOne({
+            where:{
+                id: dataOrder.dataValues.order_id
+            }
+        })
+
         while(retries > 0){
             // console.log(retries)
             try {
@@ -2380,19 +2386,13 @@ const getDetailOrderDokter = async (req, res) =>{
                 } 
             }
         }
-        console.log(transactionStatus.transaction_status)
-        console.log(dataOrder.dataValues.status_order)
+
         // Check if transaction is expired
         if (transactionStatus.transaction_status === 'expire' && dataOrder.dataValues.status_order === 'Waiting Payment') {
             // Update order_status in database
-            await Order.update({
+            await dataOrder1.update({
                 status_pembayaran: "Expired",
                 status_order: 'Expired'
-            }, 
-            {
-                where:{
-                    id: value.orderId
-                }
             });
 
             await Chat.update({
@@ -2403,15 +2403,10 @@ const getDetailOrderDokter = async (req, res) =>{
                 }
             })
         } else if(transactionStatus.transaction_status === 'settlement' && dataOrder.dataValues.status_order === 'Waiting Payment'){
-            await Order.update({
+            await dataOrder1.update({
                 status_pembayaran: "Berhasil",
                 // status_order: "On Progress"
                 status_order: "Waiting Confirmation"
-            }, 
-            {
-                where:{
-                    id: value.orderId
-                }
             });
 
             await Chat.update({
@@ -2423,13 +2418,8 @@ const getDetailOrderDokter = async (req, res) =>{
             })
 
         } else if(transactionStatus.transaction_status === 'settlement' && dataOrder.dataValues.status_order === 'Completed'){
-            await Order.update({
+            await dataOrder1.update({
                 status_pembayaran: "Berhasil",
-            }, 
-            {
-                where:{
-                    id: value.orderId
-                }
             });
         }
 
@@ -2451,13 +2441,8 @@ const getDetailOrderDokter = async (req, res) =>{
                 }
 
                 if(minutes === 0 && seconds === 0 && dataOrder.dataValues.status_order !== 'Cancel' && dataOrder.dataValues.status_order !== 'On Progress' && dataOrder.dataValues.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && dataOrder.dataValues.status_order !== 'Waiting Confirmation'){
-                    await Order.update({
+                    await dataOrder1.update({
                         status_order: 'Expired'
-                    }, 
-                    {
-                        where:{
-                            id: value.orderId
-                        }
                     })
 
                     await Chat.update({
@@ -2469,7 +2454,7 @@ const getDetailOrderDokter = async (req, res) =>{
                     })
                 }
 
-        mergeData.push({...dataDokter.dataValues ,...dataPenyedia.dataValues  ,...dataOrder.dataValues,time:{
+        mergeData.push({...dataDokter.dataValues ,...dataPenyedia.dataValues  ,...dataOrder1.dataValues,time:{
             minutes: minutes,
             seconds: seconds
         }, ...detailOrder.dataValues , review: (reviewData !== null ? { username: userIsValid.dataValues.nama, ...reviewData.dataValues } : null), service_type: 'Dokter'})
@@ -3195,6 +3180,12 @@ const getDetailOrderTrainer = async (req, res) =>{
         let transactionStatus;
         let retries = 3;
 
+        const dataOrder1 = await Order.findOne({
+            where:{
+                id: dataOrder.dataValues.order_id
+            }
+        })
+
         while(retries > 0){
             // console.log(retries)
             try {
@@ -3213,14 +3204,9 @@ const getDetailOrderTrainer = async (req, res) =>{
         // Check if transaction is expired
         if (transactionStatus.transaction_status === 'expire' && dataOrder.dataValues.status_order === 'Waiting Payment') {
             // Update order_status in database
-            await Order.update({
+            await dataOrder1.update({
                 status_pembayaran: "Expired",
                 status_order: 'Expired'
-            }, 
-            {
-                where:{
-                    id: value.orderId
-                }
             });
 
             await Chat.update({
@@ -3231,15 +3217,10 @@ const getDetailOrderTrainer = async (req, res) =>{
                 }
             })
         } else if(transactionStatus.transaction_status === 'settlement' && dataOrder.dataValues.status_order === 'Waiting Payment'){
-            await Order.update({
+            await dataOrder1.update({
                 status_pembayaran: "Berhasil",
                 // status_order: "On Progress"
                 status_order: "Waiting Confirmation"
-            }, 
-            {
-                where:{
-                    id: value.orderId
-                }
             });
 
             await Chat.update({
@@ -3251,13 +3232,8 @@ const getDetailOrderTrainer = async (req, res) =>{
             })
 
         } else if(transactionStatus.transaction_status === 'settlement' && dataOrder.dataValues.status_order === 'Completed'){
-            await Order.update({
+            await dataOrder1.update({
                 status_pembayaran: "Berhasil",
-            }, 
-            {
-                where:{
-                    id: value.orderId
-                }
             });
         }
 
@@ -3279,13 +3255,8 @@ const getDetailOrderTrainer = async (req, res) =>{
                 }
 
                 if(minutes === 0 && seconds === 0 && dataOrder.dataValues.status_order !== 'Cancel' && dataOrder.dataValues.status_order !== 'On Progress' && dataOrder.dataValues.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && dataOrder.dataValues.status_order !== 'Waiting Confirmation'){
-                    await Order.update({
+                    await dataOrder1.update({
                         status_order: 'Expired'
-                    }, 
-                    {
-                        where:{
-                            id: value.orderId
-                        }
                     })
 
                     await Chat.update({
@@ -3297,7 +3268,7 @@ const getDetailOrderTrainer = async (req, res) =>{
                     })
                 }
 
-        mergeData.push({...dataTrainer.dataValues ,...dataPenyedia.dataValues  ,...dataOrder.dataValues,time:{
+        mergeData.push({...dataTrainer.dataValues ,...dataPenyedia.dataValues  ,...dataOrder1.dataValues,time:{
             minutes: minutes,
             seconds: seconds
         }, ...detailOrder.dataValues , review: (reviewData !== null ? { username: userIsValid.dataValues.nama, ...reviewData.dataValues } : null), service_type: 'Trainer'})
