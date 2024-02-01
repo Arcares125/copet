@@ -2896,10 +2896,7 @@ const getOrderStatusOnProgressDokter = async (req, res) =>{
             //     data: mergeData.sort((a, b) => b.order_id - a.order_id)
             // })
         } else{
-            return res.status(200).json({
-                response_code: 200,
-                message: "Tidak ada data"
-            })
+            return null
         }
     } catch(e) {
         console.log(e)
@@ -5706,16 +5703,30 @@ const allOrder = async (req, res) =>{
         const trainerOrders = await getOrderStatusWaitingPaymentTrainer(value.userId, res);
         const doctorOrders = await getOrderStatusWaitingPaymentDokter(value.userId, res);
 
-        const allOders = [
-            ...orders,
-            ...doctorOrders,
-            ...trainerOrders
-        ]
+        let allOrders = []
+        if(orders && orders.length > 0 && trainerOrders && trainerOrders.length > 0 && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...orders, ...trainerOrders, ...doctorOrders];
+        } else if((!orders || orders.length === 0) && trainerOrders && trainerOrders.length > 0 && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...trainerOrders, ...doctorOrders];
+        } else if(orders && orders.length > 0 && (!trainerOrders || trainerOrders.length === 0) && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...orders, ...doctorOrders];
+        } else if(orders && orders.length > 0 && trainerOrders && trainerOrders.length > 0 && (!doctorOrders || doctorOrders.length === 0)){
+            allOrders = [...orders, ...trainerOrders];
+        } else if((!orders || orders.length === 0) && (!trainerOrders || trainerOrders.length === 0) && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...doctorOrders];
+        } else if((!orders || orders.length === 0) && trainerOrders && trainerOrders.length > 0 && (!doctorOrders || doctorOrders.length === 0)){
+            allOrders = [...trainerOrders];
+        } else if(orders && orders.length > 0 && (!trainerOrders || trainerOrders.length === 0) && (!doctorOrders || doctorOrders.length === 0)){
+            allOrders = [...orders];
+        } else {
+            allOrders = [];
+        }
+        
 
         return res.status(200).json({
             response_code: 200,
             message: "Order retrieved.",
-            data: allOders
+            data: allOrders
         })
     } catch (error) {
         return res.status(500).json({
@@ -5733,16 +5744,29 @@ const allOrderOnProgress = async (req, res) =>{
         const trainerOrders = await getOrderStatusOnProgressTrainer(value.userId, res);
         const doctorOrders = await getOrderStatusOnProgressDokter(value.userId, res);
 
-        const allOders = [
-            ...orders,
-            ...doctorOrders,
-            ...trainerOrders
-        ]
+        let allOrders = []
+        if(orders && orders.length > 0 && trainerOrders && trainerOrders.length > 0 && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...orders, ...trainerOrders, ...doctorOrders];
+        } else if((!orders || orders.length === 0) && trainerOrders && trainerOrders.length > 0 && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...trainerOrders, ...doctorOrders];
+        } else if(orders && orders.length > 0 && (!trainerOrders || trainerOrders.length === 0) && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...orders, ...doctorOrders];
+        } else if(orders && orders.length > 0 && trainerOrders && trainerOrders.length > 0 && (!doctorOrders || doctorOrders.length === 0)){
+            allOrders = [...orders, ...trainerOrders];
+        } else if((!orders || orders.length === 0) && (!trainerOrders || trainerOrders.length === 0) && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...doctorOrders];
+        } else if((!orders || orders.length === 0) && trainerOrders && trainerOrders.length > 0 && (!doctorOrders || doctorOrders.length === 0)){
+            allOrders = [...trainerOrders];
+        } else if(orders && orders.length > 0 && (!trainerOrders || trainerOrders.length === 0) && (!doctorOrders || doctorOrders.length === 0)){
+            allOrders = [...orders];
+        } else {
+            allOrders = [];
+        }
 
         return res.status(200).json({
             response_code: 200,
             message: "Order retrieved.",
-            data: allOders
+            data: allOrders
         })
     } catch (error) {
         return res.status(500).json({
@@ -5760,16 +5784,28 @@ const allOrderCompleteExpireCancel = async (req, res) =>{
         const trainerOrders = await getOrderStatusCompleteExpireCancelTrainer(value.userId, res);
         const doctorOrders = await getOrderStatusCompleteExpireCancelDokter(value.userId, res);
 
-        const allOders = [
-            ...orders,
-            ...doctorOrders,
-            ...trainerOrders
-        ]
-
+        let allOrders = []
+        if(orders && orders.length > 0 && trainerOrders && trainerOrders.length > 0 && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...orders, ...trainerOrders, ...doctorOrders];
+        } else if((!orders || orders.length === 0) && trainerOrders && trainerOrders.length > 0 && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...trainerOrders, ...doctorOrders];
+        } else if(orders && orders.length > 0 && (!trainerOrders || trainerOrders.length === 0) && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...orders, ...doctorOrders];
+        } else if(orders && orders.length > 0 && trainerOrders && trainerOrders.length > 0 && (!doctorOrders || doctorOrders.length === 0)){
+            allOrders = [...orders, ...trainerOrders];
+        } else if((!orders || orders.length === 0) && (!trainerOrders || trainerOrders.length === 0) && doctorOrders && doctorOrders.length > 0){
+            allOrders = [...doctorOrders];
+        } else if((!orders || orders.length === 0) && trainerOrders && trainerOrders.length > 0 && (!doctorOrders || doctorOrders.length === 0)){
+            allOrders = [...trainerOrders];
+        } else if(orders && orders.length > 0 && (!trainerOrders || trainerOrders.length === 0) && (!doctorOrders || doctorOrders.length === 0)){
+            allOrders = [...orders];
+        } else {
+            allOrders = [];
+        }
         return res.status(200).json({
             response_code: 200,
             message: "Order retrieved.",
-            data: allOders
+            data: allOrders
         })
     } catch (error) {
         return res.status(500).json({
