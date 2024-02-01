@@ -2338,7 +2338,7 @@ const getDetailOrderDokter = async (req, res) =>{
         })
 
         const dataDokter = await Dokter.findOne({
-            attributes: ['nama', 'penyedia_id', 'foto'],
+            attributes: ['nama', 'penyedia_id', 'foto', ['harga', 'total_payment']],
             where:{
                 id: detailOrder.dataValues.dokter_id
             }
@@ -3168,7 +3168,7 @@ const getDetailOrderTrainer = async (req, res) =>{
         })
 
         const dataTrainer = await Trainer.findOne({
-            attributes: ['nama', 'penyedia_id', 'foto'],
+            attributes: ['nama', 'penyedia_id', 'foto', ['harga', 'total_payment']],
             where:{
                 id: detailOrder.dataValues.trainer_id
             }
