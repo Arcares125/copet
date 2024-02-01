@@ -830,12 +830,11 @@ const setPaymentToExpired = async (req, res) => {
                 "message": "Transaction is already expired"
             })
         } else {
-            const updateStatusPayment = await Order.update(
+            await orderIsValid.update(
                 { 
                     status_pembayaran: "Expired",
                     status_order: "Cancel"
-                },
-                { where: {id: orderId} }
+                }
             )
 
             await Chat.update({
@@ -5400,8 +5399,7 @@ const getDetailOrderDokterPenyedia = async (req, res) =>{
                 } 
             }
         }
-        console.log(transactionStatus.transaction_status)
-        console.log(dataOrder.dataValues.status_order)
+
         // Check if transaction is expired
         if (transactionStatus.transaction_status === 'expire' && dataOrder.dataValues.status_order === 'Waiting Payment') {
             // Update order_status in database
