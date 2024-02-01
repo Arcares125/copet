@@ -851,7 +851,6 @@ const setPaymentToExpired = async (req, res) => {
                 "Transaction Status": "Expired"
             })
         }
-        // transactionStatus = await coreApi.transaction.status("UUU-"+value.orderId);
         
         // coreApi.transaction.status("UUU-"+orderId).then(async (response) => {
         //     console.log('Transaction status:', response.transaction_status);
@@ -2664,18 +2663,18 @@ const getOrderStatusWaitingPaymentDokter = async (req, res) =>{
                                 remainingTime = `${minutes} minutes ${seconds} seconds`;
                             }
             
-                            if(dataOrder1[i].dataValues.status_order === 'Cancel' || dataOrder1[i].dataValues.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
+                            if(dataOrder1.dataValues.status_order === 'Cancel' || dataOrder1.dataValues.status_order === 'On Progress' || transactionStatus.transaction_status === 'settlement'){
                                 minutes = 0;
                                 seconds = 0;
                             }
             
-                            if(minutes === 0 && seconds === 0 && dataOrder1[i].dataValues.status_order !== 'Cancel' && dataOrder1[i].dataValues.status_order !== 'On Progress' && dataOrder1[i].dataValues.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && dataOrder1[i].dataValues.status_order !== 'Waiting Confirmation'){
+                            if(minutes === 0 && seconds === 0 && dataOrder1.dataValues.status_order !== 'Cancel' && dataOrder1.dataValues.status_order !== 'On Progress' && dataOrder1.dataValues.status_order !== 'Completed' && transactionStatus.transaction_status === 'expire' && dataOrder1.dataValues.status_order !== 'Waiting Confirmation'){
                                 await Order.update({
                                     status_order: 'Expired'
                                 }, 
                                 {
                                     where:{
-                                        id: dataOrder1[i].dataValues.order_id
+                                        id: dataOrder1.dataValues.order_id
                                     }
                                 })
             
@@ -3418,7 +3417,7 @@ const getOrderStatusWaitingPaymentTrainer = async (req, res) =>{
                         }
                     }
     
-                    if (transactionStatus.transaction_status === 'expire' && dataOrder1[i].dataValues.status_order === 'Waiting Payment') {
+                    if (transactionStatus.transaction_status === 'expire' && dataOrder1.dataValues.status_order === 'Waiting Payment') {
                         await dataOrder1.update({
                             status_pembayaran: "Expired",
                             status_order: 'Expired'
