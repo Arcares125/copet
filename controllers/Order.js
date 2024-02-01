@@ -5730,11 +5730,11 @@ const allOrder = async (req, res) =>{
         const trainerOrders = await getOrderStatusWaitingPaymentTrainer(value.userId, res);
         const doctorOrders = await getOrderStatusWaitingPaymentDokter(value.userId, res);
 
-        const allOders = {
-            "Toko": orders,
-            "Dokter": doctorOrders,
-            "Trainer": trainerOrders
-        }
+        const allOders = [
+            ...orders,
+            ...doctorOrders,
+            ...trainerOrders
+        ]
 
         return res.status(200).json({
             response_code: 200,
@@ -5757,11 +5757,11 @@ const allOrderOnProgress = async (req, res) =>{
         const trainerOrders = await getOrderStatusOnProgressTrainer(value.userId, res);
         const doctorOrders = await getOrderStatusOnProgressDokter(value.userId, res);
 
-        const allOders = {
-            "Toko": orders,
-            "Dokter": doctorOrders,
-            "Trainer": trainerOrders
-        }
+        const allOders = [
+            ...orders,
+            ...doctorOrders,
+            ...trainerOrders
+        ]
 
         return res.status(200).json({
             response_code: 200,
@@ -5784,11 +5784,11 @@ const allOrderCompleteExpireCancel = async (req, res) =>{
         const trainerOrders = await getOrderStatusCompleteExpireCancelTrainer(value.userId, res);
         const doctorOrders = await getOrderStatusCompleteExpireCancelDokter(value.userId, res);
 
-        const allOders = {
-            "Toko": orders,
-            "Dokter": doctorOrders,
-            "Trainer": trainerOrders
-        }
+        const allOders = [
+            ...orders,
+            ...doctorOrders,
+            ...trainerOrders
+        ]
 
         return res.status(200).json({
             response_code: 200,
