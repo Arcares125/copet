@@ -850,54 +850,6 @@ const setPaymentToExpired = async (req, res) => {
                 "Transaction Status": "Expired"
             })
         }
-        
-        // coreApi.transaction.status("VVV-"+orderId).then(async (response) => {
-        //     console.log('Transaction status:', response.transaction_status);
-        
-        //     if(response.transaction_status === 'expire') {
-        //         return res.status(200).json({
-        //             "response_code": 200,
-        //             "message": "Transaction is already expired"
-        //         })
-        //     } else {
-        //         return coreApi.transaction.expire(orderId).then(async (response) => {
-        //             console.log('Transaction status after expire:', response.transaction_status);
-        
-        //             const updateStatusPayment = await Order.update(
-        //                 { 
-        //                     status_pembayaran: "Expired",
-        //                     status_order: "Cancel"
-        //                 },
-        //                 { where: {id: orderId} }
-        //             )
-        
-        //             return res.status(200).json({
-        //                 "response_code": 200,
-        //                 "Transaction Status": "Expired"
-        //             })
-        //         }).catch((e) => {
-        //             console.log('Error occured:', e.message);
-        //         });
-        //     }
-        // }).catch((e) => {
-        //     console.log('Error occured:', e.message);
-        //     if(e.message.includes('HTTP status code: 404')){
-        //         return res.status(200).json({
-        //             message: "Order ID Not Found"
-        //         })
-        //     } else if(e.message.includes('HTTP status code: 500')){
-        //         return res.status(500).json({
-        //             message: "Sorry. Our system is recovering from unexpected issues. Please retry."
-        //         })
-        //     } else if(e.message.includes('HTTP status code: 412')){
-        //         return res.status(500).json({
-        //             message: "Transaction status cannot be updated."
-        //         })
-        //         // Error occured: Midtrans API is returning API error. HTTP status code: 412. 
-        //         // API response: {"status_code":"412","status_message":"Transaction status cannot be updated.",
-        //         // "id":"44be8d42-472d-44cb-963b-70bf7216241a"}
-        //     }
-        // });
 
     } catch (error) {
         return res.status(500).json({
