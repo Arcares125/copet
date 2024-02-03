@@ -20,7 +20,9 @@ const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const { QueryTypes } = require("sequelize");
 const {TOKEN_LOGIN,
-        TOKEN_REFRESH } = process.env
+        TOKEN_REFRESH,
+        SERVER_KEY,
+        CLIENT_KEY } = process.env
         const midtransClient = require('midtrans-client');
 
 
@@ -147,8 +149,8 @@ const createOrder = async (req, res) => {
         //MIDTRANS PAYMENT
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         
         let parameter = {
@@ -321,8 +323,8 @@ const createOrderDokter = async (req, res) => {
         //MIDTRANS PAYMENT
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         
         let parameter = {
@@ -494,8 +496,8 @@ const createOrderTrainer = async (req, res) => {
         //MIDTRANS PAYMENT
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         
         let parameter = {
@@ -617,8 +619,8 @@ const getPaymentData = async (req, res) => {
 
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         
         let parameter = {
@@ -681,8 +683,8 @@ const checkPaymentStatus = async (req, res) => {
 
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         
         // let parameter = req.body;
@@ -785,8 +787,8 @@ const setPaymentToExpired = async (req, res) => {
 
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         
         let orderId = req.params.orderId; 
@@ -865,8 +867,8 @@ const setOrderToCompleted = async (req, res) => {
 
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         
         let orderId = req.params.orderId; 
@@ -1068,8 +1070,8 @@ const getDetailOrder = async (req, res) => {
                 // CHECK STATUS TRANS
                 let coreApi = new midtransClient.CoreApi({
                     isProduction: false,
-                    serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                    clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                    serverKey: SERVER_KEY,
+                    clientKey: CLIENT_KEY
                 });
                 let transactionStatus;
                 let retries = 3;
@@ -1475,8 +1477,8 @@ const getOrderStatusWaitingPayment = async (req, res) => {
 
                         let coreApi = new midtransClient.CoreApi({
                             isProduction: false,
-                            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                            serverKey: SERVER_KEY,
+                            clientKey: CLIENT_KEY
                         });
                         let transactionStatus;
                         let retries = 3;
@@ -1600,8 +1602,8 @@ const getOrderStatusOnProgress = async (req, res) => {
     const checkStatus = async () =>{
         let coreApiOrder = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         let transactionStatusOrder;
         for(let order of getAllOrder){
@@ -1820,8 +1822,8 @@ const getOrderStatusWaitingConfirmation = async (req, res) => {
     const checkStatus = async () =>{
         let coreApiOrder = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         let transactionStatusOrder;
         for(let order of getAllOrder){
@@ -2040,8 +2042,8 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
     const checkStatus = async () =>{
         let coreApiOrder = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         let transactionStatusOrder;
         for(let order of getAllOrder){
@@ -2301,8 +2303,8 @@ const getDetailOrderDokter = async (req, res) =>{
 
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         let transactionStatus;
         let retries = 3;
@@ -2494,8 +2496,8 @@ const getOrderStatusWaitingPaymentDokter = async (req, res) =>{
             
                     let coreApi = new midtransClient.CoreApi({
                         isProduction: false,
-                        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                        serverKey: SERVER_KEY,
+                        clientKey: CLIENT_KEY
                     });
                     let transactionStatus;
                     let retries = 3;
@@ -2715,8 +2717,8 @@ const getOrderStatusOnProgressDokter = async (req, res) =>{
             
                     let coreApi = new midtransClient.CoreApi({
                         isProduction: false,
-                        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                        serverKey: SERVER_KEY,
+                        clientKey: CLIENT_KEY
                     });
                     let transactionStatus;
                     let retries = 3;
@@ -2937,8 +2939,8 @@ const getOrderStatusCompleteExpireCancelDokter = async (req, res) =>{
             
                     let coreApi = new midtransClient.CoreApi({
                         isProduction: false,
-                        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                        serverKey: SERVER_KEY,
+                        clientKey: CLIENT_KEY
                     });
                     let transactionStatus;
                     let retries = 3;
@@ -3107,8 +3109,8 @@ const getDetailOrderTrainer = async (req, res) =>{
 
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         let transactionStatus;
         let retries = 3;
@@ -3300,8 +3302,8 @@ const getOrderStatusWaitingPaymentTrainer = async (req, res) =>{
             
                     let coreApi = new midtransClient.CoreApi({
                         isProduction: false,
-                        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                        serverKey: SERVER_KEY,
+                        clientKey: CLIENT_KEY
                     });
                     let transactionStatus;
                     let retries = 3;
@@ -3523,8 +3525,8 @@ const getOrderStatusOnProgressTrainer = async (req, res) =>{
             
                     let coreApi = new midtransClient.CoreApi({
                         isProduction: false,
-                        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                        serverKey: SERVER_KEY,
+                        clientKey: CLIENT_KEY
                     });
                     let transactionStatus;
                     let retries = 3;
@@ -3737,8 +3739,8 @@ const getOrderStatusCompleteExpireCancelTrainer = async (req, res) =>{
             
                     let coreApi = new midtransClient.CoreApi({
                         isProduction: false,
-                        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                        serverKey: SERVER_KEY,
+                        clientKey: CLIENT_KEY
                     });
                     let transactionStatus;
                     let retries = 3;
@@ -3987,8 +3989,8 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
 
                         let coreApi = new midtransClient.CoreApi({
                             isProduction: false,
-                            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                            serverKey: SERVER_KEY,
+                            clientKey: CLIENT_KEY
                         });
                         let transactionStatus;
                         let retries = 3;
@@ -4233,8 +4235,8 @@ const getOrderStatusWaitingConfirmationPenyediaJasa = async (req, res) => {
 
                         let coreApi = new midtransClient.CoreApi({
                             isProduction: false,
-                            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                            serverKey: SERVER_KEY,
+                            clientKey: CLIENT_KEY
                         });
                         let transactionStatus;
                         let retries = 3;
@@ -4357,8 +4359,8 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
     const checkStatus = async () =>{
         let coreApiOrder = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         let transactionStatusOrder;
         for(let order of getAllOrder){
@@ -4603,8 +4605,8 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
     const checkStatus = async () =>{
         let coreApiOrder = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         let transactionStatusOrder;
         for(let order of getAllOrder){
@@ -4982,8 +4984,8 @@ const getDetailOrderPenyedia = async (req, res) => {
                 // CHECK STATUS TRANS
                 let coreApi = new midtransClient.CoreApi({
                     isProduction: false,
-                    serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-                    clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+                    serverKey: SERVER_KEY,
+                    clientKey: CLIENT_KEY
                 });
                 let transactionStatus;
                 let retries = 3;
@@ -5330,8 +5332,8 @@ const getDetailOrderDokterPenyedia = async (req, res) =>{
 
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         let transactionStatus;
         let retries = 3;
@@ -5516,8 +5518,8 @@ const getDetailOrderTrainerPenyedia = async (req, res) =>{
 
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
         let transactionStatus;
         let retries = 3;
@@ -5770,8 +5772,8 @@ const refund = async (req, res) => {
 
         let coreApi = new midtransClient.CoreApi({
             isProduction: false,
-            serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-            clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+            serverKey: SERVER_KEY,
+            clientKey: CLIENT_KEY
         });
 
         let orderId = req.body.orderId;

@@ -15,8 +15,8 @@
 
 //         let snap = new midtransClient.Snap({
 //             isProduction : false,
-//             serverKey : 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-//             clientKey : 'SB-Mid-client-DTbwiKD76w8ktHoN'
+//             serverKey : SERVER_KEY,
+//             clientKey : CLIENT_KEY
 //         });
 
 //         const parameter = data

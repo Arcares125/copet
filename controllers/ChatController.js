@@ -4,7 +4,9 @@ const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const { QueryTypes, Op } = require("sequelize");
 const {TOKEN_LOGIN,
-        TOKEN_REFRESH } = process.env
+        TOKEN_REFRESH,
+        SERVER_KEY,
+        CLIENT_KEY } = process.env
         const midtransClient = require('midtrans-client');
 
 
@@ -16,8 +18,8 @@ const checkStatus = async () =>{
 
     let coreApiOrder = new midtransClient.CoreApi({
         isProduction: false,
-        serverKey: 'SB-Mid-server-Bi8zFkdl155n5vQ3tAH3-6et',
-        clientKey: 'SB-Mid-client-DTbwiKD76w8ktHoN'
+        serverKey: SERVER_KEY,
+        clientKey: CLIENT_KEY
     });
     let transactionStatusOrder;
     for(let order of getAllListChatToUpdateOrderStatus){
