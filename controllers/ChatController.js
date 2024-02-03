@@ -158,6 +158,31 @@ const getAllChat = async (req, res) => {
     }
 }
 
+const getDetailChat = async (req, res) => {
+
+    const value = req.params
+    try {
+
+        const getAllChat = await Chat.findOne({
+            where:{
+                order_id: value.orderId
+            }
+        })
+
+        res.status(200).json({
+            response_code: 200,
+            message: "Chat Data Retrieved",
+            data: getAllChat
+        })    
+        
+    } catch (error) {
+        res.status(500).json({
+            response_code: 500,
+            message: error.message
+        })
+    }
+}
+
 const startChat = async (req, res) => {
 
     const value = req.body
@@ -189,5 +214,6 @@ const startChat = async (req, res) => {
 module.exports = {
     getOnProgressChat,
     getAllChat,
-    startChat
+    startChat,
+    getDetailChat
 }
