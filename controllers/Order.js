@@ -5968,7 +5968,7 @@ const getOrderStatusWaitingPaymentPenyediaDokterTrainer = async (req, res) =>{
                             }
                         })
                     }      
-                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, nama_trainer: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Trainer", total_payment:isTrainer.dataValues.harga})        
+                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, username: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Trainer", total_payment:isTrainer.dataValues.harga})        
                    
     
                 }
@@ -6111,7 +6111,7 @@ const getOrderStatusWaitingPaymentPenyediaDokterTrainer = async (req, res) =>{
                             }
                         })
                     }      
-                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, nama_trainer: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Dokter", total_payment: isDokter.dataValues.harga})        
+                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, username: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Dokter", total_payment: isDokter.dataValues.harga})        
                    
     
                 }
@@ -6305,7 +6305,7 @@ const getOrderStatusOnProgressPenyediaDokterTrainer = async (req, res) =>{
                             }
                         })
                     }      
-                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, nama_trainer: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Trainer", total_payment:isTrainer.dataValues.harga})        
+                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, username: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Trainer", total_payment:isTrainer.dataValues.harga})        
                    
     
                 }
@@ -6448,7 +6448,7 @@ const getOrderStatusOnProgressPenyediaDokterTrainer = async (req, res) =>{
                             }
                         })
                     }      
-                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, nama_trainer: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Dokter", total_payment: isDokter.dataValues.harga})        
+                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, username: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Dokter", total_payment: isDokter.dataValues.harga})        
                    
     
                 }
@@ -6642,7 +6642,7 @@ const getOrderStatusCompleteExpireCancelPenyediaDokterTrainer = async (req, res)
                             }
                         })
                     }      
-                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, nama_trainer: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Trainer", total_payment:isTrainer.dataValues.harga})        
+                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, username: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Trainer", total_payment:isTrainer.dataValues.harga})        
                    
     
                 }
@@ -6785,7 +6785,7 @@ const getOrderStatusCompleteExpireCancelPenyediaDokterTrainer = async (req, res)
                             }
                         })
                     }      
-                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, nama_trainer: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Dokter", total_payment: isDokter.dataValues.harga})        
+                    mergeData.push({order_id:dataOrderTemp[i].dataValues.order_id, username: userData.dataValues.nama, status: dataOrder1.dataValues.status_order, service_type: "Dokter", total_payment: isDokter.dataValues.harga})        
                    
     
                 }
