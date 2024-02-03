@@ -4908,7 +4908,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                         {
                             model: DetailOrderGrooming,
                             as: 'detail_order_grooming',
-                            attributes: ['quantity'],
+                            attributes: ['quantity', ['tanggal_grooming', 'check_in'], ['tanggal_grooming', 'check_out']],
                             required: true,
                             where: {
                                 order_id: value.orderId
