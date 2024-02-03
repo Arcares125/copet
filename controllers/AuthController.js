@@ -143,6 +143,7 @@ const loginPenyediaJasa = async (req, res) =>{
             res.status(200).json({
                 response_code: 200,
                 user_type: "admin",
+                token: TOKEN_LOGIN,
                 message: "Login Success",
             })
         } else if(email !== 'admin' && password === 'admin123'){
