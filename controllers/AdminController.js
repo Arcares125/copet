@@ -247,6 +247,194 @@ const getAllDataPenyediaJasa = async (req, res) =>{
     }
 }
 
+const getAllDataPenyediaJasaIsNotAcc = async (req, res) =>{
+    try {
+        
+        let mergeData = []
+        const dataPenyediaJasa = await PenyediaJasa.findAll()
+
+        if(dataPenyediaJasa.length === 0){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Penyedia Jasa Kosong!"
+            })
+        } else {
+            const dataDokter = await Dokter.findAll({
+                where:{
+                    is_acc: false
+                }
+            })
+    
+            const dataTrainer = await Trainer.findAll({
+                where:{
+                    is_acc: false
+                }
+            })
+    
+            const dataToko = await Toko.findAll({
+                where:{
+                    is_acc: false
+                }
+            })
+
+            if(dataDokter.length > 0){
+                for(let dataDokterTemp of dataDokter){
+                    const dokterTemp = {
+                        id: dataDokterTemp.dataValues.id,
+                        penyedia_id: dataDokterTemp.dataValues.penyedia_id,
+                        nama: dataDokterTemp.dataValues.nama,
+                        spesialis: dataDokterTemp.dataValues.spesialis,
+                        pengalaman: dataDokterTemp.dataValues.pengalaman,
+                        harga: dataDokterTemp.dataValues.harga,
+                        alumni: dataDokterTemp.dataValues.alumni,
+                        lokasi_praktek: dataDokterTemp.dataValues.lokasi_praktek,
+                        is_acc: dataDokterTemp.dataValues.is_acc
+                    }
+                    mergeData.push(dokterTemp)
+                }
+            }
+            
+            if(dataTrainer.length > 0){
+                for(let dataTrainerTemp of dataTrainer){
+                    const trainerTemp = {
+                        id: dataTrainerTemp.dataValues.id,
+                        penyedia_id: dataTrainerTemp.dataValues.penyedia_id,
+                        nama: dataTrainerTemp.dataValues.nama,
+                        spesialis: dataTrainerTemp.dataValues.spesialis,
+                        pengalaman: dataTrainerTemp.dataValues.pengalaman,
+                        harga: dataTrainerTemp.dataValues.harga,
+                        lokasi: dataTrainerTemp.dataValues.lokasi,
+                        is_acc: dataTrainerTemp.dataValues.is_acc
+                    }
+                    mergeData.push(trainerTemp)
+                }
+            }
+
+            if(dataToko.length > 0){
+                for(let dataTokoTemp of dataToko){
+                    const tokoTemp = {
+                        id: dataTokoTemp.dataValues.id,
+                        penyedia_id: dataTokoTemp.dataValues.penyedia_id,
+                        nama: dataTokoTemp.dataValues.nama,
+                        spesialis: dataTokoTemp.dataValues.spesialis,
+                        pengalaman: dataTokoTemp.dataValues.pengalaman,
+                        harga: dataTokoTemp.dataValues.harga,
+                        lokasi: dataTokoTemp.dataValues.lokasi,
+                        is_acc: dataTokoTemp.dataValues.is_acc
+                    }
+                    mergeData.push(tokoTemp)
+                }
+            }
+
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Penyedia Jasa yang belum ter-konfirmasi ditemukan.",
+                data: mergeData.sort((a, b) => b.order_id - a.order_id)
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error",
+            error_message: error.message
+        })
+    }
+}
+
+const getAllDataPenyediaJasaIsAcc = async (req, res) =>{
+    try {
+        
+        let mergeData = []
+        const dataPenyediaJasa = await PenyediaJasa.findAll()
+
+        if(dataPenyediaJasa.length === 0){
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Penyedia Jasa Kosong!"
+            })
+        } else {
+            const dataDokter = await Dokter.findAll({
+                where:{
+                    is_acc: true
+                }
+            })
+    
+            const dataTrainer = await Trainer.findAll({
+                where:{
+                    is_acc: true
+                }
+            })
+    
+            const dataToko = await Toko.findAll({
+                where:{
+                    is_acc: true
+                }
+            })
+
+            if(dataDokter.length > 0){
+                for(let dataDokterTemp of dataDokter){
+                    const dokterTemp = {
+                        id: dataDokterTemp.dataValues.id,
+                        penyedia_id: dataDokterTemp.dataValues.penyedia_id,
+                        nama: dataDokterTemp.dataValues.nama,
+                        spesialis: dataDokterTemp.dataValues.spesialis,
+                        pengalaman: dataDokterTemp.dataValues.pengalaman,
+                        harga: dataDokterTemp.dataValues.harga,
+                        alumni: dataDokterTemp.dataValues.alumni,
+                        lokasi_praktek: dataDokterTemp.dataValues.lokasi_praktek,
+                        is_acc: dataDokterTemp.dataValues.is_acc
+                    }
+                    mergeData.push(dokterTemp)
+                }
+            }
+            
+            if(dataTrainer.length > 0){
+                for(let dataTrainerTemp of dataTrainer){
+                    const trainerTemp = {
+                        id: dataTrainerTemp.dataValues.id,
+                        penyedia_id: dataTrainerTemp.dataValues.penyedia_id,
+                        nama: dataTrainerTemp.dataValues.nama,
+                        spesialis: dataTrainerTemp.dataValues.spesialis,
+                        pengalaman: dataTrainerTemp.dataValues.pengalaman,
+                        harga: dataTrainerTemp.dataValues.harga,
+                        lokasi: dataTrainerTemp.dataValues.lokasi,
+                        is_acc: dataTrainerTemp.dataValues.is_acc
+                    }
+                    mergeData.push(trainerTemp)
+                }
+            }
+
+            if(dataToko.length > 0){
+                for(let dataTokoTemp of dataToko){
+                    const tokoTemp = {
+                        id: dataTokoTemp.dataValues.id,
+                        penyedia_id: dataTokoTemp.dataValues.penyedia_id,
+                        nama: dataTokoTemp.dataValues.nama,
+                        spesialis: dataTokoTemp.dataValues.spesialis,
+                        pengalaman: dataTokoTemp.dataValues.pengalaman,
+                        harga: dataTokoTemp.dataValues.harga,
+                        lokasi: dataTokoTemp.dataValues.lokasi,
+                        is_acc: dataTokoTemp.dataValues.is_acc
+                    }
+                    mergeData.push(tokoTemp)
+                }
+            }
+
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data Penyedia Jasa yang belum ter-konfirmasi ditemukan.",
+                data: mergeData.sort((a, b) => b.order_id - a.order_id)
+            })
+        }
+    } catch (error) {
+        return res.status(500).json({
+            response_code: 500,
+            message: "Internal Server Error",
+            error_message: error.message
+        })
+    }
+}
+
 const getAllDataUser = async (req, res) =>{
 
     try {
@@ -296,5 +484,7 @@ module.exports = {
     getAllDataDokter,
     getAllDataTrainer,
     getAllDataPenyediaJasa,
+    getAllDataPenyediaJasaIsNotAcc,
+    getAllDataPenyediaJasaIsAcc,
     getAllDataUser
 }
