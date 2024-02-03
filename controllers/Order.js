@@ -4908,7 +4908,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                         {
                             model: DetailOrderGrooming,
                             as: 'detail_order_grooming',
-                            attributes: ['quantity', ['tanggal_grooming', 'check_in'], ['tanggal_grooming', 'check_out']],
+                            attributes: ['quantity', 'tanggal_grooming'],
                             required: true,
                             where: {
                                 order_id: value.orderId
@@ -5198,6 +5198,8 @@ const getDetailOrderPenyedia = async (req, res) => {
                             virtual_number: orderData.virtual_number,
                             // status_order: orderData.status_order,
                             tanggal_order: orderData.tanggal_order,
+                            check_in: groomingData.detail_order_grooming[0].dataValues.tanggal_grooming,
+                            check_out: groomingData.detail_order_grooming[0].dataValues.tanggal_grooming,
                             updatedAt: orderData.updatedAt,
                             createdAt: orderData.createdAt,
                             deletedAt: orderData.deletedAt,
@@ -5237,6 +5239,8 @@ const getDetailOrderPenyedia = async (req, res) => {
                             virtual_number: orderData.virtual_number,
                             // status_order: orderData.status_order,
                             tanggal_order: orderData.tanggal_order,
+                            check_in: groomingData.detail_order_grooming[0].dataValues.tanggal_grooming,
+                            check_out: groomingData.detail_order_grooming[0].dataValues.tanggal_grooming,
                             updatedAt: orderData.updatedAt,
                             createdAt: orderData.createdAt,
                             deletedAt: orderData.deletedAt,
