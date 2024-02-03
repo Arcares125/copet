@@ -26,7 +26,11 @@ const { createOrder,
     getDetailOrderTrainerPenyedia,
     allOrder,
     allOrderOnProgress,
-    allOrderCompleteExpireCancel} = require('../controllers/Order');
+    allOrderCompleteExpireCancel,
+    getOrderStatusWaitingPaymentPenyediaDokterTrainer,
+    getOrderStatusOnProgressPenyediaDokterTrainer,
+    getOrderStatusCompleteExpireCancelPenyediaDokterTrainer,
+    } = require('../controllers/Order');
 var router = express.Router();
 
 /* GET users listing. */
@@ -57,6 +61,10 @@ router.get('/:penyediaId?/getOrderStatusWaitingPaymentPenyedia', getOrderStatusW
 router.get('/:penyediaId?/getOrderStatusCompleteExpireCancelPenyedia', getOrderStatusCompleteExpireCancelPenyediaJasa)
 router.get('/:penyediaId?/getOrderStatusOnProgressPenyedia', getOrderStatusOnProgressPenyediaJasa)
 router.get('/order-penyedia/:penyediaId?/:orderId?', getDetailOrderPenyedia)
+
+router.get('/:penyediaId?/getOrderStatusWaitingPaymentPenyediaDokterTrainer', getOrderStatusWaitingPaymentPenyediaDokterTrainer)
+router.get('/:penyediaId?/getOrderStatusOnProgressPenyediaDokterTrainer', getOrderStatusOnProgressPenyediaDokterTrainer)
+router.get('/:penyediaId?/getOrderStatusCompleteExpireCancelPenyediaDokterTrainer', getOrderStatusCompleteExpireCancelPenyediaDokterTrainer)
 //end
 router.post('/setOrderToCompleted/:orderId?', setOrderToCompleted)
 router.post('/set-order-to-expired/:orderId?', setPaymentToExpired)
