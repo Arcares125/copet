@@ -5314,7 +5314,7 @@ const getDetailOrderDokterPenyedia = async (req, res) =>{
         })
 
         const dataDokter = await Dokter.findOne({
-            attributes: ['nama', 'foto'],
+            attributes: ['nama', 'foto', 'harga'],
             where:{
                 id: detailOrder.dataValues.dokter_id
             }
@@ -5448,7 +5448,8 @@ const getDetailOrderDokterPenyedia = async (req, res) =>{
         mergeData.push({...dataDokter.dataValues ,...dataUser.dataValues  ,...dataOrder.dataValues,time:{
             minutes: minutes,
             seconds: seconds
-        }, ...detailOrder.dataValues , review: (reviewData !== null ? { username: dataUser.dataValues.nama, ...reviewData.dataValues } : null), service_type: 'Dokter'})
+        }, ...detailOrder.dataValues, total_payment: dataDokter.dataValues.harga,
+        review: (reviewData !== null ? { username: dataUser.dataValues.nama, ...reviewData.dataValues } : null), service_type: 'Dokter'})
         
         return res.status(200).json({
             response_code: 200,
@@ -5500,7 +5501,7 @@ const getDetailOrderTrainerPenyedia = async (req, res) =>{
         })
 
         const dataTrainer = await Trainer.findOne({
-            attributes: ['nama', 'foto'],
+            attributes: ['nama', 'foto', 'harga'],
             where:{
                 id: detailOrder.dataValues.trainer_id
             }
@@ -5634,7 +5635,8 @@ const getDetailOrderTrainerPenyedia = async (req, res) =>{
         mergeData.push({...dataTrainer.dataValues ,...dataUser.dataValues  ,...dataOrder.dataValues,time:{
             minutes: minutes,
             seconds: seconds
-        }, ...detailOrder.dataValues , review: (reviewData !== null ? { username: dataUser.dataValues.nama, ...reviewData.dataValues } : null), service_type: 'Trainer'})
+        }, ...detailOrder.dataValues, total_payment: dataTrainer.dataValues.harga,
+        review: (reviewData !== null ? { username: dataUser.dataValues.nama, ...reviewData.dataValues } : null), service_type: 'Trainer'})
         
         return res.status(200).json({
             response_code: 200,
