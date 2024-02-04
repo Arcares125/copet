@@ -5448,7 +5448,7 @@ const getDetailOrderDokterPenyedia = async (req, res) =>{
         mergeData.push({...dataDokter.dataValues ,...dataUser.dataValues  ,...dataOrder.dataValues,time:{
             minutes: minutes,
             seconds: seconds
-        }, ...detailOrder.dataValues, total_payment: dataDokter.dataValues.harga,
+        }, ...detailOrder.dataValues,
         review: (reviewData !== null ? { username: dataUser.dataValues.nama, ...reviewData.dataValues } : null), service_type: 'Dokter'})
         
         return res.status(200).json({
@@ -5635,7 +5635,7 @@ const getDetailOrderTrainerPenyedia = async (req, res) =>{
         mergeData.push({...dataTrainer.dataValues ,...dataUser.dataValues  ,...dataOrder.dataValues,time:{
             minutes: minutes,
             seconds: seconds
-        }, ...detailOrder.dataValues, total_payment: dataTrainer.dataValues.harga,
+        }, ...detailOrder.dataValues,
         review: (reviewData !== null ? { username: dataUser.dataValues.nama, ...reviewData.dataValues } : null), service_type: 'Trainer'})
         
         return res.status(200).json({
