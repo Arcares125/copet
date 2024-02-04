@@ -142,9 +142,15 @@ const loginPenyediaJasa = async (req, res) =>{
         if(email === 'admin' && password === 'admin123'){
             res.status(200).json({
                 response_code: 200,
-                user_type: "admin",
-                token: TOKEN_LOGIN,
                 message: "Login Success",
+                data:{
+                    id: 1,
+                    email: "copetadmin@copet.com",
+                    username: "Admin Kenth"
+                },
+                token: TOKEN_LOGIN,
+                refreshToken: TOKEN_REFRESH,
+                user_type: "admin",
             })
         } else if(email !== 'admin' && password === 'admin123'){
             res.status(200).json({
