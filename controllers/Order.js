@@ -5684,7 +5684,7 @@ const allOrder = async (req, res) =>{
         return res.status(200).json({
             response_code: 200,
             message: "Order retrieved.",
-            data: allOrders
+            data: allOrders.sort((a, b) => b.order_id - a.order_id)
         })
     } catch (error) {
         return res.status(500).json({
@@ -5724,7 +5724,7 @@ const allOrderOnProgress = async (req, res) =>{
         return res.status(200).json({
             response_code: 200,
             message: "Order retrieved.",
-            data: allOrders
+            data: allOrders.sort((a, b) => b.order_id - a.order_id)
         })
     } catch (error) {
         return res.status(500).json({
@@ -5763,7 +5763,7 @@ const allOrderCompleteExpireCancel = async (req, res) =>{
         return res.status(200).json({
             response_code: 200,
             message: "Order retrieved.",
-            data: allOrders
+            data: allOrders.sort((a, b) => b.order_id - a.order_id)
         })
     } catch (error) {
         return res.status(500).json({
