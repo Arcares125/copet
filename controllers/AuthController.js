@@ -139,25 +139,27 @@ const loginPenyediaJasa = async (req, res) =>{
     
     try {
 
-        if(email === 'admin' && password === 'admin123'){
+        if(email === 'admin@mail.com' && password === 'admin123'){
             res.status(200).json({
                 response_code: 200,
                 message: "Login Success",
                 data:{
                     id: 1,
-                    email: "copetadmin@copet.com",
-                    username: "Admin Kenth"
+                    email: "admin@mail.com",
+                    username: "Admin Kenth",
+                    no_telp: "081227127321",
+                    user_type: "admin"
                 },
                 token: TOKEN_LOGIN,
-                refreshToken: TOKEN_REFRESH,
-                user_type: "admin",
+                refreshToken: TOKEN_REFRESH
+                
             })
-        } else if(email !== 'admin' && password === 'admin123'){
+        } else if(email !== 'admin@mail.com' && password === 'admin123'){
             res.status(200).json({
                 response_code: 200,
                 message: "Login Failed",
             })
-        } else if(email === 'admin' && password !== 'admin123'){
+        } else if(email === 'admin@mail.com' && password !== 'admin123'){
             res.status(200).json({
                 response_code: 200,
                 message: "Login Failed",
