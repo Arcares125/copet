@@ -322,7 +322,8 @@ const getAllDataPenyediaJasaIsNotAcc = async (req, res) =>{
                         alumni: dataDokterTemp.dataValues.alumni,
                         lokasi_praktek: dataDokterTemp.dataValues.lokasi_praktek,
                         is_acc: dataDokterTemp.dataValues.is_acc,
-                        service_type: "Dokter"
+                        service_type: "Dokter",
+                        foto: dataDokterTemp.dataValues.foto
                     }
                     mergeData.push(dokterTemp)
                 }
@@ -339,7 +340,8 @@ const getAllDataPenyediaJasaIsNotAcc = async (req, res) =>{
                         harga: dataTrainerTemp.dataValues.harga,
                         lokasi: dataTrainerTemp.dataValues.lokasi,
                         is_acc: dataTrainerTemp.dataValues.is_acc,
-                        service_type: "Trainer"
+                        service_type: "Trainer",
+                        foto: dataTrainerTemp.dataValues.foto
                     }
                     mergeData.push(trainerTemp)
                 }
@@ -354,7 +356,8 @@ const getAllDataPenyediaJasaIsNotAcc = async (req, res) =>{
                         deskripsi: dataTokoTemp.dataValues.deskripsi,
                         lokasi: dataTokoTemp.dataValues.lokasi,
                         is_acc: dataTokoTemp.dataValues.is_acc,
-                        service_type: "Toko"
+                        service_type: "Toko",
+                        foto: dataTokoTemp.dataValues.foto
                     }
                     mergeData.push(tokoTemp)
                 }
@@ -417,7 +420,8 @@ const getAllDataPenyediaJasaIsAcc = async (req, res) =>{
                         alumni: dataDokterTemp.dataValues.alumni,
                         lokasi_praktek: dataDokterTemp.dataValues.lokasi_praktek,
                         is_acc: dataDokterTemp.dataValues.is_acc,
-                        service_type: "Dokter"
+                        service_type: "Dokter",
+                        foto: dataDokterTemp.dataValues.foto
                     }
                     mergeData.push(dokterTemp)
                 }
@@ -434,7 +438,8 @@ const getAllDataPenyediaJasaIsAcc = async (req, res) =>{
                         harga: dataTrainerTemp.dataValues.harga,
                         lokasi: dataTrainerTemp.dataValues.lokasi,
                         is_acc: dataTrainerTemp.dataValues.is_acc,
-                        service_type: "Trainer"
+                        service_type: "Trainer",
+                        foto: dataTrainerTemp.dataValues.foto
                     }
                     mergeData.push(trainerTemp)
                 }
@@ -449,7 +454,8 @@ const getAllDataPenyediaJasaIsAcc = async (req, res) =>{
                         deskripsi: dataTokoTemp.dataValues.deskripsi,
                         lokasi: dataTokoTemp.dataValues.lokasi,
                         is_acc: dataTokoTemp.dataValues.is_acc,
-                        service_type: "Toko"
+                        service_type: "Toko",
+                        foto: dataTokoTemp.dataValues.foto
                     }
                     mergeData.push(tokoTemp)
                 }
