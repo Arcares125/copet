@@ -140,7 +140,7 @@ const loginPenyediaJasa = async (req, res) =>{
     try {
 
         if(email === 'copetcs@gmail.com' && password === 'admin123'){
-            res.status(404).json({
+            res.status(200).json({
                 response_code: 200,
                 message: "Login Success",
                 data:{
