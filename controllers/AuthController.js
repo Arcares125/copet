@@ -140,7 +140,7 @@ const loginPenyediaJasa = async (req, res) =>{
     try {
 
         if(email === 'copetcs@gmail.com' && password === 'admin123'){
-            res.status(200).json({
+            res.status(404).json({
                 response_code: 200,
                 message: "Login Success",
                 data:{
@@ -155,12 +155,12 @@ const loginPenyediaJasa = async (req, res) =>{
                 
             })
         } else if(email !== 'copetcs@gmail.com' && password === 'admin123'){
-            res.status(200).json({
+            res.status(404).json({
                 response_code: 404,
                 message: "Login Failed",
             })
         } else if(email === 'copetcs@gmail.com' && password !== 'admin123'){
-            res.status(200).json({
+            res.status(404).json({
                 response_code: 404,
                 message: "Login Failed",
             })
