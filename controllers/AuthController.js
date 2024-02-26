@@ -244,9 +244,7 @@ const loginPenyediaJasa = async (req, res) =>{
                             refreshToken: refreshToken
                         })
                     }
-                }
-    
-                if(getDataDokter){
+                } else if(getDataDokter){
                     if(getDataDokter.dataValues.is_acc === true){
                         await getDataPenyedia.update({
                             is_acc: true
@@ -276,9 +274,7 @@ const loginPenyediaJasa = async (req, res) =>{
                             refreshToken: refreshToken
                         })
                     }
-                }
-    
-                if(getDataTrainer){
+                } else if(getDataTrainer){
                     if(getDataTrainer.dataValues.is_acc === true){
                         await getDataPenyedia.update({
                             is_acc: true
@@ -308,6 +304,14 @@ const loginPenyediaJasa = async (req, res) =>{
                             refreshToken: refreshToken
                         })
                     }
+                } else {
+                    res.status(200).json({
+                        response_code: 200,
+                        message: "Login Success",
+                        data: {...penyediaJasa},
+                        token: tokenLogin,
+                        refreshToken: refreshToken
+                    })
                 }
     
     
@@ -363,7 +367,7 @@ const loginPenyediaJasa = async (req, res) =>{
                 }
             }
         }
-        
+
     } catch (error) {
         res.json({
             response_code: 500,
