@@ -43,25 +43,32 @@ const updatePenyediaJasa = async (req, res) =>{
     const data = req.body
 
     try {
+        if(data.nama === "Admin Kenth" || data.email === "copetcs@gmail.com"){
+            return res.status(200).json({
+                response_code: 200
+            })
+        } else {
+            await PenyediaJasa.update({
+                nama: data.nama,
+                email: data.email,
+                no_telp: data.no_telp,
+                gender: data.gender,
+                // jenis_jasa: data.jenis_jasa,
+                // password: passHash
+            }, {
+                where:{
+                    id: value.penyediaId
+                }
+            })
+    
+            return res.status(200).json({
+                response_code: 200,
+                message: "Data has been updated!",
+                data: data
+            })
+        }
         // const passHash = await bcrypt.hash(data.password, saltRounds);
-        await PenyediaJasa.update({
-            nama: data.nama,
-            email: data.email,
-            no_telp: data.no_telp,
-            gender: data.gender,
-            // jenis_jasa: data.jenis_jasa,
-            // password: passHash
-        }, {
-            where:{
-                id: value.penyediaId
-            }
-        })
 
-        return res.status(200).json({
-            response_code: 200,
-            message: "Data has been updated!",
-            data: data
-        })
     } catch (error) {
         console.error(error.message)
         return res.status(500).json({
