@@ -1062,7 +1062,7 @@ const getDetailOrder = async (req, res) => {
                     differenceInMilliseconds = hotelData ? hotelData.detail_order_hotel[0]?.dataValues.tanggal_keluar.getTime() - hotelData.detail_order_hotel[0]?.dataValues.tanggal_masuk.getTime():''
 
                     // Convert the difference to days
-                    differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                    differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                     console.log(`The difference between the two dates is ${differenceInDays} days.`);
                 }
@@ -1469,7 +1469,7 @@ const getOrderStatusWaitingPayment = async (req, res) => {
                             differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
-                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                             count++;
@@ -1758,7 +1758,7 @@ const getOrderStatusOnProgress = async (req, res) => {
                             differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
-                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                             count++
@@ -1980,7 +1980,7 @@ const getOrderStatusWaitingConfirmation = async (req, res) => {
                             differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
-                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                         }
@@ -2196,7 +2196,7 @@ const getOrderStatusCompleteExpireCancel = async (req, res) =>{
                             differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
-                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                             count++
@@ -3981,7 +3981,7 @@ const getOrderStatusWaitingPaymentPenyediaJasa = async (req, res) => {
                             differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
-                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                             count++;
@@ -4228,7 +4228,7 @@ const getOrderStatusWaitingConfirmationPenyediaJasa = async (req, res) => {
                             differenceInMilliseconds = service.detail_order_hotel[0].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[0].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
-                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                         }
@@ -4539,7 +4539,7 @@ const getOrderStatusOnProgressPenyediaJasa = async (req, res) => {
                             differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
-                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                             count++;
@@ -4784,7 +4784,7 @@ const getOrderStatusCompleteExpireCancelPenyediaJasa = async (req, res) =>{
                             differenceInMilliseconds = service.detail_order_hotel[count].dataValues.tanggal_keluar.getTime() - service.detail_order_hotel[count].dataValues.tanggal_masuk.getTime()
 
                             // Convert the difference to days
-                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                            differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                             console.log(`The difference between the two dates is ${differenceInDays} days.`);
                             count++;
@@ -4976,7 +4976,7 @@ const getDetailOrderPenyedia = async (req, res) => {
                     differenceInMilliseconds = hotelData ? hotelData.detail_order_hotel[0]?.dataValues.tanggal_keluar.getTime() - hotelData.detail_order_hotel[0]?.dataValues.tanggal_masuk.getTime():''
 
                     // Convert the difference to days
-                    differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                    differenceInDays = Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24)) === 0 ? 1 : Math.round(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
                     console.log(`The difference between the two dates is ${differenceInDays} days.`);
                 }
